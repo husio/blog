@@ -1,4 +1,4 @@
-baseURL = "https://husio.github.io/"
+baseURL = "https://husio.github.io/blog"
 languageCode = "en-us"
 title = "Plop"
 theme = "kiss"
