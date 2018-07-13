@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>
+    {{- block "title" .}}{{.Site.Title}}{{end -}}
+  </title>
+  <link rel="stylesheet" href="{{ "css/style.css" | relURL }}">
+  <link rel="stylesheet" href="{{ "css/highlight.css" | relURL }}">
+  <script src="{{ "js/highlight.pack.js" | relURL }}"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<body>
+  <div>
+    <a href="{{ .Site.BaseURL }}">{{ .Site.Title }}</a>
+
+    {{ if isset .Site.Params "githubusername" -}}
+      | <a href="https://github.com/{{ .Site.Params.githubUsername }}" title="GitHub">GitHub</a>
+    {{- end }}
+
+    {{ if isset .Site.Params "twitterusername" -}}
+      | <a href="https://twitter.com/{{ .Site.Params.twitterUsername }}" title="Twitter">Twitter</a>
+    {{- end}}
+  </div>

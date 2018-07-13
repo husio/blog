@@ -1,0 +1,18 @@
+{{ partial "header" . }}
+
+<h2>Posts</h2>
+{{ $paginator := .Paginate (where .Pages "Params.hidden" "ne" true) }}
+{{ range sort .Paginator.Pages }}
+  <ul>
+    <li>
+      <a href="{{ .Permalink }}">{{ .Title }}</a>
+      {{ if .Draft }}<strong>[draft]</strong>{{ end }}
+      | <span title="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</span>
+      {{ if .Params.tags }}
+        | {{ partial "tags" .Params.tags }}
+      {{ end }}
+    </li>
+  </ul>
+{{ end }}
+
+{{ partial "footer" . }}

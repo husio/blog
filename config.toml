@@ -1,9 +1,13 @@
 baseURL = "https://husio.github.io/blog"
 languageCode = "en-us"
-title = "Plop"
-theme = "kiss"
+title = "Blog"
+theme = "justtext"
 publishDir = "docs"
 
-[params.social]
-twitter = "PiotrHusiatyski"
-github = "husio"
+[author]
+name = "Piotr Husiatyński"
+homepage = "https://husio.github.io/"
+
+[params]
+githubUsername = "husio"
+twitterUsername = "PiotrHusiatyski"

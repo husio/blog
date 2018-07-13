@@ -1,0 +1,41 @@
+{{ partial "header" . }}
+
+
+<article>
+  <header>
+    <h1 class="title">
+      {{ .Title }}
+    </h1>
+  </header>
+
+  {{if not .Date.IsZero }}
+    <div>
+      <small>
+        Published: <time datetime="{{ .Date.Format "2006-01-02" }}" title="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time>
+      </small>
+    </div>
+  {{ end }}
+
+  {{ if .Params.tags }}
+    <div>
+      <small>
+        Tags: {{ partial "tags" .Params.tags }}
+      </small>
+    </div>
+  {{ end }}
+
+
+  <article>
+    {{ .Content }}
+  </article>
+
+  {{if .Params.comments}}
+    <hr>
+
+    <div>
+      Follow the discussion on <a href="{{ index .Params.comments 1 }}">{{ index .Params.comments 0 }}</a>.
+    </div>
+  {{ end }}
+</article>
+
+{{ partial "footer" . }}
