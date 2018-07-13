@@ -1,0 +1,9 @@
+baseURL = "https://husio.github.io/"
+languageCode = "en-us"
+title = "Plop"
+theme = "kiss"
+publishDir = "docs"
+
+[params.social]
+twitter = "PiotrHusiatyski"
+github = "husio"
