@@ -2,6 +2,7 @@
 title: "Accessing data in Go"
 date: 2018-08-08
 tags: [Go]
+comments: [reddit, https://www.reddit.com/r/golang/comments/9cbxwg/accessing_data_in_go/]
 ---
 
 When writing a web application, we have to decide how to access data. Where to
