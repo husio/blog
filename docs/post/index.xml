@@ -6,7 +6,7 @@
     <description>Recent content in Posts on Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 08 Aug 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 02 Sep 2018 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://husio.github.io/blog/post/index.xml" rel="self" type="application/rss+xml" />
     
@@ -14,7 +14,7 @@
     <item>
       <title>Accessing data in Go</title>
       <link>https://husio.github.io/blog/post/accessing-data-in-go/</link>
-      <pubDate>Wed, 08 Aug 2018 00:00:00 +0000</pubDate>
+      <pubDate>Sun, 02 Sep 2018 00:00:00 +0000</pubDate>
       
       <guid>https://husio.github.io/blog/post/accessing-data-in-go/</guid>
       <description>When writing a web application, we have to decide how to access data. Where to get it from, how to store it, how to manipulate it. Storage engines can vary, from being a single SQLite file to cache server or even an external service exposing an API.

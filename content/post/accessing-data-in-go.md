@@ -1,6 +1,6 @@
 ---
 title: "Accessing data in Go"
-date: 2018-08-08
+date: 2018-09-02
 tags: [Go]
 comments: [reddit, https://www.reddit.com/r/golang/comments/9cbxwg/accessing_data_in_go/]
 ---
