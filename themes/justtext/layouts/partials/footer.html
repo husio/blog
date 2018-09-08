@@ -1,2 +1,8 @@
+{{ if isset .Site.Params "licensetag" -}}
+  <footer>
+    {{ .Site.Params.licenseTag | safeHTML }}
+  </footer>
+{{- end -}}
+
 </body>
 </html>

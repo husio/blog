@@ -1,6 +1,10 @@
 * {
 	box-sizing: border-box;
 }
+html {
+	position: relative;
+	min-height: 100%;
+}
 body {
 	color: #000;
 	margin: 40px auto 120px auto;
@@ -10,7 +14,6 @@ body {
 	line-height: 28px;
 }
 code {
-	background-color: #f3f3f3;
 	border-radius: 3px;
 	border: 1px solid #ddd;
 	padding: 0 5px;
@@ -38,4 +41,13 @@ hr {
 	color: #ddd;
 	background-color: #ddd;
 	margin: 80px 0 40px 0;
+}
+footer {
+	position: absolute;
+	bottom: 5px;
+	text-align: center;
+	font-size: 70%;
+}
+footer a {
+	color: #000;
 }
