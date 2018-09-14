@@ -6,9 +6,6 @@
   <meta name="author" content="Piotr Husiatyński">
   <title>Accessing data in Go</title>
   <link rel="stylesheet" href="/blog/css/style.css">
-  <link rel="stylesheet" href="/blog/css/highlight.css">
-  <script src="/blog/js/highlight.pack.js"></script>
-  <script>hljs.initHighlightingOnLoad();</script>
 </head>
 
 <body>
@@ -63,58 +60,49 @@ and straightforward solution can be evolved into a more sophisticated one.</p>
 database with an <code>items</code> table. Our task is to build an endpoint, which returns
 a list of all <em>items</em> in the database. <em>Item</em> is an entity with a name and an
 ID. It can be represented by the structure below.</p>
-
-<pre><code class="language-go">type Item struct {
-	ID   int64
-	Name string
-}
-</code></pre>
-
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="font-weight:bold;font-style:italic">type</span> Item <span style="font-weight:bold;font-style:italic">struct</span> {
+	ID   <span style="font-weight:bold">int64</span>
+	Name <span style="font-weight:bold">string</span>
+}</code></pre></div>
 <h2 id="first-iteration">First iteration</h2>
 
 <p>Let&rsquo;s start with a basic HTTP handler. To avoid global variables, let&rsquo;s use
 dependency injection. <code>ItemListHandler</code> takes as a parameter what&rsquo;s necessary
 for the endpoint to complete our task &ndash; a database connection and a template.
 In return we are getting an HTTP handler function.</p>
-
-<pre><code class="language-go">func ItemListHandler(
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="font-weight:bold;font-style:italic">func</span> ItemListHandler(
 	db *sql.DB,
 	tmpl *template.Template,
 ) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		// handler's code below
-	}
-}
-</code></pre>
-
+	<span style="font-weight:bold">return</span> <span style="font-weight:bold;font-style:italic">func</span>(w http.ResponseWriter, r *http.Request) {
+		<span style="color:#888;font-style:italic">// handler&#39;s code below
+</span><span style="color:#888;font-style:italic"></span>	}
+}</code></pre></div>
 <p>To list all <em>items</em>, we must first query the database. Once we will read all
 returned rows, we can use the collected entries to render the template and send
 the result back.</p>
-
-<pre><code class="language-go">rows, err := db.QueryContext(r.Context(), `SELECT id, name FROM items`)
-if err != nil {
-	http.Error(w, &quot;Server Error&quot;, http.StatusInternalServerError)
-	return
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">rows, err := db.QueryContext(r.Context(), <span style="color:#666;font-style:italic">`SELECT id, name FROM items`</span>)
+<span style="font-weight:bold">if</span> err != <span style="font-weight:bold">nil</span> {
+	http.Error(w, <span style="color:#666;font-style:italic">&#34;Server Error&#34;</span>, http.StatusInternalServerError)
+	<span style="font-weight:bold">return</span>
 }
-defer rows.Close()
+<span style="font-weight:bold">defer</span> rows.Close()
 
-var items []*Item
-for rows.Next() {
-	var it Item
-	if err := rows.Scan(&amp;it.ID, &amp;it.Name); err != nil {
-		http.Error(w, &quot;Server Error&quot;, http.StatusInternalServerError)
-		return
+<span style="font-weight:bold;font-style:italic">var</span> items []*Item
+<span style="font-weight:bold">for</span> rows.Next() {
+	<span style="font-weight:bold;font-style:italic">var</span> it Item
+	<span style="font-weight:bold">if</span> err := rows.Scan(&amp;it.ID, &amp;it.Name); err != <span style="font-weight:bold">nil</span> {
+		http.Error(w, <span style="color:#666;font-style:italic">&#34;Server Error&#34;</span>, http.StatusInternalServerError)
+		<span style="font-weight:bold">return</span>
 	}
-	items = append(items, &amp;it)
+	items = <span style="font-weight:bold;font-style:italic">append</span>(items, &amp;it)
 }
-if err := rows.Err(); err != nil {
-	http.Error(w, &quot;Server Error&quot;, http.StatusInternalServerError)
-	return
+<span style="font-weight:bold">if</span> err := rows.Err(); err != <span style="font-weight:bold">nil</span> {
+	http.Error(w, <span style="color:#666;font-style:italic">&#34;Server Error&#34;</span>, http.StatusInternalServerError)
+	<span style="font-weight:bold">return</span>
 }
 
-_ = tmpl.Execute(w, items)
-</code></pre>
-
+_ = tmpl.Execute(w, items)</code></pre></div>
 <p><em>(To simplify the example, returned error pages are very basic, we do not log
 errors and we are assuming that template rendering never fails.)</em></p>
 
@@ -143,58 +131,52 @@ connection from the user.</p>
 
 <p>The same code that was written directly inside of the handler is now provided
 by the <code>ListItems</code> method.</p>
-
-<pre><code class="language-go">// NewItemStore returns a store for items.
-func NewItemStore(db *sql.DB) *ItemStore {
-	return &amp;ItemStore{db: db}
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#888;font-style:italic">// NewItemStore returns a store for items.
+</span><span style="color:#888;font-style:italic"></span><span style="font-weight:bold;font-style:italic">func</span> NewItemStore(db *sql.DB) *ItemStore {
+	<span style="font-weight:bold">return</span> &amp;ItemStore{db: db}
 }
 
-type ItemStore struct {
+<span style="font-weight:bold;font-style:italic">type</span> ItemStore <span style="font-weight:bold;font-style:italic">struct</span> {
 	db *sql.DB
 }
 
-// ListItems returns all stored items.
-func (is *ItemStore) ListItems(ctx context.Context) ([]*Item, error) {
-	rows, err := db.QueryContext(ctx, `SELECT id, name FROM items`)
-	if err != nil {
-		return nil, fmt.Errorf(&quot;cannot select items: %s&quot;, err)
+<span style="color:#888;font-style:italic">// ListItems returns all stored items.
+</span><span style="color:#888;font-style:italic"></span><span style="font-weight:bold;font-style:italic">func</span> (is *ItemStore) ListItems(ctx context.Context) ([]*Item, <span style="font-weight:bold">error</span>) {
+	rows, err := db.QueryContext(ctx, <span style="color:#666;font-style:italic">`SELECT id, name FROM items`</span>)
+	<span style="font-weight:bold">if</span> err != <span style="font-weight:bold">nil</span> {
+		<span style="font-weight:bold">return</span> <span style="font-weight:bold">nil</span>, fmt.Errorf(<span style="color:#666;font-style:italic">&#34;cannot select items: %s&#34;</span>, err)
 	}
-	defer rows.Close()
+	<span style="font-weight:bold">defer</span> rows.Close()
 
-	var items []*Item
-	for rows.Next() {
-		var it Item
-		if err := rows.Scan(&amp;it.ID, &amp;it.Name); err != nil {
-			return nil, fmt.Errorf(&quot;cannot scan item: %s&quot;, err)
+	<span style="font-weight:bold;font-style:italic">var</span> items []*Item
+	<span style="font-weight:bold">for</span> rows.Next() {
+		<span style="font-weight:bold;font-style:italic">var</span> it Item
+		<span style="font-weight:bold">if</span> err := rows.Scan(&amp;it.ID, &amp;it.Name); err != <span style="font-weight:bold">nil</span> {
+			<span style="font-weight:bold">return</span> <span style="font-weight:bold">nil</span>, fmt.Errorf(<span style="color:#666;font-style:italic">&#34;cannot scan item: %s&#34;</span>, err)
 		}
-		items = append(items, &amp;it)
+		items = <span style="font-weight:bold;font-style:italic">append</span>(items, &amp;it)
 	}
-	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf(&quot;scanner: %s&quot;, err)
+	<span style="font-weight:bold">if</span> err := rows.Err(); err != <span style="font-weight:bold">nil</span> {
+		<span style="font-weight:bold">return</span> <span style="font-weight:bold">nil</span>, fmt.Errorf(<span style="color:#666;font-style:italic">&#34;scanner: %s&#34;</span>, err)
 	}
-	return items, nil
-}
-</code></pre>
-
+	<span style="font-weight:bold">return</span> items, <span style="font-weight:bold">nil</span>
+}</code></pre></div>
 <p>Having such a <em>store</em> available, we no longer have to directly query the
 database in our handler. Instead of accepting <code>*sql.DB</code> as an argument,
 <code>ItemListHandler</code> can now take <code>*ItemStore</code>. Handler&rsquo;s body can be simplified
 to just a few lines.</p>
-
-<pre><code class="language-go">func ItemListHandler(
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="font-weight:bold;font-style:italic">func</span> ItemListHandler(
 	itemStore *ItemStore,
 	tmpl *template.Template,
 ) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+	<span style="font-weight:bold">return</span> <span style="font-weight:bold;font-style:italic">func</span>(w http.ResponseWriter, r *http.Request) {
 		items, err := itemStore.ListItems(r.Context())
-		if err != nil {
-			http.Error(w, &quot;Server Error&quot;, http.StatusInternalServerError)
+		<span style="font-weight:bold">if</span> err != <span style="font-weight:bold">nil</span> {
+			http.Error(w, <span style="color:#666;font-style:italic">&#34;Server Error&#34;</span>, http.StatusInternalServerError)
 		}
 		_ = tmpl.Execute(w, items)
 	}
-}
-</code></pre>
-
+}</code></pre></div>
 <p>Having this handler, we no longer have to track changes to the database schema.
 All details of accessing <em>item</em> data are now in <code>ItemStore</code>. If you need to
 create or update an <em>item</em>, add <code>CreateItem</code> and <code>UpdateItem</code> methods.</p>
@@ -207,35 +189,32 @@ is now an easy task that takes only a few lines of code.</p>
 <p>The last change is to use an interface instead of accepting a structure
 pointer.  Let&rsquo;s call our interface <code>ItemStore</code>. The previous implementation
 using an SQL database is renamed to <code>sqlItemStore</code>.</p>
-
-<pre><code class="language-go">type ItemStore interface {
-	ListItems(context.Context) ([]*Item, error)
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="font-weight:bold;font-style:italic">type</span> ItemStore <span style="font-weight:bold;font-style:italic">interface</span> {
+	ListItems(context.Context) ([]*Item, <span style="font-weight:bold">error</span>)
 }
 
-// NewItemStore returns a store for items that is using an SQL database
-// as a storage engine.
-func NewSQLItemStore(db *sql.DB) ItemStore {
-	return &amp;sqlItemStore{db: db}
+<span style="color:#888;font-style:italic">// NewItemStore returns a store for items that is using an SQL database
+</span><span style="color:#888;font-style:italic">// as a storage engine.
+</span><span style="color:#888;font-style:italic"></span><span style="font-weight:bold;font-style:italic">func</span> NewSQLItemStore(db *sql.DB) ItemStore {
+	<span style="font-weight:bold">return</span> &amp;sqlItemStore{db: db}
 }
 
-type sqlItemStore struct {
+<span style="font-weight:bold;font-style:italic">type</span> sqlItemStore <span style="font-weight:bold;font-style:italic">struct</span> {
 	db *sql.DB
 }
 
-func (s *sqlItemStore) ListItems(ctx context.Context) ([]*Item, error) {
-	// ...
-}
+<span style="font-weight:bold;font-style:italic">func</span> (s *sqlItemStore) ListItems(ctx context.Context) ([]*Item, <span style="font-weight:bold">error</span>) {
+	<span style="color:#888;font-style:italic">// ...
+</span><span style="color:#888;font-style:italic"></span>}
 
-func ItemListHandler(
+<span style="font-weight:bold;font-style:italic">func</span> ItemListHandler(
 	itemStore ItemStore,
 	tmpl *template.Template,
 ) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		// ...
-	}
-}
-</code></pre>
-
+	<span style="font-weight:bold">return</span> <span style="font-weight:bold;font-style:italic">func</span>(w http.ResponseWriter, r *http.Request) {
+		<span style="color:#888;font-style:italic">// ...
+</span><span style="color:#888;font-style:italic"></span>	}
+}</code></pre></div>
 <p>Defining interfaces together with the implementation might feel
 counterintuitive in Go. In most cases, it is better to declare an interface
 where it is used (not where it is implemented) to help to decouple
@@ -254,20 +233,17 @@ be testable without the need for any particular <code>ItemStore</code> implement
 
 <p>When testing handlers, instead of providing a real <code>ItemStore</code> implementation,
 we can use a mock.</p>
-
-<pre><code class="language-go">type ItemStoreMock struct {
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="font-weight:bold;font-style:italic">type</span> ItemStoreMock <span style="font-weight:bold;font-style:italic">struct</span> {
 	Items []*Item
-	Err   error
+	Err   <span style="font-weight:bold">error</span>
 }
 
-// ensure mock always implements the ItemStore
-var _ ItemStore = (*ItemStoreMock)(nil)
+<span style="color:#888;font-style:italic">// ensure mock always implements the ItemStore
+</span><span style="color:#888;font-style:italic"></span><span style="font-weight:bold;font-style:italic">var</span> _ ItemStore = (*ItemStoreMock)(<span style="font-weight:bold">nil</span>)
 
-func (mock *ItemStoreMock) ListItems(context.Context) ([]*Item, error) {
-	return mock.Items, mock.Err
-}
-</code></pre>
-
+<span style="font-weight:bold;font-style:italic">func</span> (mock *ItemStoreMock) ListItems(context.Context) ([]*Item, <span style="font-weight:bold">error</span>) {
+	<span style="font-weight:bold">return</span> mock.Items, mock.Err
+}</code></pre></div>
 <p><code>ItemStoreMock</code> gives us full control over its API. We control what each
 method returns, which means we are able to test all cases we want.</p>
 
@@ -277,53 +253,50 @@ method returns, which means we are able to test all cases we want.</p>
 For example, we can provide a cache layer, that will be invisible to the user.
 It can be added or removed without any changes to handler or store
 implementations.</p>
-
-<pre><code class="language-go">type CacheStore interface {
-	// Get loads value under given key into destValue. ErrMiss is returned
-	// if key does not exist.
-	Get(ctx context.Context, key string, destValue interface{}) error
-	// Set value of given key.
-	Set(ctx context.Context, key string, value interface{}, ttl time.Duration) error
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="font-weight:bold;font-style:italic">type</span> CacheStore <span style="font-weight:bold;font-style:italic">interface</span> {
+	<span style="color:#888;font-style:italic">// Get loads value under given key into destValue. ErrMiss is returned
+</span><span style="color:#888;font-style:italic"></span>	<span style="color:#888;font-style:italic">// if key does not exist.
+</span><span style="color:#888;font-style:italic"></span>	Get(ctx context.Context, key <span style="font-weight:bold">string</span>, destValue <span style="font-weight:bold;font-style:italic">interface</span>{}) <span style="font-weight:bold">error</span>
+	<span style="color:#888;font-style:italic">// Set value of given key.
+</span><span style="color:#888;font-style:italic"></span>	Set(ctx context.Context, key <span style="font-weight:bold">string</span>, value <span style="font-weight:bold;font-style:italic">interface</span>{}, ttl time.Duration) <span style="font-weight:bold">error</span>
 }
 
 
-func CacheItemStore(cache CacheStore, store ItemStore) ItemStore {
-	return &amp;cachedItemStore{
+<span style="font-weight:bold;font-style:italic">func</span> CacheItemStore(cache CacheStore, store ItemStore) ItemStore {
+	<span style="font-weight:bold">return</span> &amp;cachedItemStore{
 		cache: cache,
 		store: store,
 		ttl:   5 * time.Minute,
 	}
 }
 
-type cachedItemStore struct {
+<span style="font-weight:bold;font-style:italic">type</span> cachedItemStore <span style="font-weight:bold;font-style:italic">struct</span> {
 	cache CacheStore
 	store ItemStore
 	ttl   time.Duration
 }
 
-func (c *cachedItemStore) ListItems(context.Context) ([]*Item, error) {
-	var items []*Item
-	switch err := c.cache.Get(ctx, &quot;items:all&quot;, &amp;items); err {
-	case nil:
-		return items, nil
-	case ErrMiss:
-		// all good, just not in the cache
-	default:
-		// log the error and continue
-	}
+<span style="font-weight:bold;font-style:italic">func</span> (c *cachedItemStore) ListItems(context.Context) ([]*Item, <span style="font-weight:bold">error</span>) {
+	<span style="font-weight:bold;font-style:italic">var</span> items []*Item
+	<span style="font-weight:bold">switch</span> err := c.cache.Get(ctx, <span style="color:#666;font-style:italic">&#34;items:all&#34;</span>, &amp;items); err {
+	<span style="font-weight:bold">case</span> <span style="font-weight:bold">nil</span>:
+		<span style="font-weight:bold">return</span> items, <span style="font-weight:bold">nil</span>
+	<span style="font-weight:bold">case</span> ErrMiss:
+		<span style="color:#888;font-style:italic">// all good, just not in the cache
+</span><span style="color:#888;font-style:italic"></span>	<span style="font-weight:bold">default</span>:
+		<span style="color:#888;font-style:italic">// log the error and continue
+</span><span style="color:#888;font-style:italic"></span>	}
 
 	items, err := c.store.ListItems(ctx)
 
-	if err == nil {
-		if err := c.cache.Set(ctx, &quot;items:all&quot;, items, c.ttl); err != nil {
-			// log the error and continue
-		}
+	<span style="font-weight:bold">if</span> err == <span style="font-weight:bold">nil</span> {
+		<span style="font-weight:bold">if</span> err := c.cache.Set(ctx, <span style="color:#666;font-style:italic">&#34;items:all&#34;</span>, items, c.ttl); err != <span style="font-weight:bold">nil</span> {
+			<span style="color:#888;font-style:italic">// log the error and continue
+</span><span style="color:#888;font-style:italic"></span>		}
 	}
 
-	return items, err
-}
-</code></pre>
-
+	<span style="font-weight:bold">return</span> items, err
+}</code></pre></div>
 <p>Testing of the <code>cachedItemStore</code> can be done using <code>ItemStoreMock</code> and an
 in-memory cache backend.</p>
 

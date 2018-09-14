@@ -3,13 +3,24 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>https://husio.github.io/blog/post/cache-stampede-protection/</loc>
+    <lastmod>2018-09-14T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://husio.github.io/blog/post/accessing-data-in-go/</loc>
     <lastmod>2018-09-02T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://husio.github.io/blog/</loc>
-    <lastmod>2018-09-02T00:00:00+00:00</lastmod>
+    <lastmod>2018-09-14T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://husio.github.io/blog/tags/cache/</loc>
+    <lastmod>2018-09-14T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -20,19 +31,19 @@
   
   <url>
     <loc>https://husio.github.io/blog/tags/go/</loc>
-    <lastmod>2018-09-02T00:00:00+00:00</lastmod>
+    <lastmod>2018-09-14T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://husio.github.io/blog/post/</loc>
-    <lastmod>2018-09-02T00:00:00+00:00</lastmod>
+    <lastmod>2018-09-14T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://husio.github.io/blog/tags/</loc>
-    <lastmod>2018-09-02T00:00:00+00:00</lastmod>
+    <lastmod>2018-09-14T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   

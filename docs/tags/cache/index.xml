@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Go on Blog</title>
-    <link>https://husio.github.io/blog/tags/go/</link>
-    <description>Recent content in Go on Blog</description>
+    <title>Cache on Blog</title>
+    <link>https://husio.github.io/blog/tags/cache/</link>
+    <description>Recent content in Cache on Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Fri, 14 Sep 2018 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="https://husio.github.io/blog/tags/go/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://husio.github.io/blog/tags/cache/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
@@ -20,16 +20,6 @@
       <description>Writing an application that handles concurrent traffic from a lot of clients in a performant way is not an easy task. To narrow this problem to web applications only, serving as many HTTP requests as possible in a short time is often a challenge.
 In most cases of an HTTP application, optimizing access to the database can be the easiest and the best first step.
 Caching database access Using a database that provides plenty of functionality and storing data in denormalized form makes development easier.</description>
-    </item>
-    
-    <item>
-      <title>Accessing data in Go</title>
-      <link>https://husio.github.io/blog/post/accessing-data-in-go/</link>
-      <pubDate>Sun, 02 Sep 2018 00:00:00 +0000</pubDate>
-      
-      <guid>https://husio.github.io/blog/post/accessing-data-in-go/</guid>
-      <description>When writing a web application, we have to decide how to access data. Where to get it from, how to store it, how to manipulate it. Storage engines can vary, from being a single SQLite file to cache server or even an external service exposing an API.
-There are many ways this topic can be addressed. I will explain how a simple and straightforward solution can be evolved into a more sophisticated one.</description>
     </item>
     
   </channel>

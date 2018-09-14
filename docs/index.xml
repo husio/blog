@@ -6,10 +6,21 @@
     <description>Recent content on Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 02 Sep 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 14 Sep 2018 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://husio.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Cache stampede protection</title>
+      <link>https://husio.github.io/blog/post/cache-stampede-protection/</link>
+      <pubDate>Fri, 14 Sep 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://husio.github.io/blog/post/cache-stampede-protection/</guid>
+      <description>Writing an application that handles concurrent traffic from a lot of clients in a performant way is not an easy task. To narrow this problem to web applications only, serving as many HTTP requests as possible in a short time is often a challenge.
+In most cases of an HTTP application, optimizing access to the database can be the easiest and the best first step.
+Caching database access Using a database that provides plenty of functionality and storing data in denormalized form makes development easier.</description>
+    </item>
     
     <item>
       <title>Accessing data in Go</title>
