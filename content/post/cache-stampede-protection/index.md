@@ -43,13 +43,13 @@ An _item_ is an entity identifiable by a unique number, that is rarely
 changing. Due to heavy traffic, the database that stores _items_ is all the
 time asked about the same entity.
 
-![Direct data access](./direct-access.png)
+![Direct data access](./direct-access.svg)
 
 To offload some of the repeating requests, we introduce a cache layer.
 Whenever an item is needed, serve it from the cache. The database is queried
 only if an item does not exist in the cache.
 
-![Cached data access](./cached-access.png)
+![Cached data access](./cached-access.svg)
 
 For the purpose of this post, let us assume we have a store and a cache
 implementation available that implement the following interfaces. Delegating
@@ -155,7 +155,7 @@ second and all of them require this item's details to be served.  When the item
 with ID 1 is served from a cache, the database can allocate resources to do
 something else.
 
-![Cached data access](./cached-access.png)
+![Cached data access](./cached-access.svg)
 
 Our cache is using TTL to ensure that served data is never too old. `FindItem`
 will cache the result for one minute. After one minute, the value expires (it
@@ -166,7 +166,7 @@ of them need the item with ID 1 to be served. The item is not in the cache
 anymore, so the only place to get it is the database. This problem is called
 [cache stampede](https://en.wikipedia.org/wiki/Cache_stampede).
 
-![Cached data access with an empty cache](./cached-access-expired.png)
+![Cached data access with an empty cache](./cached-access-expired.svg)
 
 
 The database is not being shielded by an external cache layer anymore. It also
