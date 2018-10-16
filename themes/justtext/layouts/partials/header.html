@@ -27,4 +27,9 @@
     {{ if isset .Site.Params "twitterusername" -}}
       | <a href="https://twitter.com/{{ .Site.Params.twitterUsername }}" title="Twitter">Twitter</a>
     {{- end}}
+
+    {{ if isset .Site.Params "cvlink" -}}
+      | <a href="{{ .Site.Params.cvlink }}" title="CV">CV</a>
+    {{- end}}
+
   </div>
