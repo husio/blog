@@ -1,6 +1,11 @@
 {{ partial "header" . }}
 
-<h2>Posts</h2>
+<h2>
+  Posts
+  {{ with .OutputFormats.Get "RSS" }}
+    <small>(<a href="{{ .Permalink }}">rss</a>)</small>
+  {{ end }}
+</h2>
 {{ $paginator := .Paginate (where .Pages "Params.hidden" "ne" true) }}
 {{ range sort .Paginator.Pages }}
   <ul>
