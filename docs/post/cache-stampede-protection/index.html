@@ -105,61 +105,61 @@ implementation available that implement the following interfaces. Delegating
 <a href="/blog/post/accessing-data-in-go/">database access</a> allows for a
 cache implementation that is not tightly coupled to the original
 implementation.</p>
-<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="font-weight:bold;font-style:italic">type</span> ItemStore <span style="font-weight:bold;font-style:italic">interface</span> {
-	<span style="color:#888;font-style:italic">// FindItem item returns an item with given ID or ErrNotFound
-</span><span style="color:#888;font-style:italic"></span>	FindItem(ctx context.Context, itemID <span style="font-weight:bold">int64</span>) (*Item, <span style="font-weight:bold">error</span>)
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000080;font-weight:bold">type</span> ItemStore <span style="color:#000080;font-weight:bold">interface</span> {
+	<span style="color:#080;font-style:italic">// FindItem item returns an item with given ID or ErrNotFound
+</span><span style="color:#080;font-style:italic"></span>	FindItem(ctx context.Context, itemID <span style="color:#000080;font-weight:bold">int64</span>) (*Item, <span style="color:#000080;font-weight:bold">error</span>)
 }
 
-<span style="font-weight:bold;font-style:italic">type</span> CacheStore <span style="font-weight:bold;font-style:italic">interface</span> {
-	<span style="color:#888;font-style:italic">// Get loads value under given key into destValue. ErrMiss is returned
-</span><span style="color:#888;font-style:italic"></span>	<span style="color:#888;font-style:italic">// if key does not exist.
-</span><span style="color:#888;font-style:italic"></span>	Get(ctx context.Context, key <span style="font-weight:bold">string</span>, destValue <span style="font-weight:bold;font-style:italic">interface</span>{}) <span style="font-weight:bold">error</span>
-	<span style="color:#888;font-style:italic">// Set value of given key.
-</span><span style="color:#888;font-style:italic"></span>	Set(ctx context.Context, key <span style="font-weight:bold">string</span>, value <span style="font-weight:bold;font-style:italic">interface</span>{}, ttl time.Duration) <span style="font-weight:bold">error</span>
+<span style="color:#000080;font-weight:bold">type</span> CacheStore <span style="color:#000080;font-weight:bold">interface</span> {
+	<span style="color:#080;font-style:italic">// Get loads value under given key into destValue. ErrMiss is returned
+</span><span style="color:#080;font-style:italic"></span>	<span style="color:#080;font-style:italic">// if key does not exist.
+</span><span style="color:#080;font-style:italic"></span>	Get(ctx context.Context, key <span style="color:#000080;font-weight:bold">string</span>, destValue <span style="color:#000080;font-weight:bold">interface</span>{}) <span style="color:#000080;font-weight:bold">error</span>
+	<span style="color:#080;font-style:italic">// Set value of given key.
+</span><span style="color:#080;font-style:italic"></span>	Set(ctx context.Context, key <span style="color:#000080;font-weight:bold">string</span>, value <span style="color:#000080;font-weight:bold">interface</span>{}, ttl time.Duration) <span style="color:#000080;font-weight:bold">error</span>
 }</code></pre></div>
 <p>Instead of directly calling the database each time an <em>item</em> is needed, a cache
 layer is used.</p>
-<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="font-weight:bold;font-style:italic">func</span> CacheItemStore(cache CacheStore, store ItemStore) ItemStore {
-	<span style="font-weight:bold">return</span> &amp;cachedItemStore{
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000080;font-weight:bold">func</span> CacheItemStore(cache CacheStore, store ItemStore) ItemStore {
+	<span style="color:#000080;font-weight:bold">return</span> &amp;cachedItemStore{
 		store: store,
 		cache: cache,
 	}
 }
 
-<span style="font-weight:bold;font-style:italic">type</span> cachedItemStore <span style="font-weight:bold;font-style:italic">struct</span> {
+<span style="color:#000080;font-weight:bold">type</span> cachedItemStore <span style="color:#000080;font-weight:bold">struct</span> {
 	store ItemStore
 	cache CacheStore
 }
 
-<span style="font-weight:bold;font-style:italic">func</span> (c *cachedItemStore) FindItem(ctx context.Context, itemID <span style="font-weight:bold">int64</span>) (*Item, <span style="font-weight:bold">error</span>) {
-	cacheKey := fmt.Sprintf(<span style="color:#666;font-style:italic">&#34;item:%d&#34;</span>, itemID)
+<span style="color:#000080;font-weight:bold">func</span> (c *cachedItemStore) FindItem(ctx context.Context, itemID <span style="color:#000080;font-weight:bold">int64</span>) (*Item, <span style="color:#000080;font-weight:bold">error</span>) {
+	cacheKey := fmt.Sprintf(<span style="color:#00f">&#34;item:%d&#34;</span>, itemID)
 
-	<span style="font-weight:bold;font-style:italic">var</span> item Item
-	<span style="font-weight:bold">switch</span> err := c.cache.Get(ctx, cacheKey, &amp;item); err {
-	<span style="font-weight:bold">case</span> <span style="font-weight:bold">nil</span>:
-		<span style="font-weight:bold">return</span> &amp;item, <span style="font-weight:bold">nil</span>
-	<span style="font-weight:bold">case</span> ErrMiss:
-		<span style="color:#888;font-style:italic">// Not in cache, fetch from the database.
-</span><span style="color:#888;font-style:italic"></span>	<span style="font-weight:bold">default</span>:
-		<span style="color:#888;font-style:italic">// Cache error is not critical for providing this
-</span><span style="color:#888;font-style:italic"></span>		<span style="color:#888;font-style:italic">// functionality, log it and continue.
-</span><span style="color:#888;font-style:italic"></span>		log.Printf(<span style="color:#666;font-style:italic">&#34;cannot get from cache: %s&#34;</span>, err)
+	<span style="color:#000080;font-weight:bold">var</span> item Item
+	<span style="color:#000080;font-weight:bold">switch</span> err := c.cache.Get(ctx, cacheKey, &amp;item); err {
+	<span style="color:#000080;font-weight:bold">case</span> <span style="color:#000080;font-weight:bold">nil</span>:
+		<span style="color:#000080;font-weight:bold">return</span> &amp;item, <span style="color:#000080;font-weight:bold">nil</span>
+	<span style="color:#000080;font-weight:bold">case</span> ErrMiss:
+		<span style="color:#080;font-style:italic">// Not in cache, fetch from the database.
+</span><span style="color:#080;font-style:italic"></span>	<span style="color:#000080;font-weight:bold">default</span>:
+		<span style="color:#080;font-style:italic">// Cache error is not critical for providing this
+</span><span style="color:#080;font-style:italic"></span>		<span style="color:#080;font-style:italic">// functionality, log it and continue.
+</span><span style="color:#080;font-style:italic"></span>		log.Printf(<span style="color:#00f">&#34;cannot get from cache: %s&#34;</span>, err)
 	}
 
 	item, err := c.store.FindItem(ctx, itemID)
 
-	<span style="color:#888;font-style:italic">// To simplify this example, do not cache ErrNotFound. Depending on the use
-</span><span style="color:#888;font-style:italic"></span>	<span style="color:#888;font-style:italic">// case, remembering that an item does not exist might be desired.
-</span><span style="color:#888;font-style:italic"></span>
-	<span style="font-weight:bold">if</span> err == <span style="font-weight:bold">nil</span> {
-		<span style="font-weight:bold">if</span> err := c.cache.Set(ctx, cacheKey, &amp;item, time.Minute); err != <span style="font-weight:bold">nil</span> {
-			<span style="color:#888;font-style:italic">// Cache error is not critical for providing this
-</span><span style="color:#888;font-style:italic"></span>			<span style="color:#888;font-style:italic">// functionality, log it and continue.
-</span><span style="color:#888;font-style:italic"></span>			log.Printf(<span style="color:#666;font-style:italic">&#34;cannot set in cache: %s&#34;</span>, err)
+	<span style="color:#080;font-style:italic">// To simplify this example, do not cache ErrNotFound. Depending on the use
+</span><span style="color:#080;font-style:italic"></span>	<span style="color:#080;font-style:italic">// case, remembering that an item does not exist might be desired.
+</span><span style="color:#080;font-style:italic"></span>
+	<span style="color:#000080;font-weight:bold">if</span> err == <span style="color:#000080;font-weight:bold">nil</span> {
+		<span style="color:#000080;font-weight:bold">if</span> err := c.cache.Set(ctx, cacheKey, &amp;item, time.Minute); err != <span style="color:#000080;font-weight:bold">nil</span> {
+			<span style="color:#080;font-style:italic">// Cache error is not critical for providing this
+</span><span style="color:#080;font-style:italic"></span>			<span style="color:#080;font-style:italic">// functionality, log it and continue.
+</span><span style="color:#080;font-style:italic"></span>			log.Printf(<span style="color:#00f">&#34;cannot set in cache: %s&#34;</span>, err)
 		}
 	}
 
-	<span style="font-weight:bold">return</span> item, err
+	<span style="color:#000080;font-weight:bold">return</span> item, err
 }</code></pre></div>
 <p>Cache errors are not critical for the functionality of the <code>FindItem</code> method.
 They are logged, so that we have a good insight into our application.</p>
@@ -218,65 +218,65 @@ acquire a &ldquo;query lock&rdquo;.</p>
 
 <p>Our lock will be implemented using a cache service. In addition to <code>Get</code> and
 <code>Set</code> operations, <code>SetNx</code> is required.</p>
-<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="font-weight:bold;font-style:italic">type</span> CacheStore <span style="font-weight:bold;font-style:italic">interface</span> {
-	Get(ctx context.Context, key <span style="font-weight:bold">string</span>, destValue <span style="font-weight:bold;font-style:italic">interface</span>{}) <span style="font-weight:bold">error</span>
-	Set(ctx context.Context, key <span style="font-weight:bold">string</span>, value <span style="font-weight:bold;font-style:italic">interface</span>{}, ttl time.Duration) <span style="font-weight:bold">error</span>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000080;font-weight:bold">type</span> CacheStore <span style="color:#000080;font-weight:bold">interface</span> {
+	Get(ctx context.Context, key <span style="color:#000080;font-weight:bold">string</span>, destValue <span style="color:#000080;font-weight:bold">interface</span>{}) <span style="color:#000080;font-weight:bold">error</span>
+	Set(ctx context.Context, key <span style="color:#000080;font-weight:bold">string</span>, value <span style="color:#000080;font-weight:bold">interface</span>{}, ttl time.Duration) <span style="color:#000080;font-weight:bold">error</span>
 
-	<span style="color:#888;font-style:italic">// SetNx sets the value of a given key only if it does not exist.
-</span><span style="color:#888;font-style:italic"></span>	<span style="color:#888;font-style:italic">// Returns ErrConflict if the key is already in use.
-</span><span style="color:#888;font-style:italic"></span>	SetNx(ctx context.Context, key <span style="font-weight:bold">string</span>, value <span style="font-weight:bold;font-style:italic">interface</span>{}, ttl time.Duration) <span style="font-weight:bold">error</span>
+	<span style="color:#080;font-style:italic">// SetNx sets the value of a given key only if it does not exist.
+</span><span style="color:#080;font-style:italic"></span>	<span style="color:#080;font-style:italic">// Returns ErrConflict if the key is already in use.
+</span><span style="color:#080;font-style:italic"></span>	SetNx(ctx context.Context, key <span style="color:#000080;font-weight:bold">string</span>, value <span style="color:#000080;font-weight:bold">interface</span>{}, ttl time.Duration) <span style="color:#000080;font-weight:bold">error</span>
 }</code></pre></div>
 <p>When <code>FindItem</code> is called, we first try to read the item from the cache. If the
 item does not exist in the cache, we either acquire a lock and get data from
 the database or keep checking the cache. A value will be cached by another
 client or we will get the lock.</p>
-<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="font-weight:bold;font-style:italic">func</span> (c *cachedItemStore) FindItem(ctx context.Context, itemID <span style="font-weight:bold">int64</span>) (*Item, <span style="font-weight:bold">error</span>) {
-	cacheKey := fmt.Sprintf(<span style="color:#666;font-style:italic">&#34;item:%d&#34;</span>, itemID)
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000080;font-weight:bold">func</span> (c *cachedItemStore) FindItem(ctx context.Context, itemID <span style="color:#000080;font-weight:bold">int64</span>) (*Item, <span style="color:#000080;font-weight:bold">error</span>) {
+	cacheKey := fmt.Sprintf(<span style="color:#00f">&#34;item:%d&#34;</span>, itemID)
 
 readFromCache:
-	<span style="font-weight:bold">for</span> {
-		<span style="font-weight:bold;font-style:italic">var</span> item Item
-		<span style="font-weight:bold">switch</span> err := c.cache.Get(ctx, cacheKey, &amp;item); err {
-		<span style="font-weight:bold">case</span> <span style="font-weight:bold">nil</span>:
-			<span style="font-weight:bold">return</span> &amp;item, <span style="font-weight:bold">nil</span>
-		<span style="font-weight:bold">case</span> ErrMiss:
-			<span style="color:#888;font-style:italic">// Not in cache, fetch from the database, but only of
-</span><span style="color:#888;font-style:italic"></span>			<span style="color:#888;font-style:italic">// no other client is already doing this.
-</span><span style="color:#888;font-style:italic"></span>			cacheKeyLock := cacheKey + <span style="color:#666;font-style:italic">&#34;:query-lock&#34;</span>
-			<span style="font-weight:bold">switch</span> err := c.cache.SetNx(ctx, cacheKeyLock, 1, time.Second); err {
-			<span style="font-weight:bold">case</span> <span style="font-weight:bold">nil</span>:
-				<span style="color:#888;font-style:italic">// We own the lock, ask the database about the value.
-</span><span style="color:#888;font-style:italic"></span>				<span style="font-weight:bold">break</span> readFromCache
-			<span style="font-weight:bold">case</span> ErrConflict:
-				<span style="color:#888;font-style:italic">// Another process owns the lock. Wait until
-</span><span style="color:#888;font-style:italic"></span>				<span style="color:#888;font-style:italic">// the value is stored in the cache or the lock
-</span><span style="color:#888;font-style:italic"></span>				<span style="color:#888;font-style:italic">// is released and we can query the database.
-</span><span style="color:#888;font-style:italic"></span>				<span style="color:#888;font-style:italic">//
-</span><span style="color:#888;font-style:italic"></span>				<span style="color:#888;font-style:italic">// Short sleep ensures that we do not overuse
-</span><span style="color:#888;font-style:italic"></span>				<span style="color:#888;font-style:italic">// the cache.
-</span><span style="color:#888;font-style:italic"></span>				time.Sleep(25 * time.Millisecond)
-				<span style="font-weight:bold">continue</span> readFromCache
-			<span style="font-weight:bold">default</span>:
-				log.Printf(<span style="color:#666;font-style:italic">&#34;cannot acquire lock in cache: %s&#34;</span>, err)
-				<span style="font-weight:bold">break</span> readFromCache
+	<span style="color:#000080;font-weight:bold">for</span> {
+		<span style="color:#000080;font-weight:bold">var</span> item Item
+		<span style="color:#000080;font-weight:bold">switch</span> err := c.cache.Get(ctx, cacheKey, &amp;item); err {
+		<span style="color:#000080;font-weight:bold">case</span> <span style="color:#000080;font-weight:bold">nil</span>:
+			<span style="color:#000080;font-weight:bold">return</span> &amp;item, <span style="color:#000080;font-weight:bold">nil</span>
+		<span style="color:#000080;font-weight:bold">case</span> ErrMiss:
+			<span style="color:#080;font-style:italic">// Not in cache, fetch from the database, but only of
+</span><span style="color:#080;font-style:italic"></span>			<span style="color:#080;font-style:italic">// no other client is already doing this.
+</span><span style="color:#080;font-style:italic"></span>			cacheKeyLock := cacheKey + <span style="color:#00f">&#34;:query-lock&#34;</span>
+			<span style="color:#000080;font-weight:bold">switch</span> err := c.cache.SetNx(ctx, cacheKeyLock, <span style="color:#00f">1</span>, time.Second); err {
+			<span style="color:#000080;font-weight:bold">case</span> <span style="color:#000080;font-weight:bold">nil</span>:
+				<span style="color:#080;font-style:italic">// We own the lock, ask the database about the value.
+</span><span style="color:#080;font-style:italic"></span>				<span style="color:#000080;font-weight:bold">break</span> readFromCache
+			<span style="color:#000080;font-weight:bold">case</span> ErrConflict:
+				<span style="color:#080;font-style:italic">// Another process owns the lock. Wait until
+</span><span style="color:#080;font-style:italic"></span>				<span style="color:#080;font-style:italic">// the value is stored in the cache or the lock
+</span><span style="color:#080;font-style:italic"></span>				<span style="color:#080;font-style:italic">// is released and we can query the database.
+</span><span style="color:#080;font-style:italic"></span>				<span style="color:#080;font-style:italic">//
+</span><span style="color:#080;font-style:italic"></span>				<span style="color:#080;font-style:italic">// Short sleep ensures that we do not overuse
+</span><span style="color:#080;font-style:italic"></span>				<span style="color:#080;font-style:italic">// the cache.
+</span><span style="color:#080;font-style:italic"></span>				time.Sleep(<span style="color:#00f">25</span> * time.Millisecond)
+				<span style="color:#000080;font-weight:bold">continue</span> readFromCache
+			<span style="color:#000080;font-weight:bold">default</span>:
+				log.Printf(<span style="color:#00f">&#34;cannot acquire lock in cache: %s&#34;</span>, err)
+				<span style="color:#000080;font-weight:bold">break</span> readFromCache
 			}
-		<span style="font-weight:bold">default</span>:
-			<span style="color:#888;font-style:italic">// Cache error is not critical for providing this
-</span><span style="color:#888;font-style:italic"></span>			<span style="color:#888;font-style:italic">// functionality. Log it and continue.
-</span><span style="color:#888;font-style:italic"></span>			log.Printf(<span style="color:#666;font-style:italic">&#34;cannot get from cache: %s&#34;</span>, err)
-			<span style="font-weight:bold">break</span> readFromCache
+		<span style="color:#000080;font-weight:bold">default</span>:
+			<span style="color:#080;font-style:italic">// Cache error is not critical for providing this
+</span><span style="color:#080;font-style:italic"></span>			<span style="color:#080;font-style:italic">// functionality. Log it and continue.
+</span><span style="color:#080;font-style:italic"></span>			log.Printf(<span style="color:#00f">&#34;cannot get from cache: %s&#34;</span>, err)
+			<span style="color:#000080;font-weight:bold">break</span> readFromCache
 		}
 	}
 
 	item, err := c.store.FindItem(ctx, itemID)
 
-	<span style="font-weight:bold">if</span> err == <span style="font-weight:bold">nil</span> {
-		<span style="font-weight:bold">if</span> err := c.cache.Set(ctx, cacheKey, &amp;item, time.Minute); err != <span style="font-weight:bold">nil</span> {
-			log.Printf(<span style="color:#666;font-style:italic">&#34;cannot set in cache: %s&#34;</span>, err)
+	<span style="color:#000080;font-weight:bold">if</span> err == <span style="color:#000080;font-weight:bold">nil</span> {
+		<span style="color:#000080;font-weight:bold">if</span> err := c.cache.Set(ctx, cacheKey, &amp;item, time.Minute); err != <span style="color:#000080;font-weight:bold">nil</span> {
+			log.Printf(<span style="color:#00f">&#34;cannot set in cache: %s&#34;</span>, err)
 		}
 	}
 
-	<span style="font-weight:bold">return</span> item, err
+	<span style="color:#000080;font-weight:bold">return</span> item, err
 }</code></pre></div>
 <p>Above implementation ensures that at most one client is asking the database
 about an item with the same ID. If more than one <code>FindItem</code> call is done at the
@@ -292,68 +292,68 @@ the cache. All clients waste time and server resources on waiting.</p>
 <p>Our cache layer can be further improved by adding an early expiration
 functionality. If an <em>item</em> is cached for 1 minute, shortly before the
 expiration time is due, tell one of the clients that the value must be updated.</p>
-<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="font-weight:bold;font-style:italic">func</span> (c *cachedItemStore) FindItem(ctx context.Context, itemID <span style="font-weight:bold">int64</span>) (*Item, <span style="font-weight:bold">error</span>) {
-	cacheKey := fmt.Sprintf(<span style="color:#666;font-style:italic">&#34;item:%d&#34;</span>, itemID)
-	cacheKeyLock := cacheKey + <span style="color:#666;font-style:italic">&#34;:query-lock&#34;</span>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000080;font-weight:bold">func</span> (c *cachedItemStore) FindItem(ctx context.Context, itemID <span style="color:#000080;font-weight:bold">int64</span>) (*Item, <span style="color:#000080;font-weight:bold">error</span>) {
+	cacheKey := fmt.Sprintf(<span style="color:#00f">&#34;item:%d&#34;</span>, itemID)
+	cacheKeyLock := cacheKey + <span style="color:#00f">&#34;:query-lock&#34;</span>
 
 readFromCache:
-	<span style="font-weight:bold">for</span> {
-		<span style="font-weight:bold;font-style:italic">var</span> spItem stampedeProtectedItem
-		<span style="font-weight:bold">switch</span> err := c.cache.Get(ctx, cacheKey, &amp;spItem); err {
-		<span style="font-weight:bold">case</span> <span style="font-weight:bold">nil</span>:
-			<span style="color:#888;font-style:italic">// If an early expiration time is due, acquire lock to
-</span><span style="color:#888;font-style:italic"></span>			<span style="color:#888;font-style:italic">// fetch item from the database.
-</span><span style="color:#888;font-style:italic"></span>			<span style="font-weight:bold">if</span> spItem.refreshAt.Before(time.Now()) {
-				<span style="font-weight:bold">if</span> c.cache.SetNx(ctx, cacheKeyLock, 1, time.Second) == <span style="font-weight:bold">nil</span> {
-					<span style="font-weight:bold">break</span> readFromCache
+	<span style="color:#000080;font-weight:bold">for</span> {
+		<span style="color:#000080;font-weight:bold">var</span> spItem stampedeProtectedItem
+		<span style="color:#000080;font-weight:bold">switch</span> err := c.cache.Get(ctx, cacheKey, &amp;spItem); err {
+		<span style="color:#000080;font-weight:bold">case</span> <span style="color:#000080;font-weight:bold">nil</span>:
+			<span style="color:#080;font-style:italic">// If an early expiration time is due, acquire lock to
+</span><span style="color:#080;font-style:italic"></span>			<span style="color:#080;font-style:italic">// fetch item from the database.
+</span><span style="color:#080;font-style:italic"></span>			<span style="color:#000080;font-weight:bold">if</span> spItem.refreshAt.Before(time.Now()) {
+				<span style="color:#000080;font-weight:bold">if</span> c.cache.SetNx(ctx, cacheKeyLock, <span style="color:#00f">1</span>, time.Second) == <span style="color:#000080;font-weight:bold">nil</span> {
+					<span style="color:#000080;font-weight:bold">break</span> readFromCache
 				}
-				<span style="color:#888;font-style:italic">// If we did not get the lock, we can still
-</span><span style="color:#888;font-style:italic"></span>				<span style="color:#888;font-style:italic">// return the cached data. It will expire soon,
-</span><span style="color:#888;font-style:italic"></span>				<span style="color:#888;font-style:italic">// but it&#39;s still valid.
-</span><span style="color:#888;font-style:italic"></span>			}
-			<span style="font-weight:bold">return</span> &amp;spItem.item, <span style="font-weight:bold">nil</span>
-		<span style="font-weight:bold">case</span> ErrMiss:
-			<span style="color:#888;font-style:italic">// Not in cache, fetch from the database, but only of
-</span><span style="color:#888;font-style:italic"></span>			<span style="color:#888;font-style:italic">// no other client is already doing this.
-</span><span style="color:#888;font-style:italic"></span>			<span style="font-weight:bold">switch</span> err := c.cache.SetNx(ctx, cacheKeyLock, 1, time.Second); err {
-			<span style="font-weight:bold">case</span> <span style="font-weight:bold">nil</span>:
-				<span style="color:#888;font-style:italic">// We own the lock, ask the database about the value
-</span><span style="color:#888;font-style:italic"></span>				<span style="font-weight:bold">break</span> readFromCache
-			<span style="font-weight:bold">case</span> ErrConflict:
-				<span style="color:#888;font-style:italic">// Another process owns the lock. Wait until
-</span><span style="color:#888;font-style:italic"></span>				<span style="color:#888;font-style:italic">// the value is stored in the cache or the lock
-</span><span style="color:#888;font-style:italic"></span>				<span style="color:#888;font-style:italic">// is released and we can query the database.
-</span><span style="color:#888;font-style:italic"></span>				<span style="color:#888;font-style:italic">//
-</span><span style="color:#888;font-style:italic"></span>				<span style="color:#888;font-style:italic">// Short sleep ensures that we do not overuse
-</span><span style="color:#888;font-style:italic"></span>				<span style="color:#888;font-style:italic">// the cache.
-</span><span style="color:#888;font-style:italic"></span>				time.Sleep(25 * time.Millisecond)
-				<span style="font-weight:bold">continue</span> readFromCache
-			<span style="font-weight:bold">default</span>:
-				log.Printf(<span style="color:#666;font-style:italic">&#34;cannot acquire lock in cache: %s&#34;</span>, err)
-				<span style="font-weight:bold">break</span> readFromCache
+				<span style="color:#080;font-style:italic">// If we did not get the lock, we can still
+</span><span style="color:#080;font-style:italic"></span>				<span style="color:#080;font-style:italic">// return the cached data. It will expire soon,
+</span><span style="color:#080;font-style:italic"></span>				<span style="color:#080;font-style:italic">// but it&#39;s still valid.
+</span><span style="color:#080;font-style:italic"></span>			}
+			<span style="color:#000080;font-weight:bold">return</span> &amp;spItem.item, <span style="color:#000080;font-weight:bold">nil</span>
+		<span style="color:#000080;font-weight:bold">case</span> ErrMiss:
+			<span style="color:#080;font-style:italic">// Not in cache, fetch from the database, but only of
+</span><span style="color:#080;font-style:italic"></span>			<span style="color:#080;font-style:italic">// no other client is already doing this.
+</span><span style="color:#080;font-style:italic"></span>			<span style="color:#000080;font-weight:bold">switch</span> err := c.cache.SetNx(ctx, cacheKeyLock, <span style="color:#00f">1</span>, time.Second); err {
+			<span style="color:#000080;font-weight:bold">case</span> <span style="color:#000080;font-weight:bold">nil</span>:
+				<span style="color:#080;font-style:italic">// We own the lock, ask the database about the value
+</span><span style="color:#080;font-style:italic"></span>				<span style="color:#000080;font-weight:bold">break</span> readFromCache
+			<span style="color:#000080;font-weight:bold">case</span> ErrConflict:
+				<span style="color:#080;font-style:italic">// Another process owns the lock. Wait until
+</span><span style="color:#080;font-style:italic"></span>				<span style="color:#080;font-style:italic">// the value is stored in the cache or the lock
+</span><span style="color:#080;font-style:italic"></span>				<span style="color:#080;font-style:italic">// is released and we can query the database.
+</span><span style="color:#080;font-style:italic"></span>				<span style="color:#080;font-style:italic">//
+</span><span style="color:#080;font-style:italic"></span>				<span style="color:#080;font-style:italic">// Short sleep ensures that we do not overuse
+</span><span style="color:#080;font-style:italic"></span>				<span style="color:#080;font-style:italic">// the cache.
+</span><span style="color:#080;font-style:italic"></span>				time.Sleep(<span style="color:#00f">25</span> * time.Millisecond)
+				<span style="color:#000080;font-weight:bold">continue</span> readFromCache
+			<span style="color:#000080;font-weight:bold">default</span>:
+				log.Printf(<span style="color:#00f">&#34;cannot acquire lock in cache: %s&#34;</span>, err)
+				<span style="color:#000080;font-weight:bold">break</span> readFromCache
 			}
-		<span style="font-weight:bold">default</span>:
-			log.Printf(<span style="color:#666;font-style:italic">&#34;cannot get from cache: %s&#34;</span>, err)
-			<span style="font-weight:bold">break</span> readFromCache
+		<span style="color:#000080;font-weight:bold">default</span>:
+			log.Printf(<span style="color:#00f">&#34;cannot get from cache: %s&#34;</span>, err)
+			<span style="color:#000080;font-weight:bold">break</span> readFromCache
 		}
 	}
 
 	item, err := c.store.FindItem(ctx, itemID)
 
-	<span style="font-weight:bold">if</span> err == <span style="font-weight:bold">nil</span> {
+	<span style="color:#000080;font-weight:bold">if</span> err == <span style="color:#000080;font-weight:bold">nil</span> {
 		spItem := stampedeProtectedItem{
-			refreshAt: time.Now().Add(55 * time.Second),
+			refreshAt: time.Now().Add(<span style="color:#00f">55</span> * time.Second),
 			item:      item,
 		}
-		<span style="font-weight:bold">if</span> err := c.cache.Set(ctx, cacheKey, &amp;spItem, time.Minute); err != <span style="font-weight:bold">nil</span> {
-			log.Printf(<span style="color:#666;font-style:italic">&#34;cannot set in cache: %s&#34;</span>, err)
+		<span style="color:#000080;font-weight:bold">if</span> err := c.cache.Set(ctx, cacheKey, &amp;spItem, time.Minute); err != <span style="color:#000080;font-weight:bold">nil</span> {
+			log.Printf(<span style="color:#00f">&#34;cannot set in cache: %s&#34;</span>, err)
 		}
 	}
 
-	<span style="font-weight:bold">return</span> item, err
+	<span style="color:#000080;font-weight:bold">return</span> item, err
 }
 
-<span style="font-weight:bold;font-style:italic">type</span> stampedeProtectedItem <span style="font-weight:bold;font-style:italic">struct</span> {
+<span style="color:#000080;font-weight:bold">type</span> stampedeProtectedItem <span style="color:#000080;font-weight:bold">struct</span> {
 	refreshAt time.Time
 	item      *Item
 }</code></pre></div>

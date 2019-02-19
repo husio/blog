@@ -4,7 +4,7 @@ title = "Blog"
 theme = "justtext"
 publishDir = "docs"
 pygmentsCodeFences = true
-pygmentsStyle = "algol_nu"
+pygmentsStyle = "borland"
 
 [author]
 name = "Piotr Husiatyński"
