@@ -32,7 +32,7 @@
   
     <div>
       <small>
-        Published: <time datetime="2019-02-19" title="2019-02-19">February 19, 2019</time>
+        Published: <time datetime="2019-02-20" title="2019-02-20">February 20, 2019</time>
       </small>
     </div>
   
@@ -55,13 +55,13 @@
 return an error. <a href="https://blog.golang.org/errors-are-values">Errors are values</a>
 that implement the <code>error</code> interface.</p>
 
-<p>I have worked with several errors handling patterns over the years and it might
-be helpful to summarize my journey focusing on the good solutions.</p>
+<p>I have worked with several errors handling patterns over the years and I would
+like to summarize my experience focusing on the good solutions.</p>
 
 <p>For the purpose of this post, let us imagine a very simple banking application.
 Accounts are represented by their numeric ID and we only know how much money
 each account holds. No account balance can get below zero. A bank service must
-implement the below interface.</p>
+implement the interface below.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000080;font-weight:bold">type</span> BankService <span style="color:#000080;font-weight:bold">interface</span> {
     <span style="color:#080;font-style:italic">// NewAccount registers a new account in this bank. The account is
 </span><span style="color:#080;font-style:italic"></span>    <span style="color:#080;font-style:italic">// initialized with given funds.
@@ -74,13 +74,13 @@ implement the below interface.</p>
 <p>To keep the examples short and simple an in-memory storage is used. Anything
 more serious would use a database instead.</p>
 
-<h2 id="an-inline-error-creation">An inline error creation</h2>
+<h2 id="inline-error-creation">Inline error creation</h2>
 
 <p>It is a common thing to create errors using <code>errors.New</code> and <code>fmt.Errorf</code> as
-they are needed. When an operation fails handle the failure by creating an
-error instance and return it. Created error should contain information about
-the cause of the failure. With that in mind let us create the first version of
-a banking service.</p>
+they are needed. When an operation fails you can handle the failure by creating
+an error instance and returning it. The created error should contain
+information about the cause of the failure. With that in mind let us create the
+first version of a banking service.</p>
 
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000080;font-weight:bold">func</span> NewBank() *Bank {
     <span style="color:#000080;font-weight:bold">return</span> &amp;Bank{
@@ -120,18 +120,20 @@ a banking service.</p>
 }</code></pre></div>
 
 <p>Above code presents a common way of dealing with errors. If a failure cannot be
-dealt with then return the error. When possible provide additional information, for example, an account ID. This is often an acceptable solution
-but sometimes it might not be good enough. As soon as we use the <code>Bank</code>
-instance the shortcomings are more visible.</p>
+dealt with then return the error. If possible provide additional information,
+for example, an account ID. This is often an acceptable solution but sometimes
+it might not be good enough. As soon as we use the <code>Bank</code> instance the
+shortcomings are more visible.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">bank := NewBank()
 <span style="color:#080;font-style:italic">// ...
 </span><span style="color:#080;font-style:italic"></span><span style="color:#000080;font-weight:bold">if</span> err := bank.Transfer(<span style="color:#00f">111</span>, <span style="color:#00f">222</span>, <span style="color:#00f">10</span>); err != <span style="color:#000080;font-weight:bold">nil</span> {
-    <span style="color:#080;font-style:italic">// Why the transfer failed?
+    <span style="color:#080;font-style:italic">// Why did the transfer fail?
 </span><span style="color:#080;font-style:italic"></span>}</code></pre></div>
-<p>If <code>Transfer</code> call returns an error it is not possible to learn about the
-reason and distinguish different cases. As a human analyzing the text message, we can tell what went wrong. If you want your code to react differently if one
-of the accounts does not exist and to do something else when there are not
-enough funds on the source account then you have a problem.</p>
+<p>If the <code>Transfer</code> call returns an error it is not possible to learn about the
+reason and distinguish different cases. As a human analyzing the text message,
+we can tell what went wrong. If you want your code to react differently if one
+of the accounts does not exist and do something else when there are not enough
+funds on the source account then you have a problem.</p>
 
 <h2 id="predefined-errors">Predefined errors</h2>
 
@@ -178,8 +180,8 @@ discover the cause.</p>
 </span><span style="color:#080;font-style:italic"></span>    ErrInsufficientFunds = errors.New(<span style="color:#00f">&#34;insufficient funds&#34;</span>)
 )</code></pre></div>
 
-<p>This is similar to how <a href="https://golang.org/pkg/io/#pkg-variables"><code>io</code></a> package
-deals with errors.</p>
+<p>This is similar to how the <a href="https://golang.org/pkg/io/#pkg-variables"><code>io</code></a>
+package deals with errors.</p>
 
 <p>Returning a different error instance for each error case allows us to handle
 different failure cases accordingly. Test the returned error for being one of
@@ -212,38 +214,38 @@ instance comparison to work.</p>
 
 <p>In Python - a language with exceptions and type inheritance - <a href="https://docs.python.org/3/library/exceptions.html#exception-hierarchy">exceptions form
 a hierarchy</a>.
-Because each error is an instance of a class belonging to that class hierarhy
+Because each error is an instance of a class belonging to that class hierarchy
 each exception instance can contain a custom message and be captured by its
 type or any type it inherits from.</p>
 
 <p>This is how a banking service could be used if implemented in Python.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#000080;font-weight:bold">try</span>:
     bank.transfer(from, to, amount)
-<span style="color:#000080;font-weight:bold">except</span> ErrNotFound <span style="color:#000080;font-weight:bold">as</span> e:
+<span style="color:#000080;font-weight:bold">except</span> ErrAccountNotFound <span style="color:#000080;font-weight:bold">as</span> e:
     <span style="color:#000080;font-weight:bold">print</span>(e) <span style="color:#080;font-style:italic"># either source or destination account not found</span>
 <span style="color:#000080;font-weight:bold">except</span> ErrInsufficientFunds:
     <span style="color:#000080;font-weight:bold">print</span>(<span style="color:#00f">&#34;not enough money&#34;</span>)
 <span style="color:#000080;font-weight:bold">except</span> Exception:
     <span style="color:#000080;font-weight:bold">print</span>(<span style="color:#00f">&#34;unexpected condition&#34;</span>)</code></pre></div>
 <p>Because in Python implementation both <code>ErrNoSourceAccount</code> and
-<code>ErrNoDestinationAccount</code> would inherit from <code>ErrAccountNotFound</code>, both cases can be
-handled with a single statement <code>except ErrNotFound</code>.</p>
+<code>ErrNoDestinationAccount</code> would inherit from <code>ErrAccountNotFound</code>, both cases
+can be handled with a single statement <code>except ErrAccountNotFound</code>.</p>
 
-<p>When capturing an exception <code>e</code> refers to the exception instance containing a
+<p>When capturing an exception <code>e</code> refers to the exception instance containing the
 detailed information that can be helpful during debugging or consumed by the
 client. It can contain more information than just a human readable description.</p>
 
 <h3 id="causer-interface"><code>Causer</code> interface</h3>
 
-<p>An inheritance is not a requirement to achieve the functionality provided by
+<p>Inheritance is not a requirement to achieve the functionality provided by
 Python exceptions. When considering an error it is enough if we are able to
 tell what was the cause of it. This is not possible with errors created using
 the standard library (<code>errors</code> or <code>fmt</code> packages). Instead of using the
 standard library, we must create our own error implementation.</p>
 
-<p>What is needed is an <code>Error</code> structure that implements <a href="https://golang.org/pkg/builtin/#error"><code>error</code>
-interface</a> and a <code>Wrap</code> function that
-will take an error together with an additional description.</p>
+<p>What is needed is an <code>Error</code> structure that implements the
+<a href="https://golang.org/pkg/builtin/#error"><code>error</code></a> interface and a <code>Wrap</code>
+function that will take an error together with an additional description.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#080;font-style:italic">// Wrap returns an error that is having given error set as the cause.
 </span><span style="color:#080;font-style:italic"></span><span style="color:#000080;font-weight:bold">func</span> Wrap(err <span style="color:#000080;font-weight:bold">error</span>, description <span style="color:#000080;font-weight:bold">string</span>, args ...<span style="color:#000080;font-weight:bold">interface</span>{}) *Error {
     <span style="color:#000080;font-weight:bold">return</span> &amp;Error{
@@ -273,8 +275,8 @@ instance or <code>nil</code>.</p>
     <span style="color:#000080;font-weight:bold">return</span> e.parent
 }</code></pre></div>
 <p>One more function is necessary for this to be complete. We must be able to
-compare an error with another error or its cause. <code>error</code> interface does not
-provide <code>Cause</code> method so we must use type casting to determine if an error
+compare an error with another error or its cause. The <code>error</code> interface does
+not provide <code>Cause</code> method so we must use type casting to determine if an error
 instance implements the <code>causer</code> interface.</p>
 
 <p>Instead of a function a method of the <code>Error</code> structure provides a nicer API.</p>
@@ -296,8 +298,8 @@ instance implements the <code>causer</code> interface.</p>
         }
     }
 }</code></pre></div>
-<p>Let us test the <code>Error</code>. All errors are created using <code>Wrap</code> function which
-builds errors hierarchy. It is possible to attach additional information by
+<p>Let us test the <code>Error</code>. All errors are created using the <code>Wrap</code> function which
+builds an error hierarchy. It is possible to attach additional information by
 including it in the description string.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">root := Wrap(<span style="color:#000080;font-weight:bold">nil</span>, <span style="color:#00f">&#34;root&#34;</span>)
 child1 := Wrap(root, <span style="color:#00f">&#34;child one&#34;</span>)
@@ -327,12 +329,12 @@ fmt.Println(<span style="color:#00f">&#34;fmt error is root&#34;</span>, root.Is
 easy to implement, does not require much code and it is portable without
 creating an explicit dependency on the <code>causer</code> interface.</p>
 
-<h2 id="predefined-errors-with-an-inheritance">Predefined errors with an inheritance</h2>
+<h2 id="predefined-errors-with-inheritance">Predefined errors with inheritance</h2>
 
 <p>If an error implements the <code>causer</code> interface we can unwind it and retrieve the
 previous error instance! This means that no matter how many times we will wrap
-an error, as long as all layers implement <code>causer</code> interface we can retrieve
-the parent error instance.</p>
+an error, as long as all layers implement the <code>causer</code> interface we can
+retrieve the parent error instance.</p>
 
 <p>Back to the <code>Bank.Transfer</code> example. All error instances were wrapped before
 returning and provide all the details one may expect an error to provide.</p>
@@ -393,29 +395,19 @@ high level <code>ErrAccountNotFound</code> or more precise <code>ErrNoSourceAcco
 to extract attributes or custom error implementations that were wrapped,
 attaching helpful information on each execution step. This might be great for
 example during input validation, where together with an error you want to
-return information about the invalid field in a way that can be extracted
+return information about the invalid fields in a way that can be extracted
 later.</p>
 
-<p>You can use the <code>causer</code> interface and <code>Wrap</code> function to declare a complex tree
-of errors that are several layers deep and covers every possible case. If you
-do, think again about your use case and if such granularity is helpful.
+<p>You can use the <code>causer</code> interface and the <code>Wrap</code> function to declare a complex
+tree of errors that are several layers deep and cover every possible case. If
+you do, think again about your use case and if such granularity is helpful.
 Usually, just a handful of errors declared upfront do the job better. I tend to
-always inline error creation first and only if a case requires more attention,
+always inline error creation first and only if a case requires more attention
 declare a previously inlined error.</p>
 
 <p>Regardless of what you do try to avoid blindly importing any error package.
-Consider your use cases and try to tailor errors implementation to suit your
-needs.</p>
-
-<h2 id="interesting-reads">Interesting reads</h2>
-
-<p>If you want to read more on error handling in Go you may find below links
-interesting.</p>
-
-<ul>
-<li><a href="https://commandcenter.blogspot.com/2017/12/error-handling-in-upspin.html">Error handling in Upspin</a></li>
-<li><a href="https://godoc.org/github.com/pkg/errors"><code>github.com/pkg/errors</code> package</a></li>
-</ul>
+Consider your use cases and try to <a href="https://commandcenter.blogspot.com/2017/12/error-handling-in-upspin.html">tailor your errors implementation to suit
+your needs</a>.</p>
 
   </article>
 

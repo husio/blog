@@ -1,22 +1,21 @@
 ---
 title: "Error handling"
-date: 2019-02-19
+date: 2019-02-20
 tags: [Go]
 comments: []
-draft: true
 ---
 
 Go is a language that does not provide exceptions. Instead, an operation can
 return an error. [Errors are values](https://blog.golang.org/errors-are-values)
 that implement the `error` interface.
 
-I have worked with several errors handling patterns over the years and it might
-be helpful to summarize my journey focusing on the good solutions.
+I have worked with several errors handling patterns over the years and I would
+like to summarize my experience focusing on the good solutions.
 
 For the purpose of this post, let us imagine a very simple banking application.
 Accounts are represented by their numeric ID and we only know how much money
 each account holds. No account balance can get below zero. A bank service must
-implement the below interface.
+implement the interface below.
 
 ```go
 type BankService interface {
@@ -34,13 +33,13 @@ type BankService interface {
 To keep the examples short and simple an in-memory storage is used. Anything
 more serious would use a database instead.
 
-## An inline error creation
+## Inline error creation
 
 It is a common thing to create errors using `errors.New` and `fmt.Errorf` as
-they are needed. When an operation fails handle the failure by creating an
-error instance and return it. Created error should contain information about
-the cause of the failure. With that in mind let us create the first version of
-a banking service.
+they are needed. When an operation fails you can handle the failure by creating
+an error instance and returning it. The created error should contain
+information about the cause of the failure. With that in mind let us create the
+first version of a banking service.
 
 {{< highlight go "hl_lines=14 24 26 30" >}}
 func NewBank() *Bank {
@@ -82,22 +81,24 @@ func (b *Bank) Transfer(from, to int64, amount uint64) error {
 {{< /highlight >}}
 
 Above code presents a common way of dealing with errors. If a failure cannot be
-dealt with then return the error. When possible provide additional information, for example, an account ID. This is often an acceptable solution
-but sometimes it might not be good enough. As soon as we use the `Bank`
-instance the shortcomings are more visible.
+dealt with then return the error. If possible provide additional information,
+for example, an account ID. This is often an acceptable solution but sometimes
+it might not be good enough. As soon as we use the `Bank` instance the
+shortcomings are more visible.
 
 
 ```go
 bank := NewBank()
 // ...
 if err := bank.Transfer(111, 222, 10); err != nil {
-    // Why the transfer failed?
+    // Why did the transfer fail?
 }
 ```
-If `Transfer` call returns an error it is not possible to learn about the
-reason and distinguish different cases. As a human analyzing the text message, we can tell what went wrong. If you want your code to react differently if one
-of the accounts does not exist and to do something else when there are not
-enough funds on the source account then you have a problem.
+If the `Transfer` call returns an error it is not possible to learn about the
+reason and distinguish different cases. As a human analyzing the text message,
+we can tell what went wrong. If you want your code to react differently if one
+of the accounts does not exist and do something else when there are not enough
+funds on the source account then you have a problem.
 
 ## Predefined errors
 
@@ -146,8 +147,8 @@ var (
 )
 {{< /highlight >}}
 
-This is similar to how [`io`](https://golang.org/pkg/io/#pkg-variables) package
-deals with errors.
+This is similar to how the [`io`](https://golang.org/pkg/io/#pkg-variables)
+package deals with errors.
 
 Returning a different error instance for each error case allows us to handle
 different failure cases accordingly. Test the returned error for being one of
@@ -185,7 +186,7 @@ instance comparison to work.
 
 In Python - a language with exceptions and type inheritance - [exceptions form
 a hierarchy](https://docs.python.org/3/library/exceptions.html#exception-hierarchy).
-Because each error is an instance of a class belonging to that class hierarhy
+Because each error is an instance of a class belonging to that class hierarchy
 each exception instance can contain a custom message and be captured by its
 type or any type it inherits from.
 
@@ -194,7 +195,7 @@ This is how a banking service could be used if implemented in Python.
 ```python
 try:
     bank.transfer(from, to, amount)
-except ErrNotFound as e:
+except ErrAccountNotFound as e:
     print(e) # either source or destination account not found
 except ErrInsufficientFunds:
     print("not enough money")
@@ -202,10 +203,10 @@ except Exception:
     print("unexpected condition")
 ```
 Because in Python implementation both `ErrNoSourceAccount` and
-`ErrNoDestinationAccount` would inherit from `ErrAccountNotFound`, both cases can be
-handled with a single statement `except ErrNotFound`.
+`ErrNoDestinationAccount` would inherit from `ErrAccountNotFound`, both cases
+can be handled with a single statement `except ErrAccountNotFound`.
 
-When capturing an exception `e` refers to the exception instance containing a
+When capturing an exception `e` refers to the exception instance containing the
 detailed information that can be helpful during debugging or consumed by the
 client. It can contain more information than just a human readable description.
 
@@ -214,15 +215,15 @@ client. It can contain more information than just a human readable description.
 
 ### `Causer` interface
 
-An inheritance is not a requirement to achieve the functionality provided by
+Inheritance is not a requirement to achieve the functionality provided by
 Python exceptions. When considering an error it is enough if we are able to
 tell what was the cause of it. This is not possible with errors created using
 the standard library (`errors` or `fmt` packages). Instead of using the
 standard library, we must create our own error implementation.
 
-What is needed is an `Error` structure that implements [`error`
-interface](https://golang.org/pkg/builtin/#error) and a `Wrap` function that
-will take an error together with an additional description.
+What is needed is an `Error` structure that implements the
+[`error`](https://golang.org/pkg/builtin/#error) interface and a `Wrap`
+function that will take an error together with an additional description.
 
 ```go
 // Wrap returns an error that is having given error set as the cause.
@@ -260,8 +261,8 @@ func (e *Error) Cause() error {
 ```
 
 One more function is necessary for this to be complete. We must be able to
-compare an error with another error or its cause. `error` interface does not
-provide `Cause` method so we must use type casting to determine if an error
+compare an error with another error or its cause. The `error` interface does
+not provide `Cause` method so we must use type casting to determine if an error
 instance implements the `causer` interface.
 
 Instead of a function a method of the `Error` structure provides a nicer API.
@@ -288,8 +289,8 @@ func (kind *Error) Is(err error) bool {
 }
 ```
 
-Let us test the `Error`. All errors are created using `Wrap` function which
-builds errors hierarchy. It is possible to attach additional information by
+Let us test the `Error`. All errors are created using the `Wrap` function which
+builds an error hierarchy. It is possible to attach additional information by
 including it in the description string.
 
 ```go
@@ -324,12 +325,12 @@ easy to implement, does not require much code and it is portable without
 creating an explicit dependency on the `causer` interface.
 
 
-## Predefined errors with an inheritance
+## Predefined errors with inheritance
 
 If an error implements the `causer` interface we can unwind it and retrieve the
 previous error instance! This means that no matter how many times we will wrap
-an error, as long as all layers implement `causer` interface we can retrieve
-the parent error instance.
+an error, as long as all layers implement the `causer` interface we can
+retrieve the parent error instance.
 
 Back to the `Bank.Transfer` example. All error instances were wrapped before
 returning and provide all the details one may expect an error to provide.
@@ -396,24 +397,16 @@ What I have presented is a powerful pattern. You may use the `causer` interface
 to extract attributes or custom error implementations that were wrapped,
 attaching helpful information on each execution step. This might be great for
 example during input validation, where together with an error you want to
-return information about the invalid field in a way that can be extracted
+return information about the invalid fields in a way that can be extracted
 later.
 
-You can use the `causer` interface and `Wrap` function to declare a complex tree
-of errors that are several layers deep and covers every possible case. If you
-do, think again about your use case and if such granularity is helpful.
+You can use the `causer` interface and the `Wrap` function to declare a complex
+tree of errors that are several layers deep and cover every possible case. If
+you do, think again about your use case and if such granularity is helpful.
 Usually, just a handful of errors declared upfront do the job better. I tend to
-always inline error creation first and only if a case requires more attention,
+always inline error creation first and only if a case requires more attention
 declare a previously inlined error.
 
 Regardless of what you do try to avoid blindly importing any error package.
-Consider your use cases and try to tailor errors implementation to suit your
-needs.
-
-## Interesting reads
-
-If you want to read more on error handling in Go you may find below links
-interesting.
-
-- [Error handling in Upspin](https://commandcenter.blogspot.com/2017/12/error-handling-in-upspin.html)
-- [`github.com/pkg/errors` package](https://godoc.org/github.com/pkg/errors)
+Consider your use cases and try to [tailor your errors implementation to suit
+your needs](https://commandcenter.blogspot.com/2017/12/error-handling-in-upspin.html).

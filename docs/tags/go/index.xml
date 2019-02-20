@@ -6,10 +6,21 @@
     <description>Recent content in Go on Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 14 Sep 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 20 Feb 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://husio.github.io/blog/tags/go/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Error handling</title>
+      <link>https://husio.github.io/blog/post/error-handling/</link>
+      <pubDate>Wed, 20 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://husio.github.io/blog/post/error-handling/</guid>
+      <description>Go is a language that does not provide exceptions. Instead, an operation can return an error. Errors are values that implement the error interface.
+I have worked with several errors handling patterns over the years and I would like to summarize my experience focusing on the good solutions.
+For the purpose of this post, let us imagine a very simple banking application. Accounts are represented by their numeric ID and we only know how much money each account holds.</description>
+    </item>
     
     <item>
       <title>Cache stampede protection</title>
