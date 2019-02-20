@@ -11,14 +11,12 @@ return an error. [Errors are values](https://blog.golang.org/errors-are-values)
 that implement the `error` interface.
 
 I have worked with several errors handling patterns over the years and it might
-be helpful to summarize my journey focusing on the important ones.
+be helpful to summarize my journey focusing on the good solutions.
 
 For the purpose of this post, let us imagine a very simple banking application.
 Accounts are represented by their numeric ID and we only know how much money
-each account holds.
-No account balance can get below zero.
-
-A bank service must implement the below interface.
+each account holds. No account balance can get below zero. A bank service must
+implement the below interface.
 
 ```go
 type BankService interface {
@@ -39,8 +37,10 @@ more serious would use a database instead.
 ## An inline error creation
 
 It is a common thing to create errors using `errors.New` and `fmt.Errorf` as
-they are needed. When an operation fails to create an error instance and return
-it. With that in mind let us create the first version of a banking service.
+they are needed. When an operation fails handle the failure by creating an
+error instance and return it. Created error should contain information about
+the cause of the failure. With that in mind let us create the first version of
+a banking service.
 
 {{< highlight go "hl_lines=14 24 26 30" >}}
 func NewBank() *Bank {
@@ -158,7 +158,7 @@ bank := NewBank()
 // ...
 switch err := bank.Transfer(1, 2); err {
 case nil:
-    print("money transferred")
+    println("money transferred")
 case ErrNoSourceAccount:
     panic("source account does not exist")
 case ErrNoDestinationAccount:
@@ -176,24 +176,26 @@ upfront.
 
 In addition, you are losing the context information that you were building
 using `fmt.Errorf`. When returning `ErrInsufficientFunds` you no longer know
-which account caused it. `fmt.Errorf` must no longer be used so that instance
-comparison is working.
+which account caused it. `fmt.Errorf` must no longer be used for the error
+instance comparison to work.
 
 
 
 ## Error inheritance
 
-In Python - a language that allows for an inheritance - [exceptions form a
-hierarchy](https://docs.python.org/3/library/exceptions.html#exception-hierarchy).
+In Python - a language with exceptions and type inheritance - [exceptions form
+a hierarchy](https://docs.python.org/3/library/exceptions.html#exception-hierarchy).
 Because each error is an instance of a class belonging to that class hierarhy
-each exception can contain a custom message and be captured by its type or any
-type it inherits from.
+each exception instance can contain a custom message and be captured by its
+type or any type it inherits from.
+
+This is how a banking service could be used if implemented in Python.
 
 ```python
 try:
     bank.transfer(from, to, amount)
 except ErrNotFound as e:
-    print(e) # both source or destination account not found
+    print(e) # either source or destination account not found
 except ErrInsufficientFunds:
     print("not enough money")
 except Exception:
@@ -201,10 +203,11 @@ except Exception:
 ```
 Because in Python implementation both `ErrNoSourceAccount` and
 `ErrNoDestinationAccount` would inherit from `ErrAccountNotFound`, both cases can be
-handled with a single statement.
+handled with a single statement `except ErrNotFound`.
 
-When capturing an exception `e` holds detailed information that can be helpful
-during debugging or consumed by the client.
+When capturing an exception `e` refers to the exception instance containing a
+detailed information that can be helpful during debugging or consumed by the
+client. It can contain more information than just a human readable description.
 
 
 
@@ -257,8 +260,9 @@ func (e *Error) Cause() error {
 ```
 
 One more function is necessary for this to be complete. We must be able to
-compare an error with another error or its cause. Type casting allows us to
-determine if an error instance implements the `causer` interface.
+compare an error with another error or its cause. `error` interface does not
+provide `Cause` method so we must use type casting to determine if an error
+instance implements the `causer` interface.
 
 Instead of a function a method of the `Error` structure provides a nicer API.
 
@@ -293,31 +297,31 @@ root := Wrap(nil, "root")
 child1 := Wrap(root, "child one")
 child2 := Wrap(root, "child two")
 
-fmt.Println("root is child 1", root.Is(child1))
-// root is child 1 true
+fmt.Println("child 1 is root", root.Is(child1))
+// child 1 is root true
 
-fmt.Println("root is child 2", root.Is(child2))
-// root is child 2 true
+fmt.Println("child 2 is root", root.Is(child2))
+// child 2 is root true
 
-fmt.Println("child 1 is root", child1.Is(root))
-// child 1 is root false
+fmt.Println("root is child 1", child1.Is(root))
+// root is child 1 false
 
-fmt.Println("child 1 is child 2", child1.Is(child2))
-// child 1 is child 2 false
+fmt.Println("child 2 is child 1", child1.Is(child2))
+// child 2 is child 1 false
 
 inlinedErr := Wrap(child2, "current time: %s", time.Now())
-fmt.Println("root is inlined child 2", root.Is(inlinedErr))
-// root is inlined child 2 true
-fmt.Println("child 2 is inlined child 2", child2.Is(inlinedErr))
-// child 2 is inlined child 2 true
+fmt.Println("inlined child 2 is root", root.Is(inlinedErr))
+// inlined child 2 is root true
+fmt.Println("inlined child 2 is child 2", child2.Is(inlinedErr))
+// inlined child 2 is child 2 true
 
-fmt.Println("root is fmt error", root.Is(fmt.Errorf("fmt error")))
-// root is fmt error false
+fmt.Println("fmt error is root", root.Is(fmt.Errorf("fmt error")))
+// fmt error is root false
 ```
 
 Above `Error` implementation is a powerful solution to error handling. It is
-easy to implement, does not require much code and is portable without creating
-an explicit dependency on the `causer` interface.
+easy to implement, does not require much code and it is portable without
+creating an explicit dependency on the `causer` interface.
 
 
 ## Predefined errors with an inheritance
@@ -325,7 +329,7 @@ an explicit dependency on the `causer` interface.
 If an error implements the `causer` interface we can unwind it and retrieve the
 previous error instance! This means that no matter how many times we will wrap
 an error, as long as all layers implement `causer` interface we can retrieve
-the original error instance.
+the parent error instance.
 
 Back to the `Bank.Transfer` example. All error instances were wrapped before
 returning and provide all the details one may expect an error to provide.
@@ -334,14 +338,14 @@ returning and provide all the details one may expect an error to provide.
 func (b *Bank) Transfer(from, to int64, amount uint64) error {
     switch fromFunds, ok := b.accounts[from]; {
     case !ok:
-        return errors.Wrap(ErrNoSourceAccount, "ID %d", from)
+        return Wrap(ErrNoSourceAccount, "ID %d", from)
     case fromFunds < amount:
-        return errors.Wrap(ErrInsufficientFunds,
+        return Wrap(ErrInsufficientFunds,
             "cannot transfer %d from %d account", amount, fromFunds)
     }
 
     if _, ok := b.accounts[to]; !ok {
-        return errors.Wrap(ErrNoDestinationAccount, "ID %d", to)
+        return Wrap(ErrNoDestinationAccount, "ID %d", to)
     }
 
     b.accounts[from] -= amount
@@ -352,19 +356,19 @@ func (b *Bank) Transfer(from, to int64, amount uint64) error {
 var (
     // ErrAccountNotFound is return when an operation fails because the
     // requested account does not exist.
-    ErrAccountNotFound = errors.New("account not found")
+    ErrAccountNotFound = Wrap(nil, "account not found")
 
     // ErrNoSourceAccount is returned when the source account does not
     // exist.
-    ErrNoSourceAccount = errors.Wrap(ErrAccountNotFound, "no source")
+    ErrNoSourceAccount = Wrap(ErrAccountNotFound, "no source")
 
     // ErrNoDestinationAccount is returned when the destination account
     // does not exist.
-    ErrNoDestinationAccount = errors.Wrap(ErrAccountNotFound, "no destination")
+    ErrNoDestinationAccount = Wrap(ErrAccountNotFound, "no destination")
 
     // ErrInsufficientFunds is returned when a transfer cannot be completed
     // because there are not enough funds on the source account.
-    ErrInsufficientFunds = errors.New("insufficient funds")
+    ErrInsufficientFunds = Wrap(nil, "insufficient funds")
 )
 {{< /highlight >}}
 
@@ -374,10 +378,10 @@ high level `ErrAccountNotFound` or more precise `ErrNoSourceAccount`.
 ```go
 bank := NewBank()
 // ...
-switch err := bank.Transfer(1, 2); {
-case nil:
-    print("money transferred")
-case ErrDestinationAccountNotFound.Is(err):
+switch err := bank.Transfer(1, 2, 100); {
+case err == nil:
+    println("money transferred")
+case ErrNoDestinationAccount.Is(err):
     panic("destination account does not exist")
 case ErrInsufficientFunds.Is(err):
     panic("not enough money " + err.Error()) // err provides more details
@@ -390,14 +394,17 @@ default:
 
 What I have presented is a powerful pattern. You may use the `causer` interface
 to extract attributes or custom error implementations that were wrapped,
-attaching helpful information on each step. This might be great during input
-validation, where together with an error you want to return information about
-the invalid field in a way that can be extracted later.
+attaching helpful information on each execution step. This might be great for
+example during input validation, where together with an error you want to
+return information about the invalid field in a way that can be extracted
+later.
 
 You can use the `causer` interface and `Wrap` function to declare a complex tree
 of errors that are several layers deep and covers every possible case. If you
-do, think again about your use case and it such granularity is helpful. Usually, just a handful of errors declared upfront do the job better. I tend to always
-inline error creation first and only if a case requires more attention, declare a previously inlined error.
+do, think again about your use case and if such granularity is helpful.
+Usually, just a handful of errors declared upfront do the job better. I tend to
+always inline error creation first and only if a case requires more attention,
+declare a previously inlined error.
 
 Regardless of what you do try to avoid blindly importing any error package.
 Consider your use cases and try to tailor errors implementation to suit your
@@ -405,7 +412,7 @@ needs.
 
 ## Interesting reads
 
-If you want to read more on error handling in Go you may find below articles
+If you want to read more on error handling in Go you may find below links
 interesting.
 
 - [Error handling in Upspin](https://commandcenter.blogspot.com/2017/12/error-handling-in-upspin.html)
