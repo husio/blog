@@ -2,7 +2,7 @@
 title: "Error handling"
 date: 2019-02-20
 tags: [Go]
-comments: []
+comments: [reddit, https://old.reddit.com/r/golang/comments/at1dqs/error_handling_in_go/]
 ---
 
 Go is a language that does not provide exceptions. Instead, an operation can
