@@ -24,15 +24,15 @@
     <a href="{{ .Site.BaseURL }}">{{ .Site.Title }}</a>
 
     {{ if isset .Site.Params "githubusername" -}}
-      | <a href="https://github.com/{{ .Site.Params.githubUsername }}" title="GitHub">GitHub</a>
+      | <a rel="me" class="u-url" href="https://github.com/{{ .Site.Params.githubUsername }}" title="GitHub">GitHub</a>
     {{- end }}
 
     {{ if isset .Site.Params "twitterusername" -}}
-      | <a href="https://twitter.com/{{ .Site.Params.twitterUsername }}" title="Twitter">Twitter</a>
+      | <a rel="me" class="u-url" href="https://twitter.com/{{ .Site.Params.twitterUsername }}" title="Twitter">Twitter</a>
     {{- end}}
 
     {{ if isset .Site.Params "cvlink" -}}
-      | <a href="{{ .Site.Params.cvlink }}" title="CV">CV</a>
+      | <a rel="me" class="u-url" href="{{ .Site.Params.cvlink }}" title="CV">CV</a>
     {{- end}}
 
   </div>

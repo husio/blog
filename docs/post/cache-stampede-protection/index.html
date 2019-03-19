@@ -12,27 +12,23 @@
   <div>
     <a href="https://husio.github.io/blog">Blog</a>
 
-    | <a href="https://github.com/husio" title="GitHub">GitHub</a>
+    | <a rel="me" class="u-url" href="https://github.com/husio" title="GitHub">GitHub</a>
 
-    | <a href="https://twitter.com/PiotrHusiatyski" title="Twitter">Twitter</a>
+    | <a rel="me" class="u-url" href="https://twitter.com/PiotrHusiatyski" title="Twitter">Twitter</a>
 
-    | <a href="https://stackoverflow.com/cv/piotrhusiatynski" title="CV">CV</a>
+    | <a rel="me" class="u-url" href="https://stackoverflow.com/cv/piotrhusiatynski" title="CV">CV</a>
 
   </div>
 
 
 
-<article>
-  <header>
-    <h1 class="title">
-      Cache stampede protection
-    </h1>
-  </header>
+<article class="h-entry">
+  <h1 class="title p-name">Cache stampede protection</h1>
 
   
     <div>
       <small>
-        Published: <time datetime="2018-09-14" title="2018-09-14">September 14, 2018</time>
+        Published: <time class="dt-published" datetime="2018-09-14" title="2018-09-14">September 14, 2018</time>
       </small>
     </div>
   
@@ -41,7 +37,7 @@
     <div>
       <small>
         Tags: 
-  <a href="/blog/tags/go">Go</a>, <a href="/blog/tags/cache">Cache</a>
+  <a class="p-category" href="/blog/tags/go">Go</a>, <a class="p-category" href="/blog/tags/cache">Cache</a>
   
 
 
@@ -50,8 +46,7 @@
   
 
 
-  <article>
-    
+  <div class="e-content">
 
 <p>Writing an application that handles concurrent traffic from a lot of clients in
 a performant way is not an easy task. To narrow this problem to web
@@ -365,8 +360,7 @@ Data caching is more complicated than it might look like at first sight.</p>
 <p>Above cache stampede protection code example is tightly coupled to <code>ItemStore</code>.
 If you are searching for a general use implementation, take a <a href="https://github.com/go-surf/surf/blob/master/cache_stampede.go">look at
 <code>surf.StampedeProtect</code></a>.</p>
-
-  </article>
+</div>
 
   
 </article>

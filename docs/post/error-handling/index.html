@@ -12,27 +12,23 @@
   <div>
     <a href="https://husio.github.io/blog">Blog</a>
 
-    | <a href="https://github.com/husio" title="GitHub">GitHub</a>
+    | <a rel="me" class="u-url" href="https://github.com/husio" title="GitHub">GitHub</a>
 
-    | <a href="https://twitter.com/PiotrHusiatyski" title="Twitter">Twitter</a>
+    | <a rel="me" class="u-url" href="https://twitter.com/PiotrHusiatyski" title="Twitter">Twitter</a>
 
-    | <a href="https://stackoverflow.com/cv/piotrhusiatynski" title="CV">CV</a>
+    | <a rel="me" class="u-url" href="https://stackoverflow.com/cv/piotrhusiatynski" title="CV">CV</a>
 
   </div>
 
 
 
-<article>
-  <header>
-    <h1 class="title">
-      Error handling
-    </h1>
-  </header>
+<article class="h-entry">
+  <h1 class="title p-name">Error handling</h1>
 
   
     <div>
       <small>
-        Published: <time datetime="2019-02-20" title="2019-02-20">February 20, 2019</time>
+        Published: <time class="dt-published" datetime="2019-02-20" title="2019-02-20">February 20, 2019</time>
       </small>
     </div>
   
@@ -41,15 +37,14 @@
     <div>
       <small>
         Tags: 
-  <a href="/blog/tags/go">Go</a>
+  <a class="p-category" href="/blog/tags/go">Go</a>
 
       </small>
     </div>
   
 
 
-  <article>
-    
+  <div class="e-content">
 
 <p>Go is a language that does not provide exceptions. Instead, an operation can
 return an error. <a href="https://blog.golang.org/errors-are-values">Errors are values</a>
@@ -408,8 +403,7 @@ declare a previously inlined error.</p>
 <p>Regardless of what you do try to avoid blindly importing any error package.
 Consider your use cases and try to <a href="https://commandcenter.blogspot.com/2017/12/error-handling-in-upspin.html">tailor your errors implementation to suit
 your needs</a>.</p>
-
-  </article>
+</div>
 
   
     <hr>

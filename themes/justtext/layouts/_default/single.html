@@ -1,17 +1,15 @@
 {{ partial "header" . }}
 
 
-<article>
-  <header>
-    <h1 class="title">
-      {{ .Title }}
-    </h1>
-  </header>
+<article class="h-entry">
+  <h1 class="title p-name">
+    {{- .Title -}}
+  </h1>
 
   {{if not .Date.IsZero }}
     <div>
       <small>
-        Published: <time datetime="{{ .Date.Format "2006-01-02" }}" title="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time>
+        Published: <time class="dt-published" datetime="{{ .Date.Format "2006-01-02" }}" title="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time>
       </small>
     </div>
   {{ end }}
@@ -25,9 +23,9 @@
   {{ end }}
 
 
-  <article>
-    {{ .Content }}
-  </article>
+  <div class="e-content">
+    {{- .Content -}}
+  </div>
 
   {{if .Params.comments}}
     <hr>
