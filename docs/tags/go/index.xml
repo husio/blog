@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Go on Blog</title>
@@ -13,10 +13,10 @@
     
     <item>
       <title>Error handling</title>
-      <link>https://husio.github.io/blog/post/error-handling/</link>
+      <link>https://husio.github.io/blog/error-handling/</link>
       <pubDate>Wed, 20 Feb 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://husio.github.io/blog/post/error-handling/</guid>
+      <guid>https://husio.github.io/blog/error-handling/</guid>
       <description>Go is a language that does not provide exceptions. Instead, an operation can return an error. Errors are values that implement the error interface.
 I have worked with several errors handling patterns over the years and I would like to summarize my experience focusing on the good solutions.
 For the purpose of this post, let us imagine a very simple banking application. Accounts are represented by their numeric ID and we only know how much money each account holds.</description>
@@ -24,10 +24,10 @@ For the purpose of this post, let us imagine a very simple banking application. 
     
     <item>
       <title>Cache stampede protection</title>
-      <link>https://husio.github.io/blog/post/cache-stampede-protection/</link>
+      <link>https://husio.github.io/blog/cache-stampede-protection/</link>
       <pubDate>Fri, 14 Sep 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://husio.github.io/blog/post/cache-stampede-protection/</guid>
+      <guid>https://husio.github.io/blog/cache-stampede-protection/</guid>
       <description>Writing an application that handles concurrent traffic from a lot of clients in a performant way is not an easy task. To narrow this problem to web applications only, serving as many HTTP requests as possible in a short time is often a challenge.
 In most cases of an HTTP application, optimizing access to the database can be the easiest and the best first step.
 Caching database access Using a database that provides plenty of functionality and storing data in denormalized form makes development easier.</description>
@@ -35,10 +35,10 @@ Caching database access Using a database that provides plenty of functionality a
     
     <item>
       <title>Accessing data in Go</title>
-      <link>https://husio.github.io/blog/post/accessing-data-in-go/</link>
+      <link>https://husio.github.io/blog/accessing-data-in-go/</link>
       <pubDate>Sun, 02 Sep 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://husio.github.io/blog/post/accessing-data-in-go/</guid>
+      <guid>https://husio.github.io/blog/accessing-data-in-go/</guid>
       <description>When writing a web application, we have to decide how to access data. Where to get it from, how to store it, how to manipulate it. Storage engines can vary, from being a single SQLite file to cache server or even an external service exposing an API.
 There are many ways this topic can be addressed. I will explain how a simple and straightforward solution can be evolved into a more sophisticated one.</description>
     </item>
