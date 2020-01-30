@@ -4,6 +4,7 @@
 <article class="h-entry">
   <h1 class="title p-name">
     {{- .Title -}}
+    {{- if .Draft }} <strong>[draft]</strong>{{ end -}}
   </h1>
 
   {{if not .Date.IsZero }}
@@ -22,10 +23,15 @@
     </div>
   {{ end }}
 
+  {{if .Params.TOC}}
+    <aside class="toc">
+      {{ .TableOfContents }}
+    </aside>
+  {{end}}
 
-  <div class="e-content">
+  <article class="e-content">
     {{- .Content -}}
-  </div>
+  </article>
 
   {{if .Params.comments}}
     <hr>

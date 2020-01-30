@@ -1,423 +1,296 @@
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="author" content="Piotr Husiatyński">
-  <title>Error handling</title>
-  <link rel="stylesheet" href="/blog/css/style.css">
-</head>
-
-<body>
-  <div>
-    <a href="https://husio.github.io/blog">Blog</a>
-
-    | <a rel="me" class="u-url" href="https://github.com/husio" title="GitHub">GitHub</a>
-
-    
-
-    | <a rel="me" class="u-url" href="https://stackoverflow.com/cv/piotrhusiatynski" title="Stack Overflow CV">Stack Overflow</a>
-
-    | <a rel="me" class="u-url" href="https://docs.google.com/document/d/1Xlt8yyGNLjkLLLoa9yVYa8Hxa9KKgA4BnVYMRrOjKB8/edit?usp=sharing" title="CV">CV</a>
-
-  </div>
-
-
-
-<article class="h-entry">
-  <h1 class="title p-name">Error handling</h1>
-
-  
-    <div>
-      <small>
-        Published: <time class="dt-published" datetime="2019-02-20" title="2019-02-20">February 20, 2019</time>
-      </small>
-    </div>
-  
-
-  
-    <div>
-      <small>
-        Tags: 
-  <a class="p-category" href="/blog/tags/go">Go</a>
-
-      </small>
-    </div>
-  
-
-
-  <div class="e-content">
-
-<p>Go is a language that does not provide exceptions. Instead, an operation can
-return an error. <a href="https://blog.golang.org/errors-are-values">Errors are values</a>
-that implement the <code>error</code> interface.</p>
-
-<p>I have worked with several errors handling patterns over the years and I would
-like to summarize my experience focusing on the good solutions.</p>
-
-<p>For the purpose of this post, let us imagine a very simple banking application.
+<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=author content="Piotr Husiatyński"><title>Error handling</title><link rel=stylesheet href=/blog/css/style.css></head><body><div><a href=https://husio.github.io/blog>Blog</a>
+| <a rel=me class=u-url href=https://github.com/husio title=GitHub>GitHub</a>
+| <a rel=me class=u-url href=https://stackoverflow.com/cv/piotrhusiatynski title="Stack Overflow CV">Stack Overflow</a>
+| <a rel=me class=u-url href="https://docs.google.com/document/d/1Xlt8yyGNLjkLLLoa9yVYa8Hxa9KKgA4BnVYMRrOjKB8/edit?usp=sharing" title=CV>CV</a></div><article class=h-entry><h1 class="title p-name">Error handling</h1><div><small>Published: <time class=dt-published datetime=2019-02-20 title=2019-02-20>February 20, 2019</time></small></div><div><small>Tags:
+<a class=p-category href=/blog/tags/go>Go</a></small></div><article class=e-content><p>Go is a language that does not provide exceptions. Instead, an operation can
+return an error. <a href=https://blog.golang.org/errors-are-values>Errors are values</a>
+that implement the <code>error</code> interface.</p><p>I have worked with several errors handling patterns over the years and I would
+like to summarize my experience focusing on the good solutions.</p><p>For the purpose of this post, let us imagine a very simple banking application.
 Accounts are represented by their numeric ID and we only know how much money
 each account holds. No account balance can get below zero. A bank service must
-implement the interface below.</p>
-<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000080;font-weight:bold">type</span> BankService <span style="color:#000080;font-weight:bold">interface</span> {
-    <span style="color:#080;font-style:italic">// NewAccount registers a new account in this bank. The account is
-</span><span style="color:#080;font-style:italic"></span>    <span style="color:#080;font-style:italic">// initialized with given funds.
-</span><span style="color:#080;font-style:italic"></span>    NewAccount(accountID <span style="color:#000080;font-weight:bold">int64</span>, funds <span style="color:#000080;font-weight:bold">uint64</span>) <span style="color:#000080;font-weight:bold">error</span>
+implement the interface below.</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>type</span> BankService <span style=color:navy;font-weight:700>interface</span> {
+    <span style=color:#080;font-style:italic>// NewAccount registers a new account in this bank. The account is
+</span><span style=color:#080;font-style:italic></span>    <span style=color:#080;font-style:italic>// initialized with given funds.
+</span><span style=color:#080;font-style:italic></span>    NewAccount(accountID <span style=color:navy;font-weight:700>int64</span>, funds <span style=color:navy;font-weight:700>uint64</span>) <span style=color:navy;font-weight:700>error</span>
 
-    <span style="color:#080;font-style:italic">// Transfer moves funds between two accounts. It fails if an operation
-</span><span style="color:#080;font-style:italic"></span>    <span style="color:#080;font-style:italic">// would cause the balance of the source account to go below zero.
-</span><span style="color:#080;font-style:italic"></span>    Transfer(from, to <span style="color:#000080;font-weight:bold">int64</span>, amount <span style="color:#000080;font-weight:bold">uint64</span>) <span style="color:#000080;font-weight:bold">error</span>
-}</code></pre></div>
-<p>To keep the examples short and simple an in-memory storage is used. Anything
-more serious would use a database instead.</p>
+    <span style=color:#080;font-style:italic>// Transfer moves funds between two accounts. It fails if an operation
+</span><span style=color:#080;font-style:italic></span>    <span style=color:#080;font-style:italic>// would cause the balance of the source account to go below zero.
+</span><span style=color:#080;font-style:italic></span>    Transfer(from, to <span style=color:navy;font-weight:700>int64</span>, amount <span style=color:navy;font-weight:700>uint64</span>) <span style=color:navy;font-weight:700>error</span>
+}
 
-<h2 id="inline-error-creation">Inline error creation</h2>
-
-<p>It is a common thing to create errors using <code>errors.New</code> and <code>fmt.Errorf</code> as
+</code></pre></div><p>To keep the examples short and simple an in-memory storage is used. Anything
+more serious would use a database instead.</p><h2 id=inline-error-creation>Inline error creation</h2><p>It is a common thing to create errors using <code>errors.New</code> and <code>fmt.Errorf</code> as
 they are needed. When an operation fails you can handle the failure by creating
 an error instance and returning it. The created error should contain
 information about the cause of the failure. With that in mind let us create the
-first version of a banking service.</p>
-
-<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000080;font-weight:bold">func</span> NewBank() *Bank {
-    <span style="color:#000080;font-weight:bold">return</span> &amp;Bank{
-        accounts: make(<span style="color:#000080;font-weight:bold">map</span>[<span style="color:#000080;font-weight:bold">int64</span>]<span style="color:#000080;font-weight:bold">uint64</span>),
+first version of a banking service.</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>func</span> NewBank() *Bank {
+    <span style=color:navy;font-weight:700>return</span> &amp;Bank{
+        accounts: make(<span style=color:navy;font-weight:700>map</span>[<span style=color:navy;font-weight:700>int64</span>]<span style=color:navy;font-weight:700>uint64</span>),
     }
 }
 
-<span style="color:#000080;font-weight:bold">type</span> Bank <span style="color:#000080;font-weight:bold">struct</span> {
-    accounts <span style="color:#000080;font-weight:bold">map</span>[<span style="color:#000080;font-weight:bold">int64</span>]<span style="color:#000080;font-weight:bold">uint64</span>
+<span style=color:navy;font-weight:700>type</span> Bank <span style=color:navy;font-weight:700>struct</span> {
+    accounts <span style=color:navy;font-weight:700>map</span>[<span style=color:navy;font-weight:700>int64</span>]<span style=color:navy;font-weight:700>uint64</span>
 }
 
-<span style="color:#080;font-style:italic">// Create new account with given funds. Account ID must be unique.
-</span><span style="color:#080;font-style:italic"></span><span style="color:#000080;font-weight:bold">func</span> (b *Bank) NewAccount(accountID <span style="color:#000080;font-weight:bold">int64</span>, funds <span style="color:#000080;font-weight:bold">uint64</span>) <span style="color:#000080;font-weight:bold">error</span> {
-    <span style="color:#000080;font-weight:bold">if</span> _, ok := b.accounts[accountID]; ok {
-<span style="display:block;width:100%;background-color:#e5e5e5">        <span style="color:#000080;font-weight:bold">return</span> errors.New(<span style="color:#00f">&#34;account exists&#34;</span>)
+<span style=color:#080;font-style:italic>// Create new account with given funds. Account ID must be unique.
+</span><span style=color:#080;font-style:italic></span><span style=color:navy;font-weight:700>func</span> (b *Bank) NewAccount(accountID <span style=color:navy;font-weight:700>int64</span>, funds <span style=color:navy;font-weight:700>uint64</span>) <span style=color:navy;font-weight:700>error</span> {
+    <span style=color:navy;font-weight:700>if</span> _, ok := b.accounts[accountID]; ok {
+<span style=display:block;width:100%;background-color:#e5e5e5>        <span style=color:navy;font-weight:700>return</span> errors.New(<span style=color:#00f>&#34;account exists&#34;</span>)
 </span>    }
     b.accounts[accountID] = funds
-    <span style="color:#000080;font-weight:bold">return</span> <span style="color:#000080;font-weight:bold">nil</span>
+    <span style=color:navy;font-weight:700>return</span> <span style=color:navy;font-weight:700>nil</span>
 }
 
-<span style="color:#080;font-style:italic">// Transfer moves funds from one account to another.
-</span><span style="color:#080;font-style:italic"></span><span style="color:#000080;font-weight:bold">func</span> (b *Bank) Transfer(from, to <span style="color:#000080;font-weight:bold">int64</span>, amount <span style="color:#000080;font-weight:bold">uint64</span>) <span style="color:#000080;font-weight:bold">error</span> {
-    <span style="color:#000080;font-weight:bold">switch</span> fromFunds, ok := b.accounts[from]; {
-    <span style="color:#000080;font-weight:bold">case</span> !ok:
-<span style="display:block;width:100%;background-color:#e5e5e5">        <span style="color:#000080;font-weight:bold">return</span> fmt.Errorf(<span style="color:#00f">&#34;source account %d not found&#34;</span>, from)
-</span>    <span style="color:#000080;font-weight:bold">case</span> fromFunds &lt; amount:
-<span style="display:block;width:100%;background-color:#e5e5e5">        <span style="color:#000080;font-weight:bold">return</span> fmt.Errorf(<span style="color:#00f">&#34;cannot transfer %d from %d account: insufficient funds&#34;</span>, amount, fromFunds)
+<span style=color:#080;font-style:italic>// Transfer moves funds from one account to another.
+</span><span style=color:#080;font-style:italic></span><span style=color:navy;font-weight:700>func</span> (b *Bank) Transfer(from, to <span style=color:navy;font-weight:700>int64</span>, amount <span style=color:navy;font-weight:700>uint64</span>) <span style=color:navy;font-weight:700>error</span> {
+    <span style=color:navy;font-weight:700>switch</span> fromFunds, ok := b.accounts[from]; {
+    <span style=color:navy;font-weight:700>case</span> !ok:
+<span style=display:block;width:100%;background-color:#e5e5e5>        <span style=color:navy;font-weight:700>return</span> fmt.Errorf(<span style=color:#00f>&#34;source account %d not found&#34;</span>, from)
+</span>    <span style=color:navy;font-weight:700>case</span> fromFunds &lt; amount:
+<span style=display:block;width:100%;background-color:#e5e5e5>        <span style=color:navy;font-weight:700>return</span> fmt.Errorf(<span style=color:#00f>&#34;cannot transfer %d from %d account: insufficient funds&#34;</span>, amount, fromFunds)
 </span>    }
 
-    <span style="color:#000080;font-weight:bold">if</span> _, ok := b.accounts[to]; !ok {
-<span style="display:block;width:100%;background-color:#e5e5e5">        <span style="color:#000080;font-weight:bold">return</span> fmt.Errorf(<span style="color:#00f">&#34;destination account %d not found&#34;</span>, to)
+    <span style=color:navy;font-weight:700>if</span> _, ok := b.accounts[to]; !ok {
+<span style=display:block;width:100%;background-color:#e5e5e5>        <span style=color:navy;font-weight:700>return</span> fmt.Errorf(<span style=color:#00f>&#34;destination account %d not found&#34;</span>, to)
 </span>    }
 
     b.accounts[from] -= amount
     b.accounts[to] += amount
-    <span style="color:#000080;font-weight:bold">return</span> <span style="color:#000080;font-weight:bold">nil</span>
-}</code></pre></div>
-
-<p>Above code presents a common way of dealing with errors. If a failure cannot be
+    <span style=color:navy;font-weight:700>return</span> <span style=color:navy;font-weight:700>nil</span>
+}</code></pre></div><p>Above code presents a common way of dealing with errors. If a failure cannot be
 dealt with then return the error. If possible provide additional information,
 for example, an account ID. This is often an acceptable solution but sometimes
 it might not be good enough. As soon as we use the <code>Bank</code> instance the
-shortcomings are more visible.</p>
-<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">bank := NewBank()
-<span style="color:#080;font-style:italic">// ...
-</span><span style="color:#080;font-style:italic"></span><span style="color:#000080;font-weight:bold">if</span> err := bank.Transfer(<span style="color:#00f">111</span>, <span style="color:#00f">222</span>, <span style="color:#00f">10</span>); err != <span style="color:#000080;font-weight:bold">nil</span> {
-    <span style="color:#080;font-style:italic">// Why did the transfer fail?
-</span><span style="color:#080;font-style:italic"></span>}</code></pre></div>
-<p>If the <code>Transfer</code> call returns an error it is not possible to learn about the
+shortcomings are more visible.</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go>bank := NewBank()
+<span style=color:#080;font-style:italic>// ...
+</span><span style=color:#080;font-style:italic></span><span style=color:navy;font-weight:700>if</span> err := bank.Transfer(<span style=color:#00f>111</span>, <span style=color:#00f>222</span>, <span style=color:#00f>10</span>); err != <span style=color:navy;font-weight:700>nil</span> {
+    <span style=color:#080;font-style:italic>// Why did the transfer fail?
+</span><span style=color:#080;font-style:italic></span>}
+</code></pre></div><p>If the <code>Transfer</code> call returns an error it is not possible to learn about the
 reason and distinguish different cases. As a human analyzing the text message,
 we can tell what went wrong. If you want your code to react differently if one
 of the accounts does not exist and do something else when there are not enough
-funds on the source account then you have a problem.</p>
-
-<h2 id="predefined-errors">Predefined errors</h2>
-
-<p>To provide more insights into the <code>Transfer</code> method failures one may declare
-all expected errors upfront.</p>
-
-<p>For each failure case declare a corresponding error instance. Compare an error
+funds on the source account then you have a problem.</p><h2 id=predefined-errors>Predefined errors</h2><p>To provide more insights into the <code>Transfer</code> method failures one may declare
+all expected errors upfront.</p><p>For each failure case declare a corresponding error instance. Compare an error
 returned by the <code>Transfer</code> method with all error definitions it can return to
-discover the cause.</p>
-
-<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#080;font-style:italic">// Transfer moves funds from one account to another.
-</span><span style="color:#080;font-style:italic">// Upon failure returns one of
-</span><span style="color:#080;font-style:italic">//   ErrNoSourceAccount
-</span><span style="color:#080;font-style:italic">//   ErrNoDestinationAccount
-</span><span style="color:#080;font-style:italic">//   ErrInsufficientFunds
-</span><span style="color:#080;font-style:italic"></span><span style="color:#000080;font-weight:bold">func</span> (b *Bank) Transfer(from, to <span style="color:#000080;font-weight:bold">int64</span>, amount <span style="color:#000080;font-weight:bold">uint64</span>) <span style="color:#000080;font-weight:bold">error</span> {
-    <span style="color:#000080;font-weight:bold">switch</span> fromFunds, ok := b.accounts[from]; {
-    <span style="color:#000080;font-weight:bold">case</span> !ok:
-<span style="display:block;width:100%;background-color:#e5e5e5">        <span style="color:#000080;font-weight:bold">return</span> ErrNoSourceAccount
-</span>    <span style="color:#000080;font-weight:bold">case</span> fromFunds &lt; amount:
-<span style="display:block;width:100%;background-color:#e5e5e5">        <span style="color:#000080;font-weight:bold">return</span> ErrInsufficientFunds
+discover the cause.</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:#080;font-style:italic>// Transfer moves funds from one account to another.
+</span><span style=color:#080;font-style:italic></span><span style=color:#080;font-style:italic>// Upon failure returns one of
+</span><span style=color:#080;font-style:italic></span><span style=color:#080;font-style:italic>//   ErrNoSourceAccount
+</span><span style=color:#080;font-style:italic></span><span style=color:#080;font-style:italic>//   ErrNoDestinationAccount
+</span><span style=color:#080;font-style:italic></span><span style=color:#080;font-style:italic>//   ErrInsufficientFunds
+</span><span style=color:#080;font-style:italic></span><span style=color:navy;font-weight:700>func</span> (b *Bank) Transfer(from, to <span style=color:navy;font-weight:700>int64</span>, amount <span style=color:navy;font-weight:700>uint64</span>) <span style=color:navy;font-weight:700>error</span> {
+    <span style=color:navy;font-weight:700>switch</span> fromFunds, ok := b.accounts[from]; {
+    <span style=color:navy;font-weight:700>case</span> !ok:
+<span style=display:block;width:100%;background-color:#e5e5e5>        <span style=color:navy;font-weight:700>return</span> ErrNoSourceAccount
+</span>    <span style=color:navy;font-weight:700>case</span> fromFunds &lt; amount:
+<span style=display:block;width:100%;background-color:#e5e5e5>        <span style=color:navy;font-weight:700>return</span> ErrInsufficientFunds
 </span>    }
 
-    <span style="color:#000080;font-weight:bold">if</span> _, ok := b.accounts[to]; !ok {
-<span style="display:block;width:100%;background-color:#e5e5e5">        <span style="color:#000080;font-weight:bold">return</span> ErrNoDestinationAccount
+    <span style=color:navy;font-weight:700>if</span> _, ok := b.accounts[to]; !ok {
+<span style=display:block;width:100%;background-color:#e5e5e5>        <span style=color:navy;font-weight:700>return</span> ErrNoDestinationAccount
 </span>    }
 
     b.accounts[from] -= amount
     b.accounts[to] += amount
-    <span style="color:#000080;font-weight:bold">return</span> <span style="color:#000080;font-weight:bold">nil</span>
+    <span style=color:navy;font-weight:700>return</span> <span style=color:navy;font-weight:700>nil</span>
 }
 
-<span style="color:#000080;font-weight:bold">var</span> (
-    <span style="color:#080;font-style:italic">// ErrNoSourceAccount is returned when the source account does not
-</span><span style="color:#080;font-style:italic"></span>    <span style="color:#080;font-style:italic">// exist.
-</span><span style="color:#080;font-style:italic"></span>    ErrNoSourceAccount = errors.New(<span style="color:#00f">&#34;no source account&#34;</span>)
+<span style=color:navy;font-weight:700>var</span> (
+    <span style=color:#080;font-style:italic>// ErrNoSourceAccount is returned when the source account does not
+</span><span style=color:#080;font-style:italic></span>    <span style=color:#080;font-style:italic>// exist.
+</span><span style=color:#080;font-style:italic></span>    ErrNoSourceAccount = errors.New(<span style=color:#00f>&#34;no source account&#34;</span>)
 
-    <span style="color:#080;font-style:italic">// ErrNoDestinationAccount is returned when the destination account
-</span><span style="color:#080;font-style:italic"></span>    <span style="color:#080;font-style:italic">// does not exist.
-</span><span style="color:#080;font-style:italic"></span>    ErrNoDestinationAccount = errors.New(<span style="color:#00f">&#34;no destination account&#34;</span>)
+    <span style=color:#080;font-style:italic>// ErrNoDestinationAccount is returned when the destination account
+</span><span style=color:#080;font-style:italic></span>    <span style=color:#080;font-style:italic>// does not exist.
+</span><span style=color:#080;font-style:italic></span>    ErrNoDestinationAccount = errors.New(<span style=color:#00f>&#34;no destination account&#34;</span>)
 
-    <span style="color:#080;font-style:italic">// ErrInsufficientFunds is returned when a transfer cannot be completed
-</span><span style="color:#080;font-style:italic"></span>    <span style="color:#080;font-style:italic">// because there are not enough funds on the source account.
-</span><span style="color:#080;font-style:italic"></span>    ErrInsufficientFunds = errors.New(<span style="color:#00f">&#34;insufficient funds&#34;</span>)
-)</code></pre></div>
-
-<p>This is similar to how the <a href="https://golang.org/pkg/io/#pkg-variables"><code>io</code></a>
-package deals with errors.</p>
-
-<p>Returning a different error instance for each error case allows us to handle
+    <span style=color:#080;font-style:italic>// ErrInsufficientFunds is returned when a transfer cannot be completed
+</span><span style=color:#080;font-style:italic></span>    <span style=color:#080;font-style:italic>// because there are not enough funds on the source account.
+</span><span style=color:#080;font-style:italic></span>    ErrInsufficientFunds = errors.New(<span style=color:#00f>&#34;insufficient funds&#34;</span>)
+)</code></pre></div><p>This is similar to how the <a href=https://golang.org/pkg/io/#pkg-variables><code>io</code></a>
+package deals with errors.</p><p>Returning a different error instance for each error case allows us to handle
 different failure cases accordingly. Test the returned error for being one of
-the predefined instances.</p>
-<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">bank := NewBank()
-<span style="color:#080;font-style:italic">// ...
-</span><span style="color:#080;font-style:italic"></span><span style="color:#000080;font-weight:bold">switch</span> err := bank.Transfer(<span style="color:#00f">1</span>, <span style="color:#00f">2</span>); err {
-<span style="color:#000080;font-weight:bold">case</span> <span style="color:#000080;font-weight:bold">nil</span>:
-    println(<span style="color:#00f">&#34;money transferred&#34;</span>)
-<span style="color:#000080;font-weight:bold">case</span> ErrNoSourceAccount:
-    panic(<span style="color:#00f">&#34;source account does not exist&#34;</span>)
-<span style="color:#000080;font-weight:bold">case</span> ErrNoDestinationAccount:
-    panic(<span style="color:#00f">&#34;destination account does not exist&#34;</span>)
-<span style="color:#000080;font-weight:bold">case</span> ErrInsufficientFunds:
-    panic(<span style="color:#00f">&#34;not enough money&#34;</span>)
-<span style="color:#000080;font-weight:bold">default</span>:
-    panic(<span style="color:#00f">&#34;unexpected error&#34;</span>)
-}</code></pre></div>
-<p>This is in my opinion a step in the right direction but it is too verbose. This
+the predefined instances.</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go>bank := NewBank()
+<span style=color:#080;font-style:italic>// ...
+</span><span style=color:#080;font-style:italic></span><span style=color:navy;font-weight:700>switch</span> err := bank.Transfer(<span style=color:#00f>1</span>, <span style=color:#00f>2</span>); err {
+<span style=color:navy;font-weight:700>case</span> <span style=color:navy;font-weight:700>nil</span>:
+    println(<span style=color:#00f>&#34;money transferred&#34;</span>)
+<span style=color:navy;font-weight:700>case</span> ErrNoSourceAccount:
+    panic(<span style=color:#00f>&#34;source account does not exist&#34;</span>)
+<span style=color:navy;font-weight:700>case</span> ErrNoDestinationAccount:
+    panic(<span style=color:#00f>&#34;destination account does not exist&#34;</span>)
+<span style=color:navy;font-weight:700>case</span> ErrInsufficientFunds:
+    panic(<span style=color:#00f>&#34;not enough money&#34;</span>)
+<span style=color:navy;font-weight:700>default</span>:
+    panic(<span style=color:#00f>&#34;unexpected error&#34;</span>)
+}
+</code></pre></div><p>This is in my opinion a step in the right direction but it is too verbose. This
 patten requires too much code to be written. You can no longer create errors
 when you need them. All failure cases and respective errors must be declared
-upfront.</p>
-
-<p>In addition, you are losing the context information that you were building
+upfront.</p><p>In addition, you are losing the context information that you were building
 using <code>fmt.Errorf</code>. When returning <code>ErrInsufficientFunds</code> you no longer know
 which account caused it. <code>fmt.Errorf</code> must no longer be used for the error
-instance comparison to work.</p>
-
-<h2 id="error-inheritance">Error inheritance</h2>
-
-<p>In Python - a language with exceptions and type inheritance - <a href="https://docs.python.org/3/library/exceptions.html#exception-hierarchy">exceptions form
+instance comparison to work.</p><h2 id=error-inheritance>Error inheritance</h2><p>In Python - a language with exceptions and type inheritance - <a href=https://docs.python.org/3/library/exceptions.html#exception-hierarchy>exceptions form
 a hierarchy</a>.
 Because each error is an instance of a class belonging to that class hierarchy
 each exception instance can contain a custom message and be captured by its
-type or any type it inherits from.</p>
-
-<p>This is how a banking service could be used if implemented in Python.</p>
-<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#000080;font-weight:bold">try</span>:
+type or any type it inherits from.</p><p>This is how a banking service could be used if implemented in Python.</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:navy;font-weight:700>try</span>:
     bank.transfer(from, to, amount)
-<span style="color:#000080;font-weight:bold">except</span> ErrAccountNotFound <span style="color:#000080;font-weight:bold">as</span> e:
-    <span style="color:#000080;font-weight:bold">print</span>(e) <span style="color:#080;font-style:italic"># either source or destination account not found</span>
-<span style="color:#000080;font-weight:bold">except</span> ErrInsufficientFunds:
-    <span style="color:#000080;font-weight:bold">print</span>(<span style="color:#00f">&#34;not enough money&#34;</span>)
-<span style="color:#000080;font-weight:bold">except</span> Exception:
-    <span style="color:#000080;font-weight:bold">print</span>(<span style="color:#00f">&#34;unexpected condition&#34;</span>)</code></pre></div>
-<p>Because in Python implementation both <code>ErrNoSourceAccount</code> and
+<span style=color:navy;font-weight:700>except</span> ErrAccountNotFound <span style=color:navy;font-weight:700>as</span> e:
+    <span style=color:navy;font-weight:700>print</span>(e) <span style=color:#080;font-style:italic># either source or destination account not found</span>
+<span style=color:navy;font-weight:700>except</span> ErrInsufficientFunds:
+    <span style=color:navy;font-weight:700>print</span>(<span style=color:#00f></span><span style=color:#00f>&#34;</span><span style=color:#00f>not enough money</span><span style=color:#00f>&#34;</span>)
+<span style=color:navy;font-weight:700>except</span> Exception:
+    <span style=color:navy;font-weight:700>print</span>(<span style=color:#00f></span><span style=color:#00f>&#34;</span><span style=color:#00f>unexpected condition</span><span style=color:#00f>&#34;</span>)
+</code></pre></div><p>Because in Python implementation both <code>ErrNoSourceAccount</code> and
 <code>ErrNoDestinationAccount</code> would inherit from <code>ErrAccountNotFound</code>, both cases
-can be handled with a single statement <code>except ErrAccountNotFound</code>.</p>
-
-<p>When capturing an exception <code>e</code> refers to the exception instance containing the
+can be handled with a single statement <code>except ErrAccountNotFound</code>.</p><p>When capturing an exception <code>e</code> refers to the exception instance containing the
 detailed information that can be helpful during debugging or consumed by the
-client. It can contain more information than just a human readable description.</p>
-
-<h3 id="causer-interface"><code>Causer</code> interface</h3>
-
-<p>Inheritance is not a requirement to achieve the functionality provided by
+client. It can contain more information than just a human readable description.</p><h3 id=causer-interface><code>Causer</code> interface</h3><p>Inheritance is not a requirement to achieve the functionality provided by
 Python exceptions. When considering an error it is enough if we are able to
 tell what was the cause of it. This is not possible with errors created using
 the standard library (<code>errors</code> or <code>fmt</code> packages). Instead of using the
-standard library, we must create our own error implementation.</p>
-
-<p>What is needed is an <code>Error</code> structure that implements the
-<a href="https://golang.org/pkg/builtin/#error"><code>error</code></a> interface and a <code>Wrap</code>
-function that will take an error together with an additional description.</p>
-<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#080;font-style:italic">// Wrap returns an error that is having given error set as the cause.
-</span><span style="color:#080;font-style:italic"></span><span style="color:#000080;font-weight:bold">func</span> Wrap(err <span style="color:#000080;font-weight:bold">error</span>, description <span style="color:#000080;font-weight:bold">string</span>, args ...<span style="color:#000080;font-weight:bold">interface</span>{}) *Error {
-    <span style="color:#000080;font-weight:bold">return</span> &amp;Error{
+standard library, we must create our own error implementation.</p><p>What is needed is an <code>Error</code> structure that implements the
+<a href=https://golang.org/pkg/builtin/#error><code>error</code></a> interface and a <code>Wrap</code>
+function that will take an error together with an additional description.</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:#080;font-style:italic>// Wrap returns an error that is having given error set as the cause.
+</span><span style=color:#080;font-style:italic></span><span style=color:navy;font-weight:700>func</span> Wrap(err <span style=color:navy;font-weight:700>error</span>, description <span style=color:navy;font-weight:700>string</span>, args ...<span style=color:navy;font-weight:700>interface</span>{}) *Error {
+    <span style=color:navy;font-weight:700>return</span> &amp;Error{
         parent: err,
         desc:   fmt.Sprintf(description, args...),
     }
 }
 
-<span style="color:#000080;font-weight:bold">type</span> Error <span style="color:#000080;font-weight:bold">struct</span> {
-    <span style="color:#080;font-style:italic">// Parent error if any.
-</span><span style="color:#080;font-style:italic"></span>    parent <span style="color:#000080;font-weight:bold">error</span>
-    <span style="color:#080;font-style:italic">// This error description.
-</span><span style="color:#080;font-style:italic"></span>    desc <span style="color:#000080;font-weight:bold">string</span>
+<span style=color:navy;font-weight:700>type</span> Error <span style=color:navy;font-weight:700>struct</span> {
+    <span style=color:#080;font-style:italic>// Parent error if any.
+</span><span style=color:#080;font-style:italic></span>    parent <span style=color:navy;font-weight:700>error</span>
+    <span style=color:#080;font-style:italic>// This error description.
+</span><span style=color:#080;font-style:italic></span>    desc <span style=color:navy;font-weight:700>string</span>
 }
 
-<span style="color:#000080;font-weight:bold">func</span> (e *Error) Error() <span style="color:#000080;font-weight:bold">string</span> {
-    <span style="color:#000080;font-weight:bold">if</span> e.parent == <span style="color:#000080;font-weight:bold">nil</span> {
-        <span style="color:#000080;font-weight:bold">return</span> e.desc
+<span style=color:navy;font-weight:700>func</span> (e *Error) Error() <span style=color:navy;font-weight:700>string</span> {
+    <span style=color:navy;font-weight:700>if</span> e.parent == <span style=color:navy;font-weight:700>nil</span> {
+        <span style=color:navy;font-weight:700>return</span> e.desc
     }
-    <span style="color:#000080;font-weight:bold">return</span> fmt.Sprintf(<span style="color:#00f">&#34;%s: %s&#34;</span>, e.desc, e.parent)
-}</code></pre></div>
-<p>In addition, it will provide a <code>Cause</code> method that will return the wrapped error
-instance or <code>nil</code>.</p>
-<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#080;font-style:italic">// Cause returns the cause of this error or nil if this is the root cause
-</span><span style="color:#080;font-style:italic">// error.
-</span><span style="color:#080;font-style:italic"></span><span style="color:#000080;font-weight:bold">func</span> (e *Error) Cause() <span style="color:#000080;font-weight:bold">error</span> {
-    <span style="color:#000080;font-weight:bold">return</span> e.parent
-}</code></pre></div>
-<p>One more function is necessary for this to be complete. We must be able to
+    <span style=color:navy;font-weight:700>return</span> fmt.Sprintf(<span style=color:#00f>&#34;%s: %s&#34;</span>, e.desc, e.parent)
+}
+</code></pre></div><p>In addition, it will provide a <code>Cause</code> method that will return the wrapped error
+instance or <code>nil</code>.</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:#080;font-style:italic>// Cause returns the cause of this error or nil if this is the root cause
+</span><span style=color:#080;font-style:italic></span><span style=color:#080;font-style:italic>// error.
+</span><span style=color:#080;font-style:italic></span><span style=color:navy;font-weight:700>func</span> (e *Error) Cause() <span style=color:navy;font-weight:700>error</span> {
+    <span style=color:navy;font-weight:700>return</span> e.parent
+}
+</code></pre></div><p>One more function is necessary for this to be complete. We must be able to
 compare an error with another error or its cause. The <code>error</code> interface does
 not provide <code>Cause</code> method so we must use type casting to determine if an error
-instance implements the <code>causer</code> interface.</p>
-
-<p>Instead of a function a method of the <code>Error</code> structure provides a nicer API.</p>
-<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#080;font-style:italic">// Is returns true if given error or its cause is the same kind.
-</span><span style="color:#080;font-style:italic">// If cause error provides Cause method then a comparison is made with all
-</span><span style="color:#080;font-style:italic">// parents as well.
-</span><span style="color:#080;font-style:italic"></span><span style="color:#000080;font-weight:bold">func</span> (kind *Error) Is(err <span style="color:#000080;font-weight:bold">error</span>) <span style="color:#000080;font-weight:bold">bool</span> {
-    <span style="color:#000080;font-weight:bold">type</span> causer <span style="color:#000080;font-weight:bold">interface</span> {
-        Cause() <span style="color:#000080;font-weight:bold">error</span>
+instance implements the <code>causer</code> interface.</p><p>Instead of a function a method of the <code>Error</code> structure provides a nicer API.</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go>
+<span style=color:#080;font-style:italic>// Is returns true if given error or its cause is the same kind.
+</span><span style=color:#080;font-style:italic></span><span style=color:#080;font-style:italic>// If cause error provides Cause method then a comparison is made with all
+</span><span style=color:#080;font-style:italic></span><span style=color:#080;font-style:italic>// parents as well.
+</span><span style=color:#080;font-style:italic></span><span style=color:navy;font-weight:700>func</span> (kind *Error) Is(err <span style=color:navy;font-weight:700>error</span>) <span style=color:navy;font-weight:700>bool</span> {
+    <span style=color:navy;font-weight:700>type</span> causer <span style=color:navy;font-weight:700>interface</span> {
+        Cause() <span style=color:navy;font-weight:700>error</span>
     }
-    <span style="color:#000080;font-weight:bold">for</span> {
-        <span style="color:#000080;font-weight:bold">if</span> err == kind {
-            <span style="color:#000080;font-weight:bold">return</span> <span style="color:#000080;font-weight:bold">true</span>
+    <span style=color:navy;font-weight:700>for</span> {
+        <span style=color:navy;font-weight:700>if</span> err == kind {
+            <span style=color:navy;font-weight:700>return</span> <span style=color:navy;font-weight:700>true</span>
         }
-        <span style="color:#000080;font-weight:bold">if</span> e, ok := err.(causer); ok {
+        <span style=color:navy;font-weight:700>if</span> e, ok := err.(causer); ok {
             err = e.Cause()
-        } <span style="color:#000080;font-weight:bold">else</span> {
-            <span style="color:#000080;font-weight:bold">return</span> <span style="color:#000080;font-weight:bold">false</span>
+        } <span style=color:navy;font-weight:700>else</span> {
+            <span style=color:navy;font-weight:700>return</span> <span style=color:navy;font-weight:700>false</span>
         }
     }
-}</code></pre></div>
-<p>Let us test the <code>Error</code>. All errors are created using the <code>Wrap</code> function which
+}
+</code></pre></div><p>Let us test the <code>Error</code>. All errors are created using the <code>Wrap</code> function which
 builds an error hierarchy. It is possible to attach additional information by
-including it in the description string.</p>
-<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">root := Wrap(<span style="color:#000080;font-weight:bold">nil</span>, <span style="color:#00f">&#34;root&#34;</span>)
-child1 := Wrap(root, <span style="color:#00f">&#34;child one&#34;</span>)
-child2 := Wrap(root, <span style="color:#00f">&#34;child two&#34;</span>)
+including it in the description string.</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go>root := Wrap(<span style=color:navy;font-weight:700>nil</span>, <span style=color:#00f>&#34;root&#34;</span>)
+child1 := Wrap(root, <span style=color:#00f>&#34;child one&#34;</span>)
+child2 := Wrap(root, <span style=color:#00f>&#34;child two&#34;</span>)
 
-fmt.Println(<span style="color:#00f">&#34;child 1 is root&#34;</span>, root.Is(child1))
-<span style="color:#080;font-style:italic">// child 1 is root true
-</span><span style="color:#080;font-style:italic"></span>
-fmt.Println(<span style="color:#00f">&#34;child 2 is root&#34;</span>, root.Is(child2))
-<span style="color:#080;font-style:italic">// child 2 is root true
-</span><span style="color:#080;font-style:italic"></span>
-fmt.Println(<span style="color:#00f">&#34;root is child 1&#34;</span>, child1.Is(root))
-<span style="color:#080;font-style:italic">// root is child 1 false
-</span><span style="color:#080;font-style:italic"></span>
-fmt.Println(<span style="color:#00f">&#34;child 2 is child 1&#34;</span>, child1.Is(child2))
-<span style="color:#080;font-style:italic">// child 2 is child 1 false
-</span><span style="color:#080;font-style:italic"></span>
-inlinedErr := Wrap(child2, <span style="color:#00f">&#34;current time: %s&#34;</span>, time.Now())
-fmt.Println(<span style="color:#00f">&#34;inlined child 2 is root&#34;</span>, root.Is(inlinedErr))
-<span style="color:#080;font-style:italic">// inlined child 2 is root true
-</span><span style="color:#080;font-style:italic"></span>fmt.Println(<span style="color:#00f">&#34;inlined child 2 is child 2&#34;</span>, child2.Is(inlinedErr))
-<span style="color:#080;font-style:italic">// inlined child 2 is child 2 true
-</span><span style="color:#080;font-style:italic"></span>
-fmt.Println(<span style="color:#00f">&#34;fmt error is root&#34;</span>, root.Is(fmt.Errorf(<span style="color:#00f">&#34;fmt error&#34;</span>)))
-// fmt <span style="color:#000080;font-weight:bold">error</span> is root <span style="color:#000080;font-weight:bold">false</span></code></pre></div>
-<p>Above <code>Error</code> implementation is a powerful solution to error handling. It is
+fmt.Println(<span style=color:#00f>&#34;child 1 is root&#34;</span>, root.Is(child1))
+<span style=color:#080;font-style:italic>// child 1 is root true
+</span><span style=color:#080;font-style:italic></span>
+fmt.Println(<span style=color:#00f>&#34;child 2 is root&#34;</span>, root.Is(child2))
+<span style=color:#080;font-style:italic>// child 2 is root true
+</span><span style=color:#080;font-style:italic></span>
+fmt.Println(<span style=color:#00f>&#34;root is child 1&#34;</span>, child1.Is(root))
+<span style=color:#080;font-style:italic>// root is child 1 false
+</span><span style=color:#080;font-style:italic></span>
+fmt.Println(<span style=color:#00f>&#34;child 2 is child 1&#34;</span>, child1.Is(child2))
+<span style=color:#080;font-style:italic>// child 2 is child 1 false
+</span><span style=color:#080;font-style:italic></span>
+inlinedErr := Wrap(child2, <span style=color:#00f>&#34;current time: %s&#34;</span>, time.Now())
+fmt.Println(<span style=color:#00f>&#34;inlined child 2 is root&#34;</span>, root.Is(inlinedErr))
+<span style=color:#080;font-style:italic>// inlined child 2 is root true
+</span><span style=color:#080;font-style:italic></span>fmt.Println(<span style=color:#00f>&#34;inlined child 2 is child 2&#34;</span>, child2.Is(inlinedErr))
+<span style=color:#080;font-style:italic>// inlined child 2 is child 2 true
+</span><span style=color:#080;font-style:italic></span>
+fmt.Println(<span style=color:#00f>&#34;fmt error is root&#34;</span>, root.Is(fmt.Errorf(<span style=color:#00f>&#34;fmt error&#34;</span>)))
+<span style=color:#080;font-style:italic>// fmt error is root false
+</span></code></pre></div><p>Above <code>Error</code> implementation is a powerful solution to error handling. It is
 easy to implement, does not require much code and it is portable without
-creating an explicit dependency on the <code>causer</code> interface.</p>
-
-<h2 id="predefined-errors-with-inheritance">Predefined errors with inheritance</h2>
-
-<p>If an error implements the <code>causer</code> interface we can unwind it and retrieve the
+creating an explicit dependency on the <code>causer</code> interface.</p><h2 id=predefined-errors-with-inheritance>Predefined errors with inheritance</h2><p>If an error implements the <code>causer</code> interface we can unwind it and retrieve the
 previous error instance! This means that no matter how many times we will wrap
 an error, as long as all layers implement the <code>causer</code> interface we can
-retrieve the parent error instance.</p>
-
-<p>Back to the <code>Bank.Transfer</code> example. All error instances were wrapped before
-returning and provide all the details one may expect an error to provide.</p>
-
-<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000080;font-weight:bold">func</span> (b *Bank) Transfer(from, to <span style="color:#000080;font-weight:bold">int64</span>, amount <span style="color:#000080;font-weight:bold">uint64</span>) <span style="color:#000080;font-weight:bold">error</span> {
-    <span style="color:#000080;font-weight:bold">switch</span> fromFunds, ok := b.accounts[from]; {
-    <span style="color:#000080;font-weight:bold">case</span> !ok:
-<span style="display:block;width:100%;background-color:#e5e5e5">        <span style="color:#000080;font-weight:bold">return</span> Wrap(ErrNoSourceAccount, <span style="color:#00f">&#34;ID %d&#34;</span>, from)
-</span>    <span style="color:#000080;font-weight:bold">case</span> fromFunds &lt; amount:
-<span style="display:block;width:100%;background-color:#e5e5e5">        <span style="color:#000080;font-weight:bold">return</span> Wrap(ErrInsufficientFunds,
-</span><span style="display:block;width:100%;background-color:#e5e5e5">            <span style="color:#00f">&#34;cannot transfer %d from %d account&#34;</span>, amount, fromFunds)
+retrieve the parent error instance.</p><p>Back to the <code>Bank.Transfer</code> example. All error instances were wrapped before
+returning and provide all the details one may expect an error to provide.</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>func</span> (b *Bank) Transfer(from, to <span style=color:navy;font-weight:700>int64</span>, amount <span style=color:navy;font-weight:700>uint64</span>) <span style=color:navy;font-weight:700>error</span> {
+    <span style=color:navy;font-weight:700>switch</span> fromFunds, ok := b.accounts[from]; {
+    <span style=color:navy;font-weight:700>case</span> !ok:
+<span style=display:block;width:100%;background-color:#e5e5e5>        <span style=color:navy;font-weight:700>return</span> Wrap(ErrNoSourceAccount, <span style=color:#00f>&#34;ID %d&#34;</span>, from)
+</span>    <span style=color:navy;font-weight:700>case</span> fromFunds &lt; amount:
+<span style=display:block;width:100%;background-color:#e5e5e5>        <span style=color:navy;font-weight:700>return</span> Wrap(ErrInsufficientFunds,
+</span><span style=display:block;width:100%;background-color:#e5e5e5>            <span style=color:#00f>&#34;cannot transfer %d from %d account&#34;</span>, amount, fromFunds)
 </span>    }
 
-    <span style="color:#000080;font-weight:bold">if</span> _, ok := b.accounts[to]; !ok {
-<span style="display:block;width:100%;background-color:#e5e5e5">        <span style="color:#000080;font-weight:bold">return</span> Wrap(ErrNoDestinationAccount, <span style="color:#00f">&#34;ID %d&#34;</span>, to)
+    <span style=color:navy;font-weight:700>if</span> _, ok := b.accounts[to]; !ok {
+<span style=display:block;width:100%;background-color:#e5e5e5>        <span style=color:navy;font-weight:700>return</span> Wrap(ErrNoDestinationAccount, <span style=color:#00f>&#34;ID %d&#34;</span>, to)
 </span>    }
 
     b.accounts[from] -= amount
     b.accounts[to] += amount
-    <span style="color:#000080;font-weight:bold">return</span> <span style="color:#000080;font-weight:bold">nil</span>
+    <span style=color:navy;font-weight:700>return</span> <span style=color:navy;font-weight:700>nil</span>
 }
 
-<span style="color:#000080;font-weight:bold">var</span> (
-    <span style="color:#080;font-style:italic">// ErrAccountNotFound is return when an operation fails because the
-</span><span style="color:#080;font-style:italic"></span>    <span style="color:#080;font-style:italic">// requested account does not exist.
-</span><span style="color:#080;font-style:italic"></span>    ErrAccountNotFound = Wrap(<span style="color:#000080;font-weight:bold">nil</span>, <span style="color:#00f">&#34;account not found&#34;</span>)
+<span style=color:navy;font-weight:700>var</span> (
+    <span style=color:#080;font-style:italic>// ErrAccountNotFound is return when an operation fails because the
+</span><span style=color:#080;font-style:italic></span>    <span style=color:#080;font-style:italic>// requested account does not exist.
+</span><span style=color:#080;font-style:italic></span>    ErrAccountNotFound = Wrap(<span style=color:navy;font-weight:700>nil</span>, <span style=color:#00f>&#34;account not found&#34;</span>)
 
-    <span style="color:#080;font-style:italic">// ErrNoSourceAccount is returned when the source account does not
-</span><span style="color:#080;font-style:italic"></span>    <span style="color:#080;font-style:italic">// exist.
-</span><span style="color:#080;font-style:italic"></span>    ErrNoSourceAccount = Wrap(ErrAccountNotFound, <span style="color:#00f">&#34;no source&#34;</span>)
+    <span style=color:#080;font-style:italic>// ErrNoSourceAccount is returned when the source account does not
+</span><span style=color:#080;font-style:italic></span>    <span style=color:#080;font-style:italic>// exist.
+</span><span style=color:#080;font-style:italic></span>    ErrNoSourceAccount = Wrap(ErrAccountNotFound, <span style=color:#00f>&#34;no source&#34;</span>)
 
-    <span style="color:#080;font-style:italic">// ErrNoDestinationAccount is returned when the destination account
-</span><span style="color:#080;font-style:italic"></span>    <span style="color:#080;font-style:italic">// does not exist.
-</span><span style="color:#080;font-style:italic"></span>    ErrNoDestinationAccount = Wrap(ErrAccountNotFound, <span style="color:#00f">&#34;no destination&#34;</span>)
+    <span style=color:#080;font-style:italic>// ErrNoDestinationAccount is returned when the destination account
+</span><span style=color:#080;font-style:italic></span>    <span style=color:#080;font-style:italic>// does not exist.
+</span><span style=color:#080;font-style:italic></span>    ErrNoDestinationAccount = Wrap(ErrAccountNotFound, <span style=color:#00f>&#34;no destination&#34;</span>)
 
-    <span style="color:#080;font-style:italic">// ErrInsufficientFunds is returned when a transfer cannot be completed
-</span><span style="color:#080;font-style:italic"></span>    <span style="color:#080;font-style:italic">// because there are not enough funds on the source account.
-</span><span style="color:#080;font-style:italic"></span>    ErrInsufficientFunds = Wrap(<span style="color:#000080;font-weight:bold">nil</span>, <span style="color:#00f">&#34;insufficient funds&#34;</span>)
-)</code></pre></div>
-
-<p>Errors can be tested on any granularity level. It is valid to compare with the
-high level <code>ErrAccountNotFound</code> or more precise <code>ErrNoSourceAccount</code>.</p>
-<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">bank := NewBank()
-<span style="color:#080;font-style:italic">// ...
-</span><span style="color:#080;font-style:italic"></span><span style="color:#000080;font-weight:bold">switch</span> err := bank.Transfer(<span style="color:#00f">1</span>, <span style="color:#00f">2</span>, <span style="color:#00f">100</span>); {
-<span style="color:#000080;font-weight:bold">case</span> err == <span style="color:#000080;font-weight:bold">nil</span>:
-    println(<span style="color:#00f">&#34;money transferred&#34;</span>)
-<span style="color:#000080;font-weight:bold">case</span> ErrNoDestinationAccount.Is(err):
-    panic(<span style="color:#00f">&#34;destination account does not exist&#34;</span>)
-<span style="color:#000080;font-weight:bold">case</span> ErrInsufficientFunds.Is(err):
-    panic(<span style="color:#00f">&#34;not enough money &#34;</span> + err.Error()) <span style="color:#080;font-style:italic">// err provides more details
-</span><span style="color:#080;font-style:italic"></span><span style="color:#000080;font-weight:bold">default</span>:
-    panic(<span style="color:#00f">&#34;unexpected error&#34;</span>)
-}</code></pre></div>
-<h2 id="don-t-drink-too-much-cool-aid">Don&rsquo;t Drink Too Much Cool Aid</h2>
-
-<p>What I have presented is a powerful pattern. You may use the <code>causer</code> interface
+    <span style=color:#080;font-style:italic>// ErrInsufficientFunds is returned when a transfer cannot be completed
+</span><span style=color:#080;font-style:italic></span>    <span style=color:#080;font-style:italic>// because there are not enough funds on the source account.
+</span><span style=color:#080;font-style:italic></span>    ErrInsufficientFunds = Wrap(<span style=color:navy;font-weight:700>nil</span>, <span style=color:#00f>&#34;insufficient funds&#34;</span>)
+)</code></pre></div><p>Errors can be tested on any granularity level. It is valid to compare with the
+high level <code>ErrAccountNotFound</code> or more precise <code>ErrNoSourceAccount</code>.</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go>bank := NewBank()
+<span style=color:#080;font-style:italic>// ...
+</span><span style=color:#080;font-style:italic></span><span style=color:navy;font-weight:700>switch</span> err := bank.Transfer(<span style=color:#00f>1</span>, <span style=color:#00f>2</span>, <span style=color:#00f>100</span>); {
+<span style=color:navy;font-weight:700>case</span> err == <span style=color:navy;font-weight:700>nil</span>:
+    println(<span style=color:#00f>&#34;money transferred&#34;</span>)
+<span style=color:navy;font-weight:700>case</span> ErrNoDestinationAccount.Is(err):
+    panic(<span style=color:#00f>&#34;destination account does not exist&#34;</span>)
+<span style=color:navy;font-weight:700>case</span> ErrInsufficientFunds.Is(err):
+    panic(<span style=color:#00f>&#34;not enough money &#34;</span> + err.Error()) <span style=color:#080;font-style:italic>// err provides more details
+</span><span style=color:#080;font-style:italic></span><span style=color:navy;font-weight:700>default</span>:
+    panic(<span style=color:#00f>&#34;unexpected error&#34;</span>)
+}
+</code></pre></div><h2 id=dont-drink-too-much-cool-aid>Don&rsquo;t Drink Too Much Cool Aid</h2><p>What I have presented is a powerful pattern. You may use the <code>causer</code> interface
 to extract attributes or custom error implementations that were wrapped,
 attaching helpful information on each execution step. This might be great for
 example during input validation, where together with an error you want to
 return information about the invalid fields in a way that can be extracted
-later.</p>
-
-<p>You can use the <code>causer</code> interface and the <code>Wrap</code> function to declare a complex
+later.</p><p>You can use the <code>causer</code> interface and the <code>Wrap</code> function to declare a complex
 tree of errors that are several layers deep and cover every possible case. If
 you do, think again about your use case and if such granularity is helpful.
 Usually, just a handful of errors declared upfront do the job better. I tend to
 always inline error creation first and only if a case requires more attention
-declare a previously inlined error.</p>
-
-<p>Regardless of what you do try to avoid blindly importing any error package.
-Consider your use cases and try to <a href="https://commandcenter.blogspot.com/2017/12/error-handling-in-upspin.html">tailor your errors implementation to suit
-your needs</a>.</p>
-</div>
-
-  
-    <hr>
-
-    <div>
-      Follow the discussion on <a href="https://old.reddit.com/r/golang/comments/at1dqs/error_handling_in_go/">reddit</a>.
-    </div>
-  
-</article>
-
-<footer>
-    The content of this page is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
-  </footer></body>
-</html>
-
+declare a previously inlined error.</p><p>Regardless of what you do try to avoid blindly importing any error package.
+Consider your use cases and try to <a href=https://commandcenter.blogspot.com/2017/12/error-handling-in-upspin.html>tailor your errors implementation to suit
+your needs</a>.</p></article><hr><div>Follow the discussion on <a href=https://old.reddit.com/r/golang/comments/at1dqs/error_handling_in_go/>reddit</a>.</div></article><footer>The content of this page is licensed under a <a rel=license href=http://creativecommons.org/licenses/by-sa/4.0/>Creative Commons Attribution-ShareAlike 4.0 International License</a>.</footer></body></html>
