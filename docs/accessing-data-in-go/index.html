@@ -6,15 +6,15 @@
 get it from, how to store it, how to manipulate it. Storage engines can vary,
 from being a single SQLite file to cache server or even an external service
 exposing an API.</p><p>There are many ways this topic can be addressed. I will explain how a simple
-and straightforward solution can be evolved into a more sophisticated one.</p><p>For the purpose of this article, let's assume that our storage engine is an SQL
+and straightforward solution can be evolved into a more sophisticated one.</p><p>For the purpose of this article, let&rsquo;s assume that our storage engine is an SQL
 database with an <code>items</code> table. Our task is to build an endpoint, which returns
 a list of all <em>items</em> in the database. <em>Item</em> is an entity with a name and an
 ID. It can be represented by the structure below.</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>type</span> Item <span style=color:navy;font-weight:700>struct</span> {
 	ID   <span style=color:navy;font-weight:700>int64</span>
 	Name <span style=color:navy;font-weight:700>string</span>
 }
-</code></pre></div><h2 id=first-iteration>First iteration</h2><p>Let's start with a basic HTTP handler. To avoid global variables, let's use
-dependency injection. <code>ItemListHandler</code> takes as a parameter what's necessary
+</code></pre></div><h2 id=first-iteration>First iteration</h2><p>Let&rsquo;s start with a basic HTTP handler. To avoid global variables, let&rsquo;s use
+dependency injection. <code>ItemListHandler</code> takes as a parameter what&rsquo;s necessary
 for the endpoint to complete our task &ndash; a database connection and a template.
 In return we are getting an HTTP handler function.</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>func</span> ItemListHandler(
 	db *sql.DB,
@@ -52,11 +52,11 @@ _ = tmpl.Execute(w, items)
 errors and we are assuming that template rendering never fails.)</em></p><p>There are many issues with the approach presented above.</p><ol><li><p>Every time we want to get the list of <em>items</em>, we must directly interact
 with the database. We must know about the database structure and in case of
 schema changes, we must locate all those places and update them.</p></li><li><p>Everything is implemented in a single place. Because we directly access the
-database, to test this code, a database must be available, it's schema
+database, to test this code, a database must be available, it&rsquo;s schema
 prepared and test data inserted.</p></li><li><p>If we wanted to add a cache layer or some form of monitoring like tracing or
 metrics, we would have to add more code directly inside of the handler.
 That makes the code of the handler larger and testing harder. We can no
-longer test functionalities separately.</p></li></ol><h2 id=second-iteration>Second iteration</h2><p>Instead of writing all the code in an HTTP handler, let's extract a part of it
+longer test functionalities separately.</p></li></ol><h2 id=second-iteration>Second iteration</h2><p>Instead of writing all the code in an HTTP handler, let&rsquo;s extract a part of it
 as a function. We can encapsulate fetching items and hide the database
 connection from the user.</p><p>The same code that was written directly inside of the handler is now provided
 by the <code>ListItems</code> method.</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:#080;font-style:italic>// NewItemStore returns a store for items.
@@ -91,7 +91,7 @@ by the <code>ListItems</code> method.</p><div class=highlight><pre style=backgro
 }
 </code></pre></div><p>Having such a <em>store</em> available, we no longer have to directly query the
 database in our handler. Instead of accepting <code>*sql.DB</code> as an argument,
-<code>ItemListHandler</code> can now take <code>*ItemStore</code>. Handler's body can be simplified
+<code>ItemListHandler</code> can now take <code>*ItemStore</code>. Handler&rsquo;s body can be simplified
 to just a few lines.</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>func</span> ItemListHandler(
 	itemStore *ItemStore,
 	tmpl *template.Template,
@@ -108,7 +108,7 @@ to just a few lines.</p><div class=highlight><pre style=background-color:#fff;-m
 All details of accessing <em>item</em> data are now in <code>ItemStore</code>. If you need to
 create or update an <em>item</em>, add <code>CreateItem</code> and <code>UpdateItem</code> methods.</p><h2 id=third-iteration>Third iteration</h2><p>Using <code>*ItemStore</code> for accessing <em>items</em> solved the first issue. Listing items
 is now an easy task that takes only a few lines of code.</p><p>The last change is to use an interface instead of accepting a structure
-pointer. Let's call our interface <code>ItemStore</code>. The previous implementation
+pointer. Let&rsquo;s call our interface <code>ItemStore</code>. The previous implementation
 using an SQL database is renamed to <code>sqlItemStore</code>.</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>type</span> ItemStore <span style=color:navy;font-weight:700>interface</span> {
 	ListItems(context.Context) ([]*Item, <span style=color:navy;font-weight:700>error</span>)
 }
@@ -139,7 +139,7 @@ using an SQL database is renamed to <code>sqlItemStore</code>.</p><div class=hig
 counterintuitive in Go. In most cases, it is better to declare an interface
 where it is used (not where it is implemented) to help to decouple
 functionalities and avoid dependencies.</p><p>In this case we do not use an interface to encourage different <code>ItemStore</code>
-implementations. Code that is used for accessing <em>items</em> could be put in it's
+implementations. Code that is used for accessing <em>items</em> could be put in it&rsquo;s
 own package and provide all necessary functionality &ndash; an interface, the main
 implementation using an SQL database, a mock implementation for testing and more.</p><h3 id=mocking-for-tests>Mocking for tests</h3><p>The <code>sqlItemStore</code> implementation is easy to test independently from any HTTP
 handler that is using it. Any handler that is using an <code>ItemStore</code> should also
