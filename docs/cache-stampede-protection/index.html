@@ -92,7 +92,7 @@ ensure that stored data is never too old. Instead of trying to keep track of
 when a certain query result is changing, remember the result for a short period
 to minimize the possible errors.</p><p>Cache expiration introduces a new problem. Take our example of a web
 application all the time displaying an item with ID 1. Hundreds of requests per
-second and all of them require this item&rsquo;s details to be served. When the item
+second and all of them require this item's details to be served. When the item
 with ID 1 is served from a cache, the database can allocate resources to do
 something else.</p><p><img src=./cached-access.svg alt="Cached data access"></p><p>Our cache is using TTL to ensure that served data is never too old. <code>FindItem</code>
 will cache the result for one minute. After one minute, the value expires (it

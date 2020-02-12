@@ -5,6 +5,12 @@ tags: [Go]
 comments: [reddit, https://old.reddit.com/r/golang/comments/at1dqs/error_handling_in_go/]
 ---
 
+
+_In Go 1.13 [error wrapping](https://golang.org/doc/go1.13#error_wrapping) was
+introduced as part of the standard library. This post was written before the
+update to the `errors` package._
+
+
 Go is a language that does not provide exceptions. Instead, an operation can
 return an error. [Errors are values](https://blog.golang.org/errors-are-values)
 that implement the `error` interface.
