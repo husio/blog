@@ -25,8 +25,8 @@
     <a href="{{ .Site.BaseURL }}">{{ .Site.Title }}</a>
 
     {{ if isset .Site.Params "githubusername" -}}
+      <link href="https://{{ .Site.Params.githubUsername }}.github.io/blog/" rel="me">
       | <a rel="me" class="u-url" href="https://github.com/{{ .Site.Params.githubUsername }}" title="GitHub">GitHub</a>
-      <link href="https://{{ .Site.Params.githubUsername }}.github.io/blog" rel="me">
     {{- end }}
 
     {{ if isset .Site.Params "twitterusername" -}}
