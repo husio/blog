@@ -1,6 +1,5 @@
 {{ partial "header" . }}
 
-
 <article class="h-entry">
   <h1 class="title p-name">
     {{- .Title -}}
@@ -41,5 +40,11 @@
     </div>
   {{ end }}
 </article>
+
+<div id="webmentions"></div>
+<noscript>Comments are provided by <a href="https://webmention.io/">webmention.io</a> and <a href="https://github.com/PlaidWeb/webmention.js/">webmentions.js</a> and require JavaScript.</noscript>
+<script src="{{ "js/webmention.min.js" | relURL }}" async></script>
+<link rel="stylesheet" href="{{ "css/webmention.css" | relURL }}">
+
 
 {{ partial "footer" . }}

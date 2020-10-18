@@ -1,6 +1,6 @@
-<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=author content="Piotr Husiatyński"><title>Accessing data in Go</title><link rel=stylesheet href=/blog/css/style.css></head><body><div><a href=https://husio.github.io/blog>Blog</a>
+<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=author content="Piotr Husiatyński"><link rel=webmention href=https://webmention.io/username/webmention><title>Accessing data in Go</title><link rel=stylesheet href=/blog/css/style.css></head><body><div><a href=https://husio.github.io/blog>Blog</a>
 | <a rel=me class=u-url href=https://github.com/husio title=GitHub>GitHub</a>
-| <a rel=me class=u-url href=https://stackoverflow.com/cv/piotrhusiatynski title="Stack Overflow CV">Stack Overflow</a>
+<link href=https://husio.github.io/blog rel=me>| <a rel=me class=u-url href=https://stackoverflow.com/cv/piotrhusiatynski title="Stack Overflow CV">Stack Overflow</a>
 | <a rel=me class=u-url href="https://docs.google.com/document/d/1Xlt8yyGNLjkLLLoa9yVYa8Hxa9KKgA4BnVYMRrOjKB8/edit?usp=sharing" title=CV>CV</a></div><article class=h-entry><h1 class="title p-name">Accessing data in Go</h1><div><small>Published: <time class=dt-published datetime=2018-09-02 title=2018-09-02>September 2, 2018</time></small></div><div><small>Tags:
 <a class=p-category href=/blog/tags/go>Go</a></small></div><article class=e-content><p>When writing a web application, we have to decide how to access data. Where to
 get it from, how to store it, how to manipulate it. Storage engines can vary,
@@ -26,7 +26,7 @@ In return we are getting an HTTP handler function.</p><div class=highlight><pre 
 }
 </code></pre></div><p>To list all <em>items</em>, we must first query the database. Once we will read all
 returned rows, we can use the collected entries to render the template and send
-the result back.</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go>rows, err := db.QueryContext(r.Context(), <span style=color:#00f>`</span><span style=color:#00f>SELECT id, name FROM items</span><span style=color:#00f>`</span>)
+the result back.</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go>rows, err := db.QueryContext(r.Context(), <span style=color:#00f>`SELECT id, name FROM items`</span>)
 <span style=color:navy;font-weight:700>if</span> err != <span style=color:navy;font-weight:700>nil</span> {
 	http.Error(w, <span style=color:#00f>&#34;Server Error&#34;</span>, http.StatusInternalServerError)
 	<span style=color:navy;font-weight:700>return</span>
@@ -70,7 +70,7 @@ by the <code>ListItems</code> method.</p><div class=highlight><pre style=backgro
 
 <span style=color:#080;font-style:italic>// ListItems returns all stored items.
 </span><span style=color:#080;font-style:italic></span><span style=color:navy;font-weight:700>func</span> (is *ItemStore) ListItems(ctx context.Context) ([]*Item, <span style=color:navy;font-weight:700>error</span>) {
-	rows, err := db.QueryContext(ctx, <span style=color:#00f>`</span><span style=color:#00f>SELECT id, name FROM items</span><span style=color:#00f>`</span>)
+	rows, err := db.QueryContext(ctx, <span style=color:#00f>`SELECT id, name FROM items`</span>)
 	<span style=color:navy;font-weight:700>if</span> err != <span style=color:navy;font-weight:700>nil</span> {
 		<span style=color:navy;font-weight:700>return</span> <span style=color:navy;font-weight:700>nil</span>, fmt.Errorf(<span style=color:#00f>&#34;cannot select items: %s&#34;</span>, err)
 	}
@@ -114,7 +114,7 @@ using an SQL database is renamed to <code>sqlItemStore</code>.</p><div class=hig
 }
 
 <span style=color:#080;font-style:italic>// NewItemStore returns a store for items that is using an SQL database
-</span><span style=color:#080;font-style:italic></span><span style=color:#080;font-style:italic>// as a storage engine.
+</span><span style=color:#080;font-style:italic>// as a storage engine.
 </span><span style=color:#080;font-style:italic></span><span style=color:navy;font-weight:700>func</span> NewSQLItemStore(db *sql.DB) ItemStore {
 	<span style=color:navy;font-weight:700>return</span> &amp;sqlItemStore{db: db}
 }
@@ -208,4 +208,4 @@ in-memory cache backend.</p><h2 id=conclusion>Conclusion</h2><p>Writing data man
 logic from storage implementation. Separation of concerns gives us more control
 over data.</p><p>Thanks to using Go interfaces, we can mock and extend functionality of the
 storage implementation. Integration with cache or monitoring tools is easy,
-pluggable and can be tested separately.</p></article><hr><div>Follow the discussion on <a href=https://www.reddit.com/r/golang/comments/9cbxwg/accessing_data_in_go/>reddit</a>.</div></article><footer>The content of this page is licensed under a <a rel=license href=http://creativecommons.org/licenses/by-sa/4.0/>Creative Commons Attribution-ShareAlike 4.0 International License</a>.</footer></body></html>
+pluggable and can be tested separately.</p></article><hr><div>Follow the discussion on <a href=https://www.reddit.com/r/golang/comments/9cbxwg/accessing_data_in_go/>reddit</a>.</div></article><div id=webmentions></div><noscript>Comments are provided by <a href=https://webmention.io/>webmention.io</a> and <a href=https://github.com/PlaidWeb/webmention.js/>webmentions.js</a> and require JavaScript.</noscript><script src=/blog/js/webmention.min.js async></script><link rel=stylesheet href=/blog/css/webmention.css><footer>The content of this page is licensed under a <a rel=license href=http://creativecommons.org/licenses/by-sa/4.0/>Creative Commons Attribution-ShareAlike 4.0 International License</a>.</footer></body></html>

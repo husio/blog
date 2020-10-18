@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="author" content="Piotr Husiatyński">
+  <link rel="webmention" href="https://webmention.io/username/webmention" />
   <title>
     {{- block "title" . -}}
       {{- if .Title -}}
@@ -25,6 +26,7 @@
 
     {{ if isset .Site.Params "githubusername" -}}
       | <a rel="me" class="u-url" href="https://github.com/{{ .Site.Params.githubUsername }}" title="GitHub">GitHub</a>
+      <link href="https://{{ .Site.Params.githubUsername }}.github.io/blog" rel="me">
     {{- end }}
 
     {{ if isset .Site.Params "twitterusername" -}}
