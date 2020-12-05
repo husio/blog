@@ -41,4 +41,8 @@
       | <a rel="me" class="u-url" href="{{ .Site.Params.cvlink }}" title="CV">CV</a>
     {{- end}}
 
+    {{ if isset .Site.Params "gpg" -}}
+      | <a rel="me" class="u-url" href="{{ .Site.Params.gpg }}" title="GPG">GPG key</a>
+    {{- end}}
+
   </div>
