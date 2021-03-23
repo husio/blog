@@ -1,10 +1,1111 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Blog</title><link>https://husio.github.io/blog/</link><description>Recent content on Blog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 30 Jan 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://husio.github.io/blog/index.xml" rel="self" type="application/rss+xml"/><item><title>Testing in Go</title><link>https://husio.github.io/blog/testing-in-go/</link><pubDate>Thu, 30 Jan 2020 00:00:00 +0000</pubDate><guid>https://husio.github.io/blog/testing-in-go/</guid><description>This is a collection of testing techniques and patterns that I have learned throughout my career of being a Go programmer.
-testing package basics The Go standard library comes with the testing package which provides a solid base for writing tests.
-Each test should be a separate function. A test function must accept a single argument of type *testing.T.
-A test for a functoin isEven could look like this:
-func TestIsEven(t *testing.</description></item><item><title>Error handling</title><link>https://husio.github.io/blog/error-handling/</link><pubDate>Wed, 20 Feb 2019 00:00:00 +0000</pubDate><guid>https://husio.github.io/blog/error-handling/</guid><description>In Go 1.13 error wrapping was introduced as part of the standard library. This post was written before the update to the errors package.
-Go is a language that does not provide exceptions. Instead, an operation can return an error. Errors are values that implement the error interface.
-I have worked with several errors handling patterns over the years and I would like to summarize my experience focusing on the good solutions.</description></item><item><title>Cache stampede protection</title><link>https://husio.github.io/blog/cache-stampede-protection/</link><pubDate>Fri, 14 Sep 2018 00:00:00 +0000</pubDate><guid>https://husio.github.io/blog/cache-stampede-protection/</guid><description>Writing an application that handles concurrent traffic from a lot of clients in a performant way is not an easy task. To narrow this problem to web applications only, serving as many HTTP requests as possible in a short time is often a challenge.
-In most cases of an HTTP application, optimizing access to the database can be the easiest and the best first step.
-Caching database access Using a database that provides plenty of functionality and storing data in denormalized form makes development easier.</description></item><item><title>Accessing data in Go</title><link>https://husio.github.io/blog/accessing-data-in-go/</link><pubDate>Sun, 02 Sep 2018 00:00:00 +0000</pubDate><guid>https://husio.github.io/blog/accessing-data-in-go/</guid><description>When writing a web application, we have to decide how to access data. Where to get it from, how to store it, how to manipulate it. Storage engines can vary, from being a single SQLite file to cache server or even an external service exposing an API.
-There are many ways this topic can be addressed. I will explain how a simple and straightforward solution can be evolved into a more sophisticated one.</description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Blog</title><link>https://husio.github.io/blog/</link><description>Recent content on Blog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 30 Jan 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://husio.github.io/blog/index.xml" rel="self" type="application/rss+xml"/><item><title>Testing in Go</title><link>https://husio.github.io/blog/testing-in-go/</link><pubDate>Thu, 30 Jan 2020 00:00:00 +0000</pubDate><guid>https://husio.github.io/blog/testing-in-go/</guid><description>&lt;p>This is a collection of testing techniques and patterns that I have learned
+throughout my career of being a Go programmer.&lt;/p>
+&lt;h2 id="testing-package-basics">&lt;code>testing&lt;/code> package basics&lt;/h2>
+&lt;p>The Go standard library comes with the
+&lt;a href="https://golang.org/pkg/testing/">&lt;code>testing&lt;/code>&lt;/a> package which provides a solid
+base for writing tests.&lt;/p>
+&lt;p>Each test should be a separate function. A test function must accept a single
+argument of type &lt;a href="https://golang.org/pkg/testing/#T">&lt;code>*testing.T&lt;/code>&lt;/a>.&lt;/p>
+&lt;p>A test for a functoin &lt;code>isEven&lt;/code> could look like this:&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> TestIsEven(t *testing.T) {
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> !isEven(&lt;span style="color:#00f">2&lt;/span>) {
+t.Fatal(&lt;span style="color:#00f">&amp;#34;2 is even&amp;#34;&lt;/span>)
+}
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> isEven(&lt;span style="color:#00f">1&lt;/span>) {
+t.Fatal(&lt;span style="color:#00f">&amp;#34;1 is odd&amp;#34;&lt;/span>)
+}
+}
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Run your test by using the &lt;a href="https://golang.org/cmd/go/#hdr-Test_packages">&lt;code>go test&lt;/code>&lt;/a> command, for example&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#080;font-style:italic"># Test this directory&lt;/span>
+$ go test .
+&lt;span style="color:#080;font-style:italic"># Test the whole project recursively.&lt;/span>
+$ go test a-package.com/path/...
+&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="failing-and-messages">Failing and messages&lt;/h3>
+&lt;p>Each test accepts one argument, a &lt;code>T&lt;/code> instance. &lt;code>T&lt;/code> provides methods that
+allow to print information and control the flow of a test.&lt;/p>
+&lt;p>Use &lt;code>t.Log&lt;/code> and &lt;code>t.Logf&lt;/code> methods to write a message.&lt;/p>
+&lt;p>Use &lt;code>t.Error&lt;/code> and &lt;code>t.Errorf&lt;/code> methods to write a message and mark the test as
+failed.&lt;/p>
+&lt;p>Use &lt;code>t.Fatal&lt;/code> and &lt;code>t.Fatalf&lt;/code> methods to write a message, mark the test as
+failed and instantly terminate that test execution.&lt;/p>
+&lt;h4 id="write-good-error-messages">Write good error messages&lt;/h4>
+&lt;p>A good error message is concise and short. Sprinkle each result with a bit of
+context.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">if&lt;/span> isEven(&lt;span style="color:#00f">1&lt;/span>) {
+t.Fatal(&lt;span style="color:#00f">&amp;#34;1 is an odd number&amp;#34;&lt;/span>)
+}
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> want, got := &lt;span style="color:#00f">42&lt;/span>, compute(); want != got {
+t.Fatalf(&lt;span style="color:#00f">&amp;#34;want %d, got %d&amp;#34;&lt;/span>, want, got)
+}
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>By declaring &lt;code>got&lt;/code> and &lt;code>want&lt;/code> I am sure that what is tested for is what I
+print. If the &lt;code>compute&lt;/code> function was changed and in the new implementation &lt;code>want&lt;/code>
+should be &lt;code>33&lt;/code> I cannot make the mistake of not updating the error message.
+Both &lt;code>got&lt;/code> and &lt;code>want&lt;/code> are scoped to the &lt;code>if&lt;/code> statement only.&lt;/p>
+&lt;p>When writing a table test, declaring an expected value might not be necessary.
+The expected value can be easily found in the test declaration.&lt;/p>
+&lt;h3 id="skipping-a-test">Skipping a test&lt;/h3>
+&lt;p>Some tests should run only under special circumstances. For example, you want
+to run a test only if a database is available. &lt;code>t.Skip&lt;/code> and &lt;code>t.Skipf&lt;/code> methods
+allow to cancel (skip) the currently running test without failing it.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> TestDatabaseIntegration(t *testing.T) {
+db, err := connectToDatabase(&lt;span style="color:#00f">&amp;#34;test-database&amp;#34;&lt;/span>)
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> err != &lt;span style="color:#000080;font-weight:bold">nil&lt;/span> {
+t.Skipf(&lt;span style="color:#00f">&amp;#34;cannot connect to database: %s&amp;#34;&lt;/span>, err)
+}
+&lt;span style="color:#000080;font-weight:bold">defer&lt;/span> db.Close()
+&lt;span style="color:#080;font-style:italic">// ...
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>}
+&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="test-helpers">Test helpers&lt;/h3>
+&lt;p>Often times many tests require similar dependencies, for example running a
+service or preparing a state. Instead of repeating the preparation code extract
+each functionality to a separate function.&lt;/p>
+&lt;h3 id="test-helpers-setting-up-dependencies">Test helpers: Setting up dependencies&lt;/h3>
+&lt;p>If you are testing code that depends on an external database, this is how the
+beginning of a test function might look like:&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> TestDatabaseIntegration(t *testing.T) {
+db, err := connectToDatabase(&lt;span style="color:#00f">&amp;#34;test-database&amp;#34;&lt;/span>)
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> err != &lt;span style="color:#000080;font-weight:bold">nil&lt;/span> {
+t.Skipf(&lt;span style="color:#00f">&amp;#34;cannot connect to database: %s&amp;#34;&lt;/span>, err)
+}
+&lt;span style="color:#000080;font-weight:bold">defer&lt;/span> db.Close()
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> err := db.Ping(); err != &lt;span style="color:#000080;font-weight:bold">nil&lt;/span> {
+t.Fatalf(&lt;span style="color:#00f">&amp;#34;cannot ping database: %s&amp;#34;&lt;/span>, err)
+}
+&lt;span style="color:#000080;font-weight:bold">for&lt;/span> i, migration := &lt;span style="color:#000080;font-weight:bold">range&lt;/span> databaseMigrations {
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> err := db.ApplyMigration(migration); err != &lt;span style="color:#000080;font-weight:bold">nil&lt;/span> {
+t.Fatalf(&lt;span style="color:#00f">&amp;#34;cannot apply %d migration: %s&amp;#34;&lt;/span>, i, err)
+}
+}
+mycollection := NewCollection(db)
+&lt;span style="color:#080;font-style:italic">// The actual test starts below.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// ...
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>}
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>A solution to code repetition can be to create a function that will encapsulate
+certain functionality. The whole setup and teardown process for a test can be
+extracted.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> TestDatabaseIntegration(t *testing.T) {
+mycollection, cleanup := ensureMyCollection(t, &lt;span style="color:#00f">&amp;#34;test-database&amp;#34;&lt;/span>)
+&lt;span style="color:#000080;font-weight:bold">defer&lt;/span> cleanup()
+&lt;span style="color:#080;font-style:italic">// The actual test starts below.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// ...
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>}
+&lt;span style="color:#000080;font-weight:bold">func&lt;/span> ensureMyCollection(t testing.TB), dbName &lt;span style="color:#000080;font-weight:bold">string&lt;/span> (MyCollection, &lt;span style="color:#000080;font-weight:bold">func&lt;/span>(){} {
+t.Helper()
+db, err := connectToDatabase(dbName)
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> err != &lt;span style="color:#000080;font-weight:bold">nil&lt;/span> {
+t.Skipf(&lt;span style="color:#00f">&amp;#34;cannot connect to database: %s&amp;#34;&lt;/span>, err)
+}
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> err := db.Ping(); err != &lt;span style="color:#000080;font-weight:bold">nil&lt;/span> {
+db.Close()
+t.Fatalf(&lt;span style="color:#00f">&amp;#34;cannot ping database: %s&amp;#34;&lt;/span>, err)
+}
+&lt;span style="color:#000080;font-weight:bold">for&lt;/span> i, migration := &lt;span style="color:#000080;font-weight:bold">range&lt;/span> databaseMigrations {
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> err := db.ApplyMigration(migration); err != &lt;span style="color:#000080;font-weight:bold">nil&lt;/span> {
+db.Close()
+t.Fatalf(&lt;span style="color:#00f">&amp;#34;cannot apply %d migration: %s&amp;#34;&lt;/span>, i, err)
+}
+}
+collection := NewCollection(db)
+cleanup := &lt;span style="color:#000080;font-weight:bold">func&lt;/span>() {
+db.Close()
+}
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span> collection, cleanup
+}
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>With the above solution, &lt;code>ensureMyCollection&lt;/code> can be used by many test
+functions to ensure that a collection using a database as a backend is
+available. A helper function hides the for the test logic irrelevant part of
+setting up an environment and ensuring all components are provided.&lt;/p>
+&lt;p>A helper function accepts &lt;a href="https://golang.org/pkg/testing/#TB">&lt;code>testing.TB&lt;/code>&lt;/a>
+interface instead of &lt;code>t *testing.T&lt;/code>. That makes it useful for both test and
+&lt;a href="https://golang.org/pkg/testing/#hdr-Benchmarks">benchmark functions&lt;/a>.&lt;/p>
+&lt;p>A helper function does not return an error. Instead, it directly terminates the
+test by calling &lt;code>t.Fatal&lt;/code>.&lt;/p>
+&lt;p>At the beginning of the helper function the
+&lt;a href="https://golang.org/pkg/testing/#T.Helper">&lt;code>t.Helper()&lt;/code>&lt;/a> method is called. This
+marks this function and when it fails the stack information and error will be
+more helpful.&lt;/p>
+&lt;p>&lt;code>ensureMyCollection&lt;/code> returns a cleanup function. This is a convenient way of
+cleaning up all created resources. The user of this helper must call it once
+the returned resource is not needed anymore. The cleanup function should not
+return anything nor fail the test.&lt;/p>
+&lt;h3 id="blackbox-package-testing">Blackbox package testing&lt;/h3>
+&lt;blockquote>
+&lt;p>Test files that declare a package with the suffix &amp;ldquo;_test&amp;rdquo; will be compiled as
+a separate package, and then linked and run with the main test binary.
+&amp;ndash; &lt;a href="https://golang.org/cmd/go/#hdr-Test_packages">golang.org&lt;/a>&lt;/p>
+&lt;/blockquote>
+&lt;p>Test files for your package are located in the same directory as the code they
+test. Your tests can belong to the same package as the rest of the code. It is
+also possible to enforce a black-box test for your package. Your test files can
+be in the same directory as your package code and use a different package name.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">package&lt;/span> xxx_test
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Using a different test package name enforces that only the public interface of
+the tested package is accessible. This is for example &lt;a href="https://golang.org/src/strings/compare_test.go">how
+&lt;code>strings&lt;/code>&lt;/a> and &lt;a href="https://golang.org/src/bytes/reader_test.go">&lt;code>bytes&lt;/code>
+packages&lt;/a> are tested.&lt;/p>
+&lt;h3 id="third-party-test-helper-packages">Third party test helper packages&lt;/h3>
+&lt;p>I do not use any additional packages for testing. I am of an opinion that
+&lt;a href="https://golang.org/doc/faq#testing_framework">assert functions are not as helpful as one may
+think&lt;/a>. Introducing an external
+package requires learning a new API.&lt;/p>
+&lt;p>Someone else wrote &lt;a href="https://danmux.com/posts/the_cult_of_go_test/">a great
+summary&lt;/a> on the topic.&lt;/p>
+&lt;p>Complex comparisons can usually be done using
+&lt;a href="#reflectdeepequal">&lt;code>reflect.DeepEqual&lt;/code>&lt;/a> function.&lt;/p>
+&lt;h2 id="reflectdeepequal">&lt;code>reflect.DeepEqual&lt;/code>&lt;/h2>
+&lt;p>Those values that cannot be compared with &lt;code>==&lt;/code>, most of the time can be
+compared with &lt;a href="https://golang.org/pkg/reflect/#DeepEqual">&lt;code>reflect.DeepEqual&lt;/code>&lt;/a>.&lt;/p>
+&lt;h2 id="table-tests">Table tests&lt;/h2>
+&lt;p>When testing a functionality a single input is often not enough to ensure
+correctness. Repeating the same operation for many cases can be implemented
+using &lt;a href="https://github.com/golang/go/wiki/TableDrivenTests">table tests&lt;/a>.&lt;/p>
+&lt;p>Use a map with strings as keys to provide a description of each test case.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> TestDiv(t *testing.T) {
+cases := &lt;span style="color:#000080;font-weight:bold">map&lt;/span>[&lt;span style="color:#000080;font-weight:bold">string&lt;/span>]&lt;span style="color:#000080;font-weight:bold">struct&lt;/span>{
+A &lt;span style="color:#000080;font-weight:bold">int&lt;/span>
+B &lt;span style="color:#000080;font-weight:bold">int&lt;/span>
+WantRes &lt;span style="color:#000080;font-weight:bold">int&lt;/span>
+WantErr &lt;span style="color:#000080;font-weight:bold">error&lt;/span>
+}{
+&lt;span style="color:#00f">&amp;#34;two positive numbers&amp;#34;&lt;/span>: {
+A: &lt;span style="color:#00f">4&lt;/span>,
+B: &lt;span style="color:#00f">2&lt;/span>,
+WantRes: &lt;span style="color:#00f">2&lt;/span>,
+},
+&lt;span style="color:#00f">&amp;#34;divide by zero&amp;#34;&lt;/span>: {
+A: &lt;span style="color:#00f">4&lt;/span>,
+B: &lt;span style="color:#00f">0&lt;/span>,
+WantErr: errors.ErrZeroDivision,
+},
+}
+&lt;span style="color:#000080;font-weight:bold">for&lt;/span> testName, tc := &lt;span style="color:#000080;font-weight:bold">range&lt;/span> cases {
+t.Run(testName, &lt;span style="color:#000080;font-weight:bold">func&lt;/span>(t *testing.T) {
+res, err := Div(tc.A, tc.B)
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> !errors.Is(err, tc.WantErr) {
+t.Fatalf(&lt;span style="color:#00f">&amp;#34;unexpected error: %q&amp;#34;&lt;/span>, err)
+}
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> res != tc.WantRes {
+t.Fatalf(&lt;span style="color:#00f">&amp;#34;unlexpected result: %d&amp;#34;&lt;/span>, res)
+}
+})
+}
+}
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>When declaring a test case, always use field names. This increases the
+readability and you have to provide only non zero values.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">cases := &lt;span style="color:#000080;font-weight:bold">map&lt;/span>[&lt;span style="color:#000080;font-weight:bold">string&lt;/span>]&lt;span style="color:#000080;font-weight:bold">struct&lt;/span>{
+DB *Database
+Req *Request
+WantRes &lt;span style="color:#000080;font-weight:bold">int&lt;/span>
+WantErr &lt;span style="color:#000080;font-weight:bold">error&lt;/span>
+}{
+&lt;span style="color:#080;font-style:italic">// BAD
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> {&lt;span style="color:#000080;font-weight:bold">nil&lt;/span>, myrequest, &lt;span style="color:#00f">32&lt;/span>, &lt;span style="color:#000080;font-weight:bold">nil&lt;/span>},
+&lt;span style="color:#080;font-style:italic">// GOOD
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> {
+Req: myrequest,
+WantRes: &lt;span style="color:#00f">32&lt;/span>,
+},
+}
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="mocking">Mocking&lt;/h2>
+&lt;p>Write your code to accept interfaces. Using interfaces allows you to test a
+single layer of a functionality at a time.&lt;/p>
+&lt;p>For example, if you are writing an application that is storing data in an SQL
+database, instead of accessing the database directly through a &lt;code>*sql.DB&lt;/code>
+instance &lt;a href="https://husio.github.io/blog/blog/accessing-data-in-go/#mocking-for-tests">use a wrapper&lt;/a>. Using
+a data access abstraction allows for mocking.&lt;/p>
+&lt;p>When writing a mock you do not have to implement all methods. For the compiler
+it is enough to include the interface in the mock declaration. Implement only
+methods that you intend to call.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">type&lt;/span> Collection &lt;span style="color:#000080;font-weight:bold">interface&lt;/span> {
+One(id &lt;span style="color:#000080;font-weight:bold">uint64&lt;/span>) (*Entity, &lt;span style="color:#000080;font-weight:bold">error&lt;/span>)
+List() ([]*Entity, &lt;span style="color:#000080;font-weight:bold">error&lt;/span>)
+Add(Entity) &lt;span style="color:#000080;font-weight:bold">error&lt;/span>
+Delete(id &lt;span style="color:#000080;font-weight:bold">uint64&lt;/span>) &lt;span style="color:#000080;font-weight:bold">error&lt;/span>
+}
+&lt;span style="color:#000080;font-weight:bold">type&lt;/span> CollectionMock &lt;span style="color:#000080;font-weight:bold">struct&lt;/span> {
+Collection
+Err &lt;span style="color:#000080;font-weight:bold">error&lt;/span>
+}
+&lt;span style="color:#000080;font-weight:bold">func&lt;/span> (c *CollectionMock) Add(Entity) &lt;span style="color:#000080;font-weight:bold">error&lt;/span> {
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span> c.Err
+}
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>CollectionMock&lt;/code> implements the &lt;code>Collection&lt;/code> interface, but using any other
+method than &lt;code>Add&lt;/code> will panic. See &lt;a href="https://play.golang.org/p/GVc2tOJoAHX">the full
+example&lt;/a>.&lt;/p>
+&lt;h3 id="your-code-should-provide-a-mock">Your code should provide a mock&lt;/h3>
+&lt;p>When writing a package that is used by others provide test implementations of
+your interfaces.&lt;/p>
+&lt;p>This approach is taken by the standard library. For example,
+&lt;a href="https://golang.org/pkg/net/http/httptest/#ResponseRecorder">&lt;code>httptest.ResponseRecorder&lt;/code>&lt;/a>
+allows to test your HTTP handler without using a real &lt;code>http.ResponseWriter&lt;/code>.&lt;/p>
+&lt;h2 id="test-flags">Test flags&lt;/h2>
+&lt;p>You can add your own flags to the &lt;code>go test&lt;/code> command in order to customize your
+tests. Use the &lt;a href="https://golang.org/pkg/flag/">&lt;code>flag&lt;/code>&lt;/a> package and declare your
+flags globally.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">var&lt;/span> dbFl = flag.String(&lt;span style="color:#00f">&amp;#34;db&amp;#34;&lt;/span>, &lt;span style="color:#00f">&amp;#34;&amp;#34;&lt;/span>, &lt;span style="color:#00f">&amp;#34;Use given database DSN.&amp;#34;&lt;/span>)
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="environment-variables">Environment variables&lt;/h2>
+&lt;p>Instead of &lt;code>flag&lt;/code> you can control your tests using environment variables. If
+you follow the &lt;a href="https://12factor.net/config">12 factor app&lt;/a> principles then
+your application is already utilizing environment variables for the
+configuration.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">var&lt;/span> dbDSN = os.Getenv(&lt;span style="color:#00f">&amp;#34;DATABASE_DSN&amp;#34;&lt;/span>)
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="fixtures">Fixtures&lt;/h2>
+&lt;p>If your test requires fixtures &lt;code>/testdata&lt;/code> is the directory you should consider
+keeping them in.&lt;/p>
+&lt;blockquote>
+&lt;p>The go tool will ignore a directory named &amp;ldquo;testdata&amp;rdquo;, making it available to
+hold ancillary data needed by the tests.
+&amp;ndash; &lt;a href="https://golang.org/cmd/go/#hdr-Test_packages">golang.org&lt;/a>&lt;/p>
+&lt;/blockquote>
+&lt;p>When running tests each test function is executed with its working directory
+set to the source directory of the tested package. That means that when
+accessing files in &lt;code>/testdata&lt;/code> you can safely use relative path&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">fd, err := os.Open(filepath.Join(&lt;span style="color:#00f">&amp;#34;testdata&amp;#34;&lt;/span>, &lt;span style="color:#00f">&amp;#34;some-fixture.json&amp;#34;&lt;/span>))
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="golden-files">Golden files&lt;/h2>
+&lt;p>&lt;a href="https://softwareengineering.stackexchange.com/q/358786">Golden files&lt;/a> are a
+great way to validate and keep track of a test output. Together with a version
+control system they are much easier to maintain than strings hard coded in
+functions.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">var&lt;/span> goldFl = flag.Bool(&lt;span style="color:#00f">&amp;#34;gold&amp;#34;&lt;/span>, &lt;span style="color:#000080;font-weight:bold">false&lt;/span>, &lt;span style="color:#00f">&amp;#34;Write result to golden files instead of comparing with them.&amp;#34;&lt;/span>)
+&lt;span style="color:#000080;font-weight:bold">func&lt;/span> TestExample(t *testing.T) {
+&lt;span style="color:#080;font-style:italic">// Test logic.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> result := ...
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> *goldFl {
+writeGoldenFile(t, result)
+}
+compareWithGoldenFile(t, result)
+}
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>This technique comes in very helpful combined with &lt;a href="#table-tests">table tests&lt;/a>.&lt;/p>
+&lt;h2 id="integration-tests">Integration tests&lt;/h2>
+&lt;p>For a well written application &lt;a href="https://en.wikipedia.org/wiki/Integration_testing">integration
+testing&lt;/a> should not require
+more work than usual testing. For each external resource provide a single
+function to &lt;a href="#test-helpers-setting-up-dependencies">setup and teardown the
+resource&lt;/a>.&lt;/p>
+&lt;h2 id="build-constraints">Build constraints&lt;/h2>
+&lt;p>You can use a &lt;a href="https://golang.org/pkg/go/build/#hdr-Build_Constraints">build
+constraint&lt;/a> to
+conditionally build code in a file.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">$ head -n &lt;span style="color:#00f">1&lt;/span> app_intergration_test.go
+// +build integration
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>To run tests including those tagged as &lt;code>integration&lt;/code> use &lt;code>-tag&lt;/code> flag.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">$ go test -tag integration .
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="setupteardown">Setup/teardown&lt;/h2>
+&lt;p>When using the &lt;code>testing&lt;/code> package, it is possible to overwrite the &lt;a href="https://golang.org/pkg/testing/#hdr-Main">&lt;code>test main&lt;/code>&lt;/a> function.&lt;/p>
+&lt;p>Using a custom test main function allows to execute code before and after
+executing all discovered tests. This can be running an external dependency like
+a database instance or building a binary that tested functionality might depend
+on.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> TestMain(m *testing.M) {
+&lt;span style="color:#080;font-style:italic">// Setup code.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>
+&lt;span style="color:#080;font-style:italic">// defer Teardown code.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>
+os.Exit(m.Run())
+}
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="-race">&lt;code>-race&lt;/code>&lt;/h2>
+&lt;p>Run tests with &lt;code>-race&lt;/code> flag to enable data race detection.&lt;/p>
+&lt;p>This functionality is not available on &lt;a href="https://www.musl-libc.org/">musl&lt;/a> based systems.&lt;/p>
+&lt;h2 id="testing-faq">Testing FAQ&lt;/h2>
+&lt;p>Check the &lt;a href="https://golang.org/doc/faq#Packages_Testing">FAQ at golang.org&lt;/a>.&lt;/p></description></item><item><title>Error handling</title><link>https://husio.github.io/blog/error-handling/</link><pubDate>Wed, 20 Feb 2019 00:00:00 +0000</pubDate><guid>https://husio.github.io/blog/error-handling/</guid><description>&lt;p>&lt;em>In Go 1.13 &lt;a href="https://golang.org/doc/go1.13#error_wrapping">error wrapping&lt;/a> was
+introduced as part of the standard library. This post was written before the
+update to the &lt;code>errors&lt;/code> package.&lt;/em>&lt;/p>
+&lt;p>Go is a language that does not provide exceptions. Instead, an operation can
+return an error. &lt;a href="https://blog.golang.org/errors-are-values">Errors are values&lt;/a>
+that implement the &lt;code>error&lt;/code> interface.&lt;/p>
+&lt;p>I have worked with several errors handling patterns over the years and I would
+like to summarize my experience focusing on the good solutions.&lt;/p>
+&lt;p>For the purpose of this post, let us imagine a very simple banking application.
+Accounts are represented by their numeric ID and we only know how much money
+each account holds. No account balance can get below zero. A bank service must
+implement the interface below.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">type&lt;/span> BankService &lt;span style="color:#000080;font-weight:bold">interface&lt;/span> {
+&lt;span style="color:#080;font-style:italic">// NewAccount registers a new account in this bank. The account is
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// initialized with given funds.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> NewAccount(accountID &lt;span style="color:#000080;font-weight:bold">int64&lt;/span>, funds &lt;span style="color:#000080;font-weight:bold">uint64&lt;/span>) &lt;span style="color:#000080;font-weight:bold">error&lt;/span>
+&lt;span style="color:#080;font-style:italic">// Transfer moves funds between two accounts. It fails if an operation
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// would cause the balance of the source account to go below zero.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> Transfer(from, to &lt;span style="color:#000080;font-weight:bold">int64&lt;/span>, amount &lt;span style="color:#000080;font-weight:bold">uint64&lt;/span>) &lt;span style="color:#000080;font-weight:bold">error&lt;/span>
+}
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>To keep the examples short and simple an in-memory storage is used. Anything
+more serious would use a database instead.&lt;/p>
+&lt;h2 id="inline-error-creation">Inline error creation&lt;/h2>
+&lt;p>It is a common thing to create errors using &lt;code>errors.New&lt;/code> and &lt;code>fmt.Errorf&lt;/code> as
+they are needed. When an operation fails you can handle the failure by creating
+an error instance and returning it. The created error should contain
+information about the cause of the failure. With that in mind let us create the
+first version of a banking service.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> NewBank() *Bank {
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span> &amp;amp;Bank{
+accounts: make(&lt;span style="color:#000080;font-weight:bold">map&lt;/span>[&lt;span style="color:#000080;font-weight:bold">int64&lt;/span>]&lt;span style="color:#000080;font-weight:bold">uint64&lt;/span>),
+}
+}
+&lt;span style="color:#000080;font-weight:bold">type&lt;/span> Bank &lt;span style="color:#000080;font-weight:bold">struct&lt;/span> {
+accounts &lt;span style="color:#000080;font-weight:bold">map&lt;/span>[&lt;span style="color:#000080;font-weight:bold">int64&lt;/span>]&lt;span style="color:#000080;font-weight:bold">uint64&lt;/span>
+}
+&lt;span style="color:#080;font-style:italic">// Create new account with given funds. Account ID must be unique.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>&lt;span style="color:#000080;font-weight:bold">func&lt;/span> (b *Bank) NewAccount(accountID &lt;span style="color:#000080;font-weight:bold">int64&lt;/span>, funds &lt;span style="color:#000080;font-weight:bold">uint64&lt;/span>) &lt;span style="color:#000080;font-weight:bold">error&lt;/span> {
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> _, ok := b.accounts[accountID]; ok {
+&lt;span style="display:block;width:100%;background-color:#e5e5e5"> &lt;span style="color:#000080;font-weight:bold">return&lt;/span> errors.New(&lt;span style="color:#00f">&amp;#34;account exists&amp;#34;&lt;/span>)
+&lt;/span> }
+b.accounts[accountID] = funds
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span> &lt;span style="color:#000080;font-weight:bold">nil&lt;/span>
+}
+&lt;span style="color:#080;font-style:italic">// Transfer moves funds from one account to another.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>&lt;span style="color:#000080;font-weight:bold">func&lt;/span> (b *Bank) Transfer(from, to &lt;span style="color:#000080;font-weight:bold">int64&lt;/span>, amount &lt;span style="color:#000080;font-weight:bold">uint64&lt;/span>) &lt;span style="color:#000080;font-weight:bold">error&lt;/span> {
+&lt;span style="color:#000080;font-weight:bold">switch&lt;/span> fromFunds, ok := b.accounts[from]; {
+&lt;span style="color:#000080;font-weight:bold">case&lt;/span> !ok:
+&lt;span style="display:block;width:100%;background-color:#e5e5e5"> &lt;span style="color:#000080;font-weight:bold">return&lt;/span> fmt.Errorf(&lt;span style="color:#00f">&amp;#34;source account %d not found&amp;#34;&lt;/span>, from)
+&lt;/span> &lt;span style="color:#000080;font-weight:bold">case&lt;/span> fromFunds &amp;lt; amount:
+&lt;span style="display:block;width:100%;background-color:#e5e5e5"> &lt;span style="color:#000080;font-weight:bold">return&lt;/span> fmt.Errorf(&lt;span style="color:#00f">&amp;#34;cannot transfer %d from %d account: insufficient funds&amp;#34;&lt;/span>, amount, fromFunds)
+&lt;/span> }
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> _, ok := b.accounts[to]; !ok {
+&lt;span style="display:block;width:100%;background-color:#e5e5e5"> &lt;span style="color:#000080;font-weight:bold">return&lt;/span> fmt.Errorf(&lt;span style="color:#00f">&amp;#34;destination account %d not found&amp;#34;&lt;/span>, to)
+&lt;/span> }
+b.accounts[from] -= amount
+b.accounts[to] += amount
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span> &lt;span style="color:#000080;font-weight:bold">nil&lt;/span>
+}
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;p>Above code presents a common way of dealing with errors. If a failure cannot be
+dealt with then return the error. If possible provide additional information,
+for example, an account ID. This is often an acceptable solution but sometimes
+it might not be good enough. As soon as we use the &lt;code>Bank&lt;/code> instance the
+shortcomings are more visible.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">bank := NewBank()
+&lt;span style="color:#080;font-style:italic">// ...
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>&lt;span style="color:#000080;font-weight:bold">if&lt;/span> err := bank.Transfer(&lt;span style="color:#00f">111&lt;/span>, &lt;span style="color:#00f">222&lt;/span>, &lt;span style="color:#00f">10&lt;/span>); err != &lt;span style="color:#000080;font-weight:bold">nil&lt;/span> {
+&lt;span style="color:#080;font-style:italic">// Why did the transfer fail?
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>}
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>If the &lt;code>Transfer&lt;/code> call returns an error it is not possible to learn about the
+reason and distinguish different cases. As a human analyzing the text message,
+we can tell what went wrong. If you want your code to react differently if one
+of the accounts does not exist and do something else when there are not enough
+funds on the source account then you have a problem.&lt;/p>
+&lt;h2 id="predefined-errors">Predefined errors&lt;/h2>
+&lt;p>To provide more insights into the &lt;code>Transfer&lt;/code> method failures one may declare
+all expected errors upfront.&lt;/p>
+&lt;p>For each failure case declare a corresponding error instance. Compare an error
+returned by the &lt;code>Transfer&lt;/code> method with all error definitions it can return to
+discover the cause.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#080;font-style:italic">// Transfer moves funds from one account to another.
+&lt;/span>&lt;span style="color:#080;font-style:italic">// Upon failure returns one of
+&lt;/span>&lt;span style="color:#080;font-style:italic">// ErrNoSourceAccount
+&lt;/span>&lt;span style="color:#080;font-style:italic">// ErrNoDestinationAccount
+&lt;/span>&lt;span style="color:#080;font-style:italic">// ErrInsufficientFunds
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>&lt;span style="color:#000080;font-weight:bold">func&lt;/span> (b *Bank) Transfer(from, to &lt;span style="color:#000080;font-weight:bold">int64&lt;/span>, amount &lt;span style="color:#000080;font-weight:bold">uint64&lt;/span>) &lt;span style="color:#000080;font-weight:bold">error&lt;/span> {
+&lt;span style="color:#000080;font-weight:bold">switch&lt;/span> fromFunds, ok := b.accounts[from]; {
+&lt;span style="color:#000080;font-weight:bold">case&lt;/span> !ok:
+&lt;span style="display:block;width:100%;background-color:#e5e5e5"> &lt;span style="color:#000080;font-weight:bold">return&lt;/span> ErrNoSourceAccount
+&lt;/span> &lt;span style="color:#000080;font-weight:bold">case&lt;/span> fromFunds &amp;lt; amount:
+&lt;span style="display:block;width:100%;background-color:#e5e5e5"> &lt;span style="color:#000080;font-weight:bold">return&lt;/span> ErrInsufficientFunds
+&lt;/span> }
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> _, ok := b.accounts[to]; !ok {
+&lt;span style="display:block;width:100%;background-color:#e5e5e5"> &lt;span style="color:#000080;font-weight:bold">return&lt;/span> ErrNoDestinationAccount
+&lt;/span> }
+b.accounts[from] -= amount
+b.accounts[to] += amount
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span> &lt;span style="color:#000080;font-weight:bold">nil&lt;/span>
+}
+&lt;span style="color:#000080;font-weight:bold">var&lt;/span> (
+&lt;span style="color:#080;font-style:italic">// ErrNoSourceAccount is returned when the source account does not
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// exist.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> ErrNoSourceAccount = errors.New(&lt;span style="color:#00f">&amp;#34;no source account&amp;#34;&lt;/span>)
+&lt;span style="color:#080;font-style:italic">// ErrNoDestinationAccount is returned when the destination account
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// does not exist.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> ErrNoDestinationAccount = errors.New(&lt;span style="color:#00f">&amp;#34;no destination account&amp;#34;&lt;/span>)
+&lt;span style="color:#080;font-style:italic">// ErrInsufficientFunds is returned when a transfer cannot be completed
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// because there are not enough funds on the source account.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> ErrInsufficientFunds = errors.New(&lt;span style="color:#00f">&amp;#34;insufficient funds&amp;#34;&lt;/span>)
+)
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;p>This is similar to how the &lt;a href="https://golang.org/pkg/io/#pkg-variables">&lt;code>io&lt;/code>&lt;/a>
+package deals with errors.&lt;/p>
+&lt;p>Returning a different error instance for each error case allows us to handle
+different failure cases accordingly. Test the returned error for being one of
+the predefined instances.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">bank := NewBank()
+&lt;span style="color:#080;font-style:italic">// ...
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>&lt;span style="color:#000080;font-weight:bold">switch&lt;/span> err := bank.Transfer(&lt;span style="color:#00f">1&lt;/span>, &lt;span style="color:#00f">2&lt;/span>); err {
+&lt;span style="color:#000080;font-weight:bold">case&lt;/span> &lt;span style="color:#000080;font-weight:bold">nil&lt;/span>:
+println(&lt;span style="color:#00f">&amp;#34;money transferred&amp;#34;&lt;/span>)
+&lt;span style="color:#000080;font-weight:bold">case&lt;/span> ErrNoSourceAccount:
+panic(&lt;span style="color:#00f">&amp;#34;source account does not exist&amp;#34;&lt;/span>)
+&lt;span style="color:#000080;font-weight:bold">case&lt;/span> ErrNoDestinationAccount:
+panic(&lt;span style="color:#00f">&amp;#34;destination account does not exist&amp;#34;&lt;/span>)
+&lt;span style="color:#000080;font-weight:bold">case&lt;/span> ErrInsufficientFunds:
+panic(&lt;span style="color:#00f">&amp;#34;not enough money&amp;#34;&lt;/span>)
+&lt;span style="color:#000080;font-weight:bold">default&lt;/span>:
+panic(&lt;span style="color:#00f">&amp;#34;unexpected error&amp;#34;&lt;/span>)
+}
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>This is in my opinion a step in the right direction but it is too verbose. This
+patten requires too much code to be written. You can no longer create errors
+when you need them. All failure cases and respective errors must be declared
+upfront.&lt;/p>
+&lt;p>In addition, you are losing the context information that you were building
+using &lt;code>fmt.Errorf&lt;/code>. When returning &lt;code>ErrInsufficientFunds&lt;/code> you no longer know
+which account caused it. &lt;code>fmt.Errorf&lt;/code> must no longer be used for the error
+instance comparison to work.&lt;/p>
+&lt;h2 id="error-inheritance">Error inheritance&lt;/h2>
+&lt;p>In Python - a language with exceptions and type inheritance - &lt;a href="https://docs.python.org/3/library/exceptions.html#exception-hierarchy">exceptions form
+a hierarchy&lt;/a>.
+Because each error is an instance of a class belonging to that class hierarchy
+each exception instance can contain a custom message and be captured by its
+type or any type it inherits from.&lt;/p>
+&lt;p>This is how a banking service could be used if implemented in Python.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-python" data-lang="python">&lt;span style="color:#000080;font-weight:bold">try&lt;/span>:
+bank.transfer(from, to, amount)
+&lt;span style="color:#000080;font-weight:bold">except&lt;/span> ErrAccountNotFound &lt;span style="color:#000080;font-weight:bold">as&lt;/span> e:
+&lt;span style="color:#000080;font-weight:bold">print&lt;/span>(e) &lt;span style="color:#080;font-style:italic"># either source or destination account not found&lt;/span>
+&lt;span style="color:#000080;font-weight:bold">except&lt;/span> ErrInsufficientFunds:
+&lt;span style="color:#000080;font-weight:bold">print&lt;/span>(&lt;span style="color:#00f">&amp;#34;not enough money&amp;#34;&lt;/span>)
+&lt;span style="color:#000080;font-weight:bold">except&lt;/span> Exception:
+&lt;span style="color:#000080;font-weight:bold">print&lt;/span>(&lt;span style="color:#00f">&amp;#34;unexpected condition&amp;#34;&lt;/span>)
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Because in Python implementation both &lt;code>ErrNoSourceAccount&lt;/code> and
+&lt;code>ErrNoDestinationAccount&lt;/code> would inherit from &lt;code>ErrAccountNotFound&lt;/code>, both cases
+can be handled with a single statement &lt;code>except ErrAccountNotFound&lt;/code>.&lt;/p>
+&lt;p>When capturing an exception &lt;code>e&lt;/code> refers to the exception instance containing the
+detailed information that can be helpful during debugging or consumed by the
+client. It can contain more information than just a human readable description.&lt;/p>
+&lt;h3 id="causer-interface">&lt;code>Causer&lt;/code> interface&lt;/h3>
+&lt;p>Inheritance is not a requirement to achieve the functionality provided by
+Python exceptions. When considering an error it is enough if we are able to
+tell what was the cause of it. This is not possible with errors created using
+the standard library (&lt;code>errors&lt;/code> or &lt;code>fmt&lt;/code> packages). Instead of using the
+standard library, we must create our own error implementation.&lt;/p>
+&lt;p>What is needed is an &lt;code>Error&lt;/code> structure that implements the
+&lt;a href="https://golang.org/pkg/builtin/#error">&lt;code>error&lt;/code>&lt;/a> interface and a &lt;code>Wrap&lt;/code>
+function that will take an error together with an additional description.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#080;font-style:italic">// Wrap returns an error that is having given error set as the cause.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>&lt;span style="color:#000080;font-weight:bold">func&lt;/span> Wrap(err &lt;span style="color:#000080;font-weight:bold">error&lt;/span>, description &lt;span style="color:#000080;font-weight:bold">string&lt;/span>, args ...&lt;span style="color:#000080;font-weight:bold">interface&lt;/span>{}) *Error {
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span> &amp;amp;Error{
+parent: err,
+desc: fmt.Sprintf(description, args...),
+}
+}
+&lt;span style="color:#000080;font-weight:bold">type&lt;/span> Error &lt;span style="color:#000080;font-weight:bold">struct&lt;/span> {
+&lt;span style="color:#080;font-style:italic">// Parent error if any.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> parent &lt;span style="color:#000080;font-weight:bold">error&lt;/span>
+&lt;span style="color:#080;font-style:italic">// This error description.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> desc &lt;span style="color:#000080;font-weight:bold">string&lt;/span>
+}
+&lt;span style="color:#000080;font-weight:bold">func&lt;/span> (e *Error) Error() &lt;span style="color:#000080;font-weight:bold">string&lt;/span> {
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> e.parent == &lt;span style="color:#000080;font-weight:bold">nil&lt;/span> {
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span> e.desc
+}
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span> fmt.Sprintf(&lt;span style="color:#00f">&amp;#34;%s: %s&amp;#34;&lt;/span>, e.desc, e.parent)
+}
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>In addition, it will provide a &lt;code>Cause&lt;/code> method that will return the wrapped error
+instance or &lt;code>nil&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#080;font-style:italic">// Cause returns the cause of this error or nil if this is the root cause
+&lt;/span>&lt;span style="color:#080;font-style:italic">// error.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>&lt;span style="color:#000080;font-weight:bold">func&lt;/span> (e *Error) Cause() &lt;span style="color:#000080;font-weight:bold">error&lt;/span> {
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span> e.parent
+}
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>One more function is necessary for this to be complete. We must be able to
+compare an error with another error or its cause. The &lt;code>error&lt;/code> interface does
+not provide &lt;code>Cause&lt;/code> method so we must use type casting to determine if an error
+instance implements the &lt;code>causer&lt;/code> interface.&lt;/p>
+&lt;p>Instead of a function a method of the &lt;code>Error&lt;/code> structure provides a nicer API.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">
+&lt;span style="color:#080;font-style:italic">// Is returns true if given error or its cause is the same kind.
+&lt;/span>&lt;span style="color:#080;font-style:italic">// If cause error provides Cause method then a comparison is made with all
+&lt;/span>&lt;span style="color:#080;font-style:italic">// parents as well.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>&lt;span style="color:#000080;font-weight:bold">func&lt;/span> (kind *Error) Is(err &lt;span style="color:#000080;font-weight:bold">error&lt;/span>) &lt;span style="color:#000080;font-weight:bold">bool&lt;/span> {
+&lt;span style="color:#000080;font-weight:bold">type&lt;/span> causer &lt;span style="color:#000080;font-weight:bold">interface&lt;/span> {
+Cause() &lt;span style="color:#000080;font-weight:bold">error&lt;/span>
+}
+&lt;span style="color:#000080;font-weight:bold">for&lt;/span> {
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> err == kind {
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span> &lt;span style="color:#000080;font-weight:bold">true&lt;/span>
+}
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> e, ok := err.(causer); ok {
+err = e.Cause()
+} &lt;span style="color:#000080;font-weight:bold">else&lt;/span> {
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span> &lt;span style="color:#000080;font-weight:bold">false&lt;/span>
+}
+}
+}
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Let us test the &lt;code>Error&lt;/code>. All errors are created using the &lt;code>Wrap&lt;/code> function which
+builds an error hierarchy. It is possible to attach additional information by
+including it in the description string.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">root := Wrap(&lt;span style="color:#000080;font-weight:bold">nil&lt;/span>, &lt;span style="color:#00f">&amp;#34;root&amp;#34;&lt;/span>)
+child1 := Wrap(root, &lt;span style="color:#00f">&amp;#34;child one&amp;#34;&lt;/span>)
+child2 := Wrap(root, &lt;span style="color:#00f">&amp;#34;child two&amp;#34;&lt;/span>)
+fmt.Println(&lt;span style="color:#00f">&amp;#34;child 1 is root&amp;#34;&lt;/span>, root.Is(child1))
+&lt;span style="color:#080;font-style:italic">// child 1 is root true
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>
+fmt.Println(&lt;span style="color:#00f">&amp;#34;child 2 is root&amp;#34;&lt;/span>, root.Is(child2))
+&lt;span style="color:#080;font-style:italic">// child 2 is root true
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>
+fmt.Println(&lt;span style="color:#00f">&amp;#34;root is child 1&amp;#34;&lt;/span>, child1.Is(root))
+&lt;span style="color:#080;font-style:italic">// root is child 1 false
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>
+fmt.Println(&lt;span style="color:#00f">&amp;#34;child 2 is child 1&amp;#34;&lt;/span>, child1.Is(child2))
+&lt;span style="color:#080;font-style:italic">// child 2 is child 1 false
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>
+inlinedErr := Wrap(child2, &lt;span style="color:#00f">&amp;#34;current time: %s&amp;#34;&lt;/span>, time.Now())
+fmt.Println(&lt;span style="color:#00f">&amp;#34;inlined child 2 is root&amp;#34;&lt;/span>, root.Is(inlinedErr))
+&lt;span style="color:#080;font-style:italic">// inlined child 2 is root true
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>fmt.Println(&lt;span style="color:#00f">&amp;#34;inlined child 2 is child 2&amp;#34;&lt;/span>, child2.Is(inlinedErr))
+&lt;span style="color:#080;font-style:italic">// inlined child 2 is child 2 true
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>
+fmt.Println(&lt;span style="color:#00f">&amp;#34;fmt error is root&amp;#34;&lt;/span>, root.Is(fmt.Errorf(&lt;span style="color:#00f">&amp;#34;fmt error&amp;#34;&lt;/span>)))
+&lt;span style="color:#080;font-style:italic">// fmt error is root false
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Above &lt;code>Error&lt;/code> implementation is a powerful solution to error handling. It is
+easy to implement, does not require much code and it is portable without
+creating an explicit dependency on the &lt;code>causer&lt;/code> interface.&lt;/p>
+&lt;h2 id="predefined-errors-with-inheritance">Predefined errors with inheritance&lt;/h2>
+&lt;p>If an error implements the &lt;code>causer&lt;/code> interface we can unwind it and retrieve the
+previous error instance! This means that no matter how many times we will wrap
+an error, as long as all layers implement the &lt;code>causer&lt;/code> interface we can
+retrieve the parent error instance.&lt;/p>
+&lt;p>Back to the &lt;code>Bank.Transfer&lt;/code> example. All error instances were wrapped before
+returning and provide all the details one may expect an error to provide.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> (b *Bank) Transfer(from, to &lt;span style="color:#000080;font-weight:bold">int64&lt;/span>, amount &lt;span style="color:#000080;font-weight:bold">uint64&lt;/span>) &lt;span style="color:#000080;font-weight:bold">error&lt;/span> {
+&lt;span style="color:#000080;font-weight:bold">switch&lt;/span> fromFunds, ok := b.accounts[from]; {
+&lt;span style="color:#000080;font-weight:bold">case&lt;/span> !ok:
+&lt;span style="display:block;width:100%;background-color:#e5e5e5"> &lt;span style="color:#000080;font-weight:bold">return&lt;/span> Wrap(ErrNoSourceAccount, &lt;span style="color:#00f">&amp;#34;ID %d&amp;#34;&lt;/span>, from)
+&lt;/span> &lt;span style="color:#000080;font-weight:bold">case&lt;/span> fromFunds &amp;lt; amount:
+&lt;span style="display:block;width:100%;background-color:#e5e5e5"> &lt;span style="color:#000080;font-weight:bold">return&lt;/span> Wrap(ErrInsufficientFunds,
+&lt;/span>&lt;span style="display:block;width:100%;background-color:#e5e5e5"> &lt;span style="color:#00f">&amp;#34;cannot transfer %d from %d account&amp;#34;&lt;/span>, amount, fromFunds)
+&lt;/span> }
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> _, ok := b.accounts[to]; !ok {
+&lt;span style="display:block;width:100%;background-color:#e5e5e5"> &lt;span style="color:#000080;font-weight:bold">return&lt;/span> Wrap(ErrNoDestinationAccount, &lt;span style="color:#00f">&amp;#34;ID %d&amp;#34;&lt;/span>, to)
+&lt;/span> }
+b.accounts[from] -= amount
+b.accounts[to] += amount
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span> &lt;span style="color:#000080;font-weight:bold">nil&lt;/span>
+}
+&lt;span style="color:#000080;font-weight:bold">var&lt;/span> (
+&lt;span style="color:#080;font-style:italic">// ErrAccountNotFound is return when an operation fails because the
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// requested account does not exist.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> ErrAccountNotFound = Wrap(&lt;span style="color:#000080;font-weight:bold">nil&lt;/span>, &lt;span style="color:#00f">&amp;#34;account not found&amp;#34;&lt;/span>)
+&lt;span style="color:#080;font-style:italic">// ErrNoSourceAccount is returned when the source account does not
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// exist.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> ErrNoSourceAccount = Wrap(ErrAccountNotFound, &lt;span style="color:#00f">&amp;#34;no source&amp;#34;&lt;/span>)
+&lt;span style="color:#080;font-style:italic">// ErrNoDestinationAccount is returned when the destination account
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// does not exist.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> ErrNoDestinationAccount = Wrap(ErrAccountNotFound, &lt;span style="color:#00f">&amp;#34;no destination&amp;#34;&lt;/span>)
+&lt;span style="color:#080;font-style:italic">// ErrInsufficientFunds is returned when a transfer cannot be completed
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// because there are not enough funds on the source account.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> ErrInsufficientFunds = Wrap(&lt;span style="color:#000080;font-weight:bold">nil&lt;/span>, &lt;span style="color:#00f">&amp;#34;insufficient funds&amp;#34;&lt;/span>)
+)
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;p>Errors can be tested on any granularity level. It is valid to compare with the
+high level &lt;code>ErrAccountNotFound&lt;/code> or more precise &lt;code>ErrNoSourceAccount&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">bank := NewBank()
+&lt;span style="color:#080;font-style:italic">// ...
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>&lt;span style="color:#000080;font-weight:bold">switch&lt;/span> err := bank.Transfer(&lt;span style="color:#00f">1&lt;/span>, &lt;span style="color:#00f">2&lt;/span>, &lt;span style="color:#00f">100&lt;/span>); {
+&lt;span style="color:#000080;font-weight:bold">case&lt;/span> err == &lt;span style="color:#000080;font-weight:bold">nil&lt;/span>:
+println(&lt;span style="color:#00f">&amp;#34;money transferred&amp;#34;&lt;/span>)
+&lt;span style="color:#000080;font-weight:bold">case&lt;/span> ErrNoDestinationAccount.Is(err):
+panic(&lt;span style="color:#00f">&amp;#34;destination account does not exist&amp;#34;&lt;/span>)
+&lt;span style="color:#000080;font-weight:bold">case&lt;/span> ErrInsufficientFunds.Is(err):
+panic(&lt;span style="color:#00f">&amp;#34;not enough money &amp;#34;&lt;/span> + err.Error()) &lt;span style="color:#080;font-style:italic">// err provides more details
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>&lt;span style="color:#000080;font-weight:bold">default&lt;/span>:
+panic(&lt;span style="color:#00f">&amp;#34;unexpected error&amp;#34;&lt;/span>)
+}
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="dont-drink-too-much-cool-aid">Don&amp;rsquo;t Drink Too Much Cool Aid&lt;/h2>
+&lt;p>What I have presented is a powerful pattern. You may use the &lt;code>causer&lt;/code> interface
+to extract attributes or custom error implementations that were wrapped,
+attaching helpful information on each execution step. This might be great for
+example during input validation, where together with an error you want to
+return information about the invalid fields in a way that can be extracted
+later.&lt;/p>
+&lt;p>You can use the &lt;code>causer&lt;/code> interface and the &lt;code>Wrap&lt;/code> function to declare a complex
+tree of errors that are several layers deep and cover every possible case. If
+you do, think again about your use case and if such granularity is helpful.
+Usually, just a handful of errors declared upfront do the job better. I tend to
+always inline error creation first and only if a case requires more attention
+declare a previously inlined error.&lt;/p>
+&lt;p>Regardless of what you do try to avoid blindly importing any error package.
+Consider your use cases and try to &lt;a href="https://commandcenter.blogspot.com/2017/12/error-handling-in-upspin.html">tailor your errors implementation to suit
+your needs&lt;/a>.&lt;/p></description></item><item><title>Cache stampede protection</title><link>https://husio.github.io/blog/cache-stampede-protection/</link><pubDate>Fri, 14 Sep 2018 00:00:00 +0000</pubDate><guid>https://husio.github.io/blog/cache-stampede-protection/</guid><description>&lt;p>Writing an application that handles concurrent traffic from a lot of clients in
+a performant way is not an easy task. To narrow this problem to web
+applications only, serving as many HTTP requests as possible in a short time is
+often a challenge.&lt;/p>
+&lt;p>In most cases of an HTTP application, optimizing access to the database can be
+the easiest and the best first step.&lt;/p>
+&lt;h2 id="caching-database-access">Caching database access&lt;/h2>
+&lt;p>Using a database that provides plenty of functionality and storing data in
+&lt;a href="https://en.wikipedia.org/wiki/Denormalization">denormalized form&lt;/a> makes
+development easier. This comes at the cost of the database having to execute
+complex queries and do more computation in order to return a result.&lt;/p>
+&lt;p>Making several database queries, even simple ones, to handle a request adds up
+and makes our request handing slower. Even if a query is executed instantly,
+the database client must transfer the data over the network each time.&lt;/p>
+&lt;p>Most databases implement some kind of internal caching. They optimize access to
+popular data if the query complexity allows to do so. Why add an external cache
+layer in front of the database then?&lt;/p>
+&lt;p>A cache layer can be added to remember:&lt;/p>
+&lt;ol>
+&lt;li>the result of a &lt;strong>heavy query&lt;/strong> that takes time and puts heavy load on the
+database.&lt;/li>
+&lt;li>the result of a &lt;strong>repeating query&lt;/strong> that causes the database to waste
+resources on returning the same data all the time.&lt;/li>
+&lt;/ol>
+&lt;h3 id="the-fastest-code-is-the-code-that-never-runs">The fastest code is the code that never runs&lt;/h3>
+&lt;p>Imagine a very popular web application that displays the details of an &lt;em>item&lt;/em>.
+An &lt;em>item&lt;/em> is an entity identifiable by a unique number, that is rarely
+changing. Due to heavy traffic, the database that stores &lt;em>items&lt;/em> is all the
+time asked about the same entity.&lt;/p>
+&lt;p>&lt;img src="./direct-access.svg" alt="Direct data access">&lt;/p>
+&lt;p>To offload some of the repeating requests, we introduce a cache layer.
+Whenever an item is needed, serve it from the cache. The database is queried
+only if an item does not exist in the cache.&lt;/p>
+&lt;p>&lt;img src="./cached-access.svg" alt="Cached data access">&lt;/p>
+&lt;p>For the purpose of this post, let us assume we have a store and a cache
+implementation available that implement the following interfaces. Delegating
+&lt;a href="https://husio.github.io/blog/blog/accessing-data-in-go/">database access&lt;/a> allows for a
+cache implementation that is not tightly coupled to the original
+implementation.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">type&lt;/span> ItemStore &lt;span style="color:#000080;font-weight:bold">interface&lt;/span> {
+&lt;span style="color:#080;font-style:italic">// FindItem item returns an item with given ID or ErrNotFound
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> FindItem(ctx context.Context, itemID &lt;span style="color:#000080;font-weight:bold">int64&lt;/span>) (*Item, &lt;span style="color:#000080;font-weight:bold">error&lt;/span>)
+}
+&lt;span style="color:#000080;font-weight:bold">type&lt;/span> CacheStore &lt;span style="color:#000080;font-weight:bold">interface&lt;/span> {
+&lt;span style="color:#080;font-style:italic">// Get loads value under given key into destValue. ErrMiss is returned
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// if key does not exist.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> Get(ctx context.Context, key &lt;span style="color:#000080;font-weight:bold">string&lt;/span>, destValue &lt;span style="color:#000080;font-weight:bold">interface&lt;/span>{}) &lt;span style="color:#000080;font-weight:bold">error&lt;/span>
+&lt;span style="color:#080;font-style:italic">// Set value of given key.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> Set(ctx context.Context, key &lt;span style="color:#000080;font-weight:bold">string&lt;/span>, value &lt;span style="color:#000080;font-weight:bold">interface&lt;/span>{}, ttl time.Duration) &lt;span style="color:#000080;font-weight:bold">error&lt;/span>
+}
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Instead of directly calling the database each time an &lt;em>item&lt;/em> is needed, a cache
+layer is used.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> CacheItemStore(cache CacheStore, store ItemStore) ItemStore {
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span> &amp;amp;cachedItemStore{
+store: store,
+cache: cache,
+}
+}
+&lt;span style="color:#000080;font-weight:bold">type&lt;/span> cachedItemStore &lt;span style="color:#000080;font-weight:bold">struct&lt;/span> {
+store ItemStore
+cache CacheStore
+}
+&lt;span style="color:#000080;font-weight:bold">func&lt;/span> (c *cachedItemStore) FindItem(ctx context.Context, itemID &lt;span style="color:#000080;font-weight:bold">int64&lt;/span>) (*Item, &lt;span style="color:#000080;font-weight:bold">error&lt;/span>) {
+cacheKey := fmt.Sprintf(&lt;span style="color:#00f">&amp;#34;item:%d&amp;#34;&lt;/span>, itemID)
+&lt;span style="color:#000080;font-weight:bold">var&lt;/span> item Item
+&lt;span style="color:#000080;font-weight:bold">switch&lt;/span> err := c.cache.Get(ctx, cacheKey, &amp;amp;item); err {
+&lt;span style="color:#000080;font-weight:bold">case&lt;/span> &lt;span style="color:#000080;font-weight:bold">nil&lt;/span>:
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span> &amp;amp;item, &lt;span style="color:#000080;font-weight:bold">nil&lt;/span>
+&lt;span style="color:#000080;font-weight:bold">case&lt;/span> ErrMiss:
+&lt;span style="color:#080;font-style:italic">// Not in cache, fetch from the database.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#000080;font-weight:bold">default&lt;/span>:
+&lt;span style="color:#080;font-style:italic">// Cache error is not critical for providing this
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// functionality, log it and continue.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> log.Printf(&lt;span style="color:#00f">&amp;#34;cannot get from cache: %s&amp;#34;&lt;/span>, err)
+}
+item, err := c.store.FindItem(ctx, itemID)
+&lt;span style="color:#080;font-style:italic">// To simplify this example, do not cache ErrNotFound. Depending on the use
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// case, remembering that an item does not exist might be desired.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> err == &lt;span style="color:#000080;font-weight:bold">nil&lt;/span> {
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> err := c.cache.Set(ctx, cacheKey, &amp;amp;item, time.Minute); err != &lt;span style="color:#000080;font-weight:bold">nil&lt;/span> {
+&lt;span style="color:#080;font-style:italic">// Cache error is not critical for providing this
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// functionality, log it and continue.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> log.Printf(&lt;span style="color:#00f">&amp;#34;cannot set in cache: %s&amp;#34;&lt;/span>, err)
+}
+}
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span> item, err
+}
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Cache errors are not critical for the functionality of the &lt;code>FindItem&lt;/code> method.
+They are logged, so that we have a good insight into our application.&lt;/p>
+&lt;p>To decide for how long a result can be cached and when the value must be
+refreshed, a domain knowledge is required.&lt;/p>
+&lt;h2 id="cache-stampede-problem">Cache stampede problem&lt;/h2>
+&lt;p>Adding a cache layer can reduce the amount of calls to a resource that the
+cache protects. Whether the resource is a database, an external service or a
+local computation task, the amount of communication that happens can be
+significantly reduced.&lt;/p>
+&lt;blockquote>
+&lt;p>There are two hard things in computer science: cache invalidation, naming
+things, and off-by-one errors.&lt;/p>
+&lt;p>&amp;ndash; &lt;a href="https://twitter.com/codinghorror/status/506010907021828096">Jeff Atwood&lt;/a>&lt;/p>
+&lt;/blockquote>
+&lt;p>Most cache implementations store data with an expiration time, after which it
+is removed. Using &lt;a href="https://en.wikipedia.org/wiki/Time_to_live">time to live
+(TTL)&lt;/a> is an easy compromise to
+ensure that stored data is never too old. Instead of trying to keep track of
+when a certain query result is changing, remember the result for a short period
+to minimize the possible errors.&lt;/p>
+&lt;p>Cache expiration introduces a new problem. Take our example of a web
+application all the time displaying an item with ID 1. Hundreds of requests per
+second and all of them require this item&amp;rsquo;s details to be served. When the item
+with ID 1 is served from a cache, the database can allocate resources to do
+something else.&lt;/p>
+&lt;p>&lt;img src="./cached-access.svg" alt="Cached data access">&lt;/p>
+&lt;p>Our cache is using TTL to ensure that served data is never too old. &lt;code>FindItem&lt;/code>
+will cache the result for one minute. After one minute, the value expires (it
+is being removed from the cache) to force a refresh.&lt;/p>
+&lt;p>Keep in mind, that there are hundreds of requests happening every second. All
+of them need the item with ID 1 to be served. The item is not in the cache
+anymore, so the only place to get it is the database. This problem is called
+&lt;a href="https://en.wikipedia.org/wiki/Cache_stampede">cache stampede&lt;/a>.&lt;/p>
+&lt;p>&lt;img src="./cached-access-expired.svg" alt="Cached data access with an empty cache">&lt;/p>
+&lt;p>The database is not being shielded by an external cache layer anymore. It also
+does not have its own cache ready.&lt;/p>
+&lt;h3 id="access-locking">Access Locking&lt;/h3>
+&lt;p>To prevent the same query being executed multiple times when a value is not
+cached, we can introduce a locking mechanism. Before asking the database,
+acquire a &amp;ldquo;query lock&amp;rdquo;.&lt;/p>
+&lt;p>Our lock will be implemented using a cache service. In addition to &lt;code>Get&lt;/code> and
+&lt;code>Set&lt;/code> operations, &lt;code>SetNx&lt;/code> is required.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">type&lt;/span> CacheStore &lt;span style="color:#000080;font-weight:bold">interface&lt;/span> {
+Get(ctx context.Context, key &lt;span style="color:#000080;font-weight:bold">string&lt;/span>, destValue &lt;span style="color:#000080;font-weight:bold">interface&lt;/span>{}) &lt;span style="color:#000080;font-weight:bold">error&lt;/span>
+Set(ctx context.Context, key &lt;span style="color:#000080;font-weight:bold">string&lt;/span>, value &lt;span style="color:#000080;font-weight:bold">interface&lt;/span>{}, ttl time.Duration) &lt;span style="color:#000080;font-weight:bold">error&lt;/span>
+&lt;span style="color:#080;font-style:italic">// SetNx sets the value of a given key only if it does not exist.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// Returns ErrConflict if the key is already in use.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> SetNx(ctx context.Context, key &lt;span style="color:#000080;font-weight:bold">string&lt;/span>, value &lt;span style="color:#000080;font-weight:bold">interface&lt;/span>{}, ttl time.Duration) &lt;span style="color:#000080;font-weight:bold">error&lt;/span>
+}
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>When &lt;code>FindItem&lt;/code> is called, we first try to read the item from the cache. If the
+item does not exist in the cache, we either acquire a lock and get data from
+the database or keep checking the cache. A value will be cached by another
+client or we will get the lock.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> (c *cachedItemStore) FindItem(ctx context.Context, itemID &lt;span style="color:#000080;font-weight:bold">int64&lt;/span>) (*Item, &lt;span style="color:#000080;font-weight:bold">error&lt;/span>) {
+cacheKey := fmt.Sprintf(&lt;span style="color:#00f">&amp;#34;item:%d&amp;#34;&lt;/span>, itemID)
+readFromCache:
+&lt;span style="color:#000080;font-weight:bold">for&lt;/span> {
+&lt;span style="color:#000080;font-weight:bold">var&lt;/span> item Item
+&lt;span style="color:#000080;font-weight:bold">switch&lt;/span> err := c.cache.Get(ctx, cacheKey, &amp;amp;item); err {
+&lt;span style="color:#000080;font-weight:bold">case&lt;/span> &lt;span style="color:#000080;font-weight:bold">nil&lt;/span>:
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span> &amp;amp;item, &lt;span style="color:#000080;font-weight:bold">nil&lt;/span>
+&lt;span style="color:#000080;font-weight:bold">case&lt;/span> ErrMiss:
+&lt;span style="color:#080;font-style:italic">// Not in cache, fetch from the database, but only of
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// no other client is already doing this.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> cacheKeyLock := cacheKey + &lt;span style="color:#00f">&amp;#34;:query-lock&amp;#34;&lt;/span>
+&lt;span style="color:#000080;font-weight:bold">switch&lt;/span> err := c.cache.SetNx(ctx, cacheKeyLock, &lt;span style="color:#00f">1&lt;/span>, time.Second); err {
+&lt;span style="color:#000080;font-weight:bold">case&lt;/span> &lt;span style="color:#000080;font-weight:bold">nil&lt;/span>:
+&lt;span style="color:#080;font-style:italic">// We own the lock, ask the database about the value.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#000080;font-weight:bold">break&lt;/span> readFromCache
+&lt;span style="color:#000080;font-weight:bold">case&lt;/span> ErrConflict:
+&lt;span style="color:#080;font-style:italic">// Another process owns the lock. Wait until
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// the value is stored in the cache or the lock
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// is released and we can query the database.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">//
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// Short sleep ensures that we do not overuse
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// the cache.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> time.Sleep(&lt;span style="color:#00f">25&lt;/span> * time.Millisecond)
+&lt;span style="color:#000080;font-weight:bold">continue&lt;/span> readFromCache
+&lt;span style="color:#000080;font-weight:bold">default&lt;/span>:
+log.Printf(&lt;span style="color:#00f">&amp;#34;cannot acquire lock in cache: %s&amp;#34;&lt;/span>, err)
+&lt;span style="color:#000080;font-weight:bold">break&lt;/span> readFromCache
+}
+&lt;span style="color:#000080;font-weight:bold">default&lt;/span>:
+&lt;span style="color:#080;font-style:italic">// Cache error is not critical for providing this
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// functionality. Log it and continue.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> log.Printf(&lt;span style="color:#00f">&amp;#34;cannot get from cache: %s&amp;#34;&lt;/span>, err)
+&lt;span style="color:#000080;font-weight:bold">break&lt;/span> readFromCache
+}
+}
+item, err := c.store.FindItem(ctx, itemID)
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> err == &lt;span style="color:#000080;font-weight:bold">nil&lt;/span> {
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> err := c.cache.Set(ctx, cacheKey, &amp;amp;item, time.Minute); err != &lt;span style="color:#000080;font-weight:bold">nil&lt;/span> {
+log.Printf(&lt;span style="color:#00f">&amp;#34;cannot set in cache: %s&amp;#34;&lt;/span>, err)
+}
+}
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span> item, err
+}
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Above implementation ensures that at most one client is asking the database
+about an item with the same ID. If more than one &lt;code>FindItem&lt;/code> call is done at the
+same time, only one client will query the database while all others are waiting
+for the cached result.&lt;/p>
+&lt;h3 id="early-expiration">Early expiration&lt;/h3>
+&lt;p>The situation has improved for the database. But adding locking means that when
+a value expires from the cache, all clients must wait until one of them fills
+the cache. All clients waste time and server resources on waiting.&lt;/p>
+&lt;p>Our cache layer can be further improved by adding an early expiration
+functionality. If an &lt;em>item&lt;/em> is cached for 1 minute, shortly before the
+expiration time is due, tell one of the clients that the value must be updated.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> (c *cachedItemStore) FindItem(ctx context.Context, itemID &lt;span style="color:#000080;font-weight:bold">int64&lt;/span>) (*Item, &lt;span style="color:#000080;font-weight:bold">error&lt;/span>) {
+cacheKey := fmt.Sprintf(&lt;span style="color:#00f">&amp;#34;item:%d&amp;#34;&lt;/span>, itemID)
+cacheKeyLock := cacheKey + &lt;span style="color:#00f">&amp;#34;:query-lock&amp;#34;&lt;/span>
+readFromCache:
+&lt;span style="color:#000080;font-weight:bold">for&lt;/span> {
+&lt;span style="color:#000080;font-weight:bold">var&lt;/span> spItem stampedeProtectedItem
+&lt;span style="color:#000080;font-weight:bold">switch&lt;/span> err := c.cache.Get(ctx, cacheKey, &amp;amp;spItem); err {
+&lt;span style="color:#000080;font-weight:bold">case&lt;/span> &lt;span style="color:#000080;font-weight:bold">nil&lt;/span>:
+&lt;span style="color:#080;font-style:italic">// If an early expiration time is due, acquire lock to
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// fetch item from the database.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#000080;font-weight:bold">if&lt;/span> spItem.refreshAt.Before(time.Now()) {
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> c.cache.SetNx(ctx, cacheKeyLock, &lt;span style="color:#00f">1&lt;/span>, time.Second) == &lt;span style="color:#000080;font-weight:bold">nil&lt;/span> {
+&lt;span style="color:#000080;font-weight:bold">break&lt;/span> readFromCache
+}
+&lt;span style="color:#080;font-style:italic">// If we did not get the lock, we can still
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// return the cached data. It will expire soon,
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// but it&amp;#39;s still valid.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> }
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span> &amp;amp;spItem.item, &lt;span style="color:#000080;font-weight:bold">nil&lt;/span>
+&lt;span style="color:#000080;font-weight:bold">case&lt;/span> ErrMiss:
+&lt;span style="color:#080;font-style:italic">// Not in cache, fetch from the database, but only of
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// no other client is already doing this.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#000080;font-weight:bold">switch&lt;/span> err := c.cache.SetNx(ctx, cacheKeyLock, &lt;span style="color:#00f">1&lt;/span>, time.Second); err {
+&lt;span style="color:#000080;font-weight:bold">case&lt;/span> &lt;span style="color:#000080;font-weight:bold">nil&lt;/span>:
+&lt;span style="color:#080;font-style:italic">// We own the lock, ask the database about the value
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#000080;font-weight:bold">break&lt;/span> readFromCache
+&lt;span style="color:#000080;font-weight:bold">case&lt;/span> ErrConflict:
+&lt;span style="color:#080;font-style:italic">// Another process owns the lock. Wait until
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// the value is stored in the cache or the lock
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// is released and we can query the database.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">//
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// Short sleep ensures that we do not overuse
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// the cache.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> time.Sleep(&lt;span style="color:#00f">25&lt;/span> * time.Millisecond)
+&lt;span style="color:#000080;font-weight:bold">continue&lt;/span> readFromCache
+&lt;span style="color:#000080;font-weight:bold">default&lt;/span>:
+log.Printf(&lt;span style="color:#00f">&amp;#34;cannot acquire lock in cache: %s&amp;#34;&lt;/span>, err)
+&lt;span style="color:#000080;font-weight:bold">break&lt;/span> readFromCache
+}
+&lt;span style="color:#000080;font-weight:bold">default&lt;/span>:
+log.Printf(&lt;span style="color:#00f">&amp;#34;cannot get from cache: %s&amp;#34;&lt;/span>, err)
+&lt;span style="color:#000080;font-weight:bold">break&lt;/span> readFromCache
+}
+}
+item, err := c.store.FindItem(ctx, itemID)
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> err == &lt;span style="color:#000080;font-weight:bold">nil&lt;/span> {
+spItem := stampedeProtectedItem{
+refreshAt: time.Now().Add(&lt;span style="color:#00f">55&lt;/span> * time.Second),
+item: item,
+}
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> err := c.cache.Set(ctx, cacheKey, &amp;amp;spItem, time.Minute); err != &lt;span style="color:#000080;font-weight:bold">nil&lt;/span> {
+log.Printf(&lt;span style="color:#00f">&amp;#34;cannot set in cache: %s&amp;#34;&lt;/span>, err)
+}
+}
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span> item, err
+}
+&lt;span style="color:#000080;font-weight:bold">type&lt;/span> stampedeProtectedItem &lt;span style="color:#000080;font-weight:bold">struct&lt;/span> {
+refreshAt time.Time
+item *Item
+}
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="conclusion">Conclusion&lt;/h2>
+&lt;p>Caching data that is often read can increase performance of an application.
+Data caching is more complicated than it might look like at first sight.&lt;/p>
+&lt;p>Above cache stampede protection code example is tightly coupled to &lt;code>ItemStore&lt;/code>.
+If you are searching for a general use implementation, take a &lt;a href="https://github.com/go-surf/surf/blob/master/cache_stampede.go">look at
+&lt;code>surf.StampedeProtect&lt;/code>&lt;/a>.&lt;/p></description></item><item><title>Accessing data in Go</title><link>https://husio.github.io/blog/accessing-data-in-go/</link><pubDate>Sun, 02 Sep 2018 00:00:00 +0000</pubDate><guid>https://husio.github.io/blog/accessing-data-in-go/</guid><description>&lt;p>When writing a web application, we have to decide how to access data. Where to
+get it from, how to store it, how to manipulate it. Storage engines can vary,
+from being a single SQLite file to cache server or even an external service
+exposing an API.&lt;/p>
+&lt;p>There are many ways this topic can be addressed. I will explain how a simple
+and straightforward solution can be evolved into a more sophisticated one.&lt;/p>
+&lt;p>For the purpose of this article, let&amp;rsquo;s assume that our storage engine is an SQL
+database with an &lt;code>items&lt;/code> table. Our task is to build an endpoint, which returns
+a list of all &lt;em>items&lt;/em> in the database. &lt;em>Item&lt;/em> is an entity with a name and an
+ID. It can be represented by the structure below.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">type&lt;/span> Item &lt;span style="color:#000080;font-weight:bold">struct&lt;/span> {
+ID &lt;span style="color:#000080;font-weight:bold">int64&lt;/span>
+Name &lt;span style="color:#000080;font-weight:bold">string&lt;/span>
+}
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="first-iteration">First iteration&lt;/h2>
+&lt;p>Let&amp;rsquo;s start with a basic HTTP handler. To avoid global variables, let&amp;rsquo;s use
+dependency injection. &lt;code>ItemListHandler&lt;/code> takes as a parameter what&amp;rsquo;s necessary
+for the endpoint to complete our task &amp;ndash; a database connection and a template.
+In return we are getting an HTTP handler function.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> ItemListHandler(
+db *sql.DB,
+tmpl *template.Template,
+) http.HandlerFunc {
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span> &lt;span style="color:#000080;font-weight:bold">func&lt;/span>(w http.ResponseWriter, r *http.Request) {
+&lt;span style="color:#080;font-style:italic">// handler&amp;#39;s code below
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> }
+}
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>To list all &lt;em>items&lt;/em>, we must first query the database. Once we will read all
+returned rows, we can use the collected entries to render the template and send
+the result back.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">rows, err := db.QueryContext(r.Context(), &lt;span style="color:#00f">`SELECT id, name FROM items`&lt;/span>)
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> err != &lt;span style="color:#000080;font-weight:bold">nil&lt;/span> {
+http.Error(w, &lt;span style="color:#00f">&amp;#34;Server Error&amp;#34;&lt;/span>, http.StatusInternalServerError)
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span>
+}
+&lt;span style="color:#000080;font-weight:bold">defer&lt;/span> rows.Close()
+&lt;span style="color:#000080;font-weight:bold">var&lt;/span> items []*Item
+&lt;span style="color:#000080;font-weight:bold">for&lt;/span> rows.Next() {
+&lt;span style="color:#000080;font-weight:bold">var&lt;/span> it Item
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> err := rows.Scan(&amp;amp;it.ID, &amp;amp;it.Name); err != &lt;span style="color:#000080;font-weight:bold">nil&lt;/span> {
+http.Error(w, &lt;span style="color:#00f">&amp;#34;Server Error&amp;#34;&lt;/span>, http.StatusInternalServerError)
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span>
+}
+items = append(items, &amp;amp;it)
+}
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> err := rows.Err(); err != &lt;span style="color:#000080;font-weight:bold">nil&lt;/span> {
+http.Error(w, &lt;span style="color:#00f">&amp;#34;Server Error&amp;#34;&lt;/span>, http.StatusInternalServerError)
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span>
+}
+_ = tmpl.Execute(w, items)
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;em>(To simplify the example, returned error pages are very basic, we do not log
+errors and we are assuming that template rendering never fails.)&lt;/em>&lt;/p>
+&lt;p>There are many issues with the approach presented above.&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>Every time we want to get the list of &lt;em>items&lt;/em>, we must directly interact
+with the database. We must know about the database structure and in case of
+schema changes, we must locate all those places and update them.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Everything is implemented in a single place. Because we directly access the
+database, to test this code, a database must be available, it&amp;rsquo;s schema
+prepared and test data inserted.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>If we wanted to add a cache layer or some form of monitoring like tracing or
+metrics, we would have to add more code directly inside of the handler.
+That makes the code of the handler larger and testing harder. We can no
+longer test functionalities separately.&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;h2 id="second-iteration">Second iteration&lt;/h2>
+&lt;p>Instead of writing all the code in an HTTP handler, let&amp;rsquo;s extract a part of it
+as a function. We can encapsulate fetching items and hide the database
+connection from the user.&lt;/p>
+&lt;p>The same code that was written directly inside of the handler is now provided
+by the &lt;code>ListItems&lt;/code> method.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#080;font-style:italic">// NewItemStore returns a store for items.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>&lt;span style="color:#000080;font-weight:bold">func&lt;/span> NewItemStore(db *sql.DB) *ItemStore {
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span> &amp;amp;ItemStore{db: db}
+}
+&lt;span style="color:#000080;font-weight:bold">type&lt;/span> ItemStore &lt;span style="color:#000080;font-weight:bold">struct&lt;/span> {
+db *sql.DB
+}
+&lt;span style="color:#080;font-style:italic">// ListItems returns all stored items.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>&lt;span style="color:#000080;font-weight:bold">func&lt;/span> (is *ItemStore) ListItems(ctx context.Context) ([]*Item, &lt;span style="color:#000080;font-weight:bold">error&lt;/span>) {
+rows, err := db.QueryContext(ctx, &lt;span style="color:#00f">`SELECT id, name FROM items`&lt;/span>)
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> err != &lt;span style="color:#000080;font-weight:bold">nil&lt;/span> {
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span> &lt;span style="color:#000080;font-weight:bold">nil&lt;/span>, fmt.Errorf(&lt;span style="color:#00f">&amp;#34;cannot select items: %s&amp;#34;&lt;/span>, err)
+}
+&lt;span style="color:#000080;font-weight:bold">defer&lt;/span> rows.Close()
+&lt;span style="color:#000080;font-weight:bold">var&lt;/span> items []*Item
+&lt;span style="color:#000080;font-weight:bold">for&lt;/span> rows.Next() {
+&lt;span style="color:#000080;font-weight:bold">var&lt;/span> it Item
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> err := rows.Scan(&amp;amp;it.ID, &amp;amp;it.Name); err != &lt;span style="color:#000080;font-weight:bold">nil&lt;/span> {
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span> &lt;span style="color:#000080;font-weight:bold">nil&lt;/span>, fmt.Errorf(&lt;span style="color:#00f">&amp;#34;cannot scan item: %s&amp;#34;&lt;/span>, err)
+}
+items = append(items, &amp;amp;it)
+}
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> err := rows.Err(); err != &lt;span style="color:#000080;font-weight:bold">nil&lt;/span> {
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span> &lt;span style="color:#000080;font-weight:bold">nil&lt;/span>, fmt.Errorf(&lt;span style="color:#00f">&amp;#34;scanner: %s&amp;#34;&lt;/span>, err)
+}
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span> items, &lt;span style="color:#000080;font-weight:bold">nil&lt;/span>
+}
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Having such a &lt;em>store&lt;/em> available, we no longer have to directly query the
+database in our handler. Instead of accepting &lt;code>*sql.DB&lt;/code> as an argument,
+&lt;code>ItemListHandler&lt;/code> can now take &lt;code>*ItemStore&lt;/code>. Handler&amp;rsquo;s body can be simplified
+to just a few lines.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> ItemListHandler(
+itemStore *ItemStore,
+tmpl *template.Template,
+) http.HandlerFunc {
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span> &lt;span style="color:#000080;font-weight:bold">func&lt;/span>(w http.ResponseWriter, r *http.Request) {
+items, err := itemStore.ListItems(r.Context())
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> err != &lt;span style="color:#000080;font-weight:bold">nil&lt;/span> {
+http.Error(w, &lt;span style="color:#00f">&amp;#34;Server Error&amp;#34;&lt;/span>, http.StatusInternalServerError)
+}
+_ = tmpl.Execute(w, items)
+}
+}
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Having this handler, we no longer have to track changes to the database schema.
+All details of accessing &lt;em>item&lt;/em> data are now in &lt;code>ItemStore&lt;/code>. If you need to
+create or update an &lt;em>item&lt;/em>, add &lt;code>CreateItem&lt;/code> and &lt;code>UpdateItem&lt;/code> methods.&lt;/p>
+&lt;h2 id="third-iteration">Third iteration&lt;/h2>
+&lt;p>Using &lt;code>*ItemStore&lt;/code> for accessing &lt;em>items&lt;/em> solved the first issue. Listing items
+is now an easy task that takes only a few lines of code.&lt;/p>
+&lt;p>The last change is to use an interface instead of accepting a structure
+pointer. Let&amp;rsquo;s call our interface &lt;code>ItemStore&lt;/code>. The previous implementation
+using an SQL database is renamed to &lt;code>sqlItemStore&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">type&lt;/span> ItemStore &lt;span style="color:#000080;font-weight:bold">interface&lt;/span> {
+ListItems(context.Context) ([]*Item, &lt;span style="color:#000080;font-weight:bold">error&lt;/span>)
+}
+&lt;span style="color:#080;font-style:italic">// NewItemStore returns a store for items that is using an SQL database
+&lt;/span>&lt;span style="color:#080;font-style:italic">// as a storage engine.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>&lt;span style="color:#000080;font-weight:bold">func&lt;/span> NewSQLItemStore(db *sql.DB) ItemStore {
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span> &amp;amp;sqlItemStore{db: db}
+}
+&lt;span style="color:#000080;font-weight:bold">type&lt;/span> sqlItemStore &lt;span style="color:#000080;font-weight:bold">struct&lt;/span> {
+db *sql.DB
+}
+&lt;span style="color:#000080;font-weight:bold">func&lt;/span> (s *sqlItemStore) ListItems(ctx context.Context) ([]*Item, &lt;span style="color:#000080;font-weight:bold">error&lt;/span>) {
+&lt;span style="color:#080;font-style:italic">// ...
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>}
+&lt;span style="color:#000080;font-weight:bold">func&lt;/span> ItemListHandler(
+itemStore ItemStore,
+tmpl *template.Template,
+) http.HandlerFunc {
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span> &lt;span style="color:#000080;font-weight:bold">func&lt;/span>(w http.ResponseWriter, r *http.Request) {
+&lt;span style="color:#080;font-style:italic">// ...
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> }
+}
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Defining interfaces together with the implementation might feel
+counterintuitive in Go. In most cases, it is better to declare an interface
+where it is used (not where it is implemented) to help to decouple
+functionalities and avoid dependencies.&lt;/p>
+&lt;p>In this case we do not use an interface to encourage different &lt;code>ItemStore&lt;/code>
+implementations. Code that is used for accessing &lt;em>items&lt;/em> could be put in it&amp;rsquo;s
+own package and provide all necessary functionality &amp;ndash; an interface, the main
+implementation using an SQL database, a mock implementation for testing and more.&lt;/p>
+&lt;h3 id="mocking-for-tests">Mocking for tests&lt;/h3>
+&lt;p>The &lt;code>sqlItemStore&lt;/code> implementation is easy to test independently from any HTTP
+handler that is using it. Any handler that is using an &lt;code>ItemStore&lt;/code> should also
+be testable without the need for any particular &lt;code>ItemStore&lt;/code> implementation.&lt;/p>
+&lt;p>When testing handlers, instead of providing a real &lt;code>ItemStore&lt;/code> implementation,
+we can use a mock.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">type&lt;/span> ItemStoreMock &lt;span style="color:#000080;font-weight:bold">struct&lt;/span> {
+Items []*Item
+Err &lt;span style="color:#000080;font-weight:bold">error&lt;/span>
+}
+&lt;span style="color:#080;font-style:italic">// ensure mock always implements the ItemStore
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>&lt;span style="color:#000080;font-weight:bold">var&lt;/span> _ ItemStore = (*ItemStoreMock)(&lt;span style="color:#000080;font-weight:bold">nil&lt;/span>)
+&lt;span style="color:#000080;font-weight:bold">func&lt;/span> (mock *ItemStoreMock) ListItems(context.Context) ([]*Item, &lt;span style="color:#000080;font-weight:bold">error&lt;/span>) {
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span> mock.Items, mock.Err
+}
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>ItemStoreMock&lt;/code> gives us full control over its API. We control what each
+method returns, which means we are able to test all cases we want.&lt;/p>
+&lt;h3 id="caching">Caching&lt;/h3>
+&lt;p>Using an interface, allows us to wrap a store with additional functionality.
+For example, we can provide a cache layer, that will be invisible to the user.
+It can be added or removed without any changes to handler or store
+implementations.&lt;/p>
+&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">type&lt;/span> CacheStore &lt;span style="color:#000080;font-weight:bold">interface&lt;/span> {
+&lt;span style="color:#080;font-style:italic">// Get loads value under given key into destValue. ErrMiss is returned
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// if key does not exist.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> Get(ctx context.Context, key &lt;span style="color:#000080;font-weight:bold">string&lt;/span>, destValue &lt;span style="color:#000080;font-weight:bold">interface&lt;/span>{}) &lt;span style="color:#000080;font-weight:bold">error&lt;/span>
+&lt;span style="color:#080;font-style:italic">// Set value of given key.
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> Set(ctx context.Context, key &lt;span style="color:#000080;font-weight:bold">string&lt;/span>, value &lt;span style="color:#000080;font-weight:bold">interface&lt;/span>{}, ttl time.Duration) &lt;span style="color:#000080;font-weight:bold">error&lt;/span>
+}
+&lt;span style="color:#000080;font-weight:bold">func&lt;/span> CacheItemStore(cache CacheStore, store ItemStore) ItemStore {
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span> &amp;amp;cachedItemStore{
+cache: cache,
+store: store,
+ttl: &lt;span style="color:#00f">5&lt;/span> * time.Minute,
+}
+}
+&lt;span style="color:#000080;font-weight:bold">type&lt;/span> cachedItemStore &lt;span style="color:#000080;font-weight:bold">struct&lt;/span> {
+cache CacheStore
+store ItemStore
+ttl time.Duration
+}
+&lt;span style="color:#000080;font-weight:bold">func&lt;/span> (c *cachedItemStore) ListItems(context.Context) ([]*Item, &lt;span style="color:#000080;font-weight:bold">error&lt;/span>) {
+&lt;span style="color:#000080;font-weight:bold">var&lt;/span> items []*Item
+&lt;span style="color:#000080;font-weight:bold">switch&lt;/span> err := c.cache.Get(ctx, &lt;span style="color:#00f">&amp;#34;items:all&amp;#34;&lt;/span>, &amp;amp;items); err {
+&lt;span style="color:#000080;font-weight:bold">case&lt;/span> &lt;span style="color:#000080;font-weight:bold">nil&lt;/span>:
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span> items, &lt;span style="color:#000080;font-weight:bold">nil&lt;/span>
+&lt;span style="color:#000080;font-weight:bold">case&lt;/span> ErrMiss:
+&lt;span style="color:#080;font-style:italic">// all good, just not in the cache
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#000080;font-weight:bold">default&lt;/span>:
+&lt;span style="color:#080;font-style:italic">// log the error and continue
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> }
+items, err := c.store.ListItems(ctx)
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> err == &lt;span style="color:#000080;font-weight:bold">nil&lt;/span> {
+&lt;span style="color:#000080;font-weight:bold">if&lt;/span> err := c.cache.Set(ctx, &lt;span style="color:#00f">&amp;#34;items:all&amp;#34;&lt;/span>, items, c.ttl); err != &lt;span style="color:#000080;font-weight:bold">nil&lt;/span> {
+&lt;span style="color:#080;font-style:italic">// log the error and continue
+&lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> }
+}
+&lt;span style="color:#000080;font-weight:bold">return&lt;/span> items, err
+}
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Testing of the &lt;code>cachedItemStore&lt;/code> can be done using &lt;code>ItemStoreMock&lt;/code> and an
+in-memory cache backend.&lt;/p>
+&lt;h2 id="conclusion">Conclusion&lt;/h2>
+&lt;p>Writing data managers requires more effort, but allows to separate business
+logic from storage implementation. Separation of concerns gives us more control
+over data.&lt;/p>
+&lt;p>Thanks to using Go interfaces, we can mock and extend functionality of the
+storage implementation. Integration with cache or monitoring tools is easy,
+pluggable and can be tested separately.&lt;/p></description></item></channel></rss>
