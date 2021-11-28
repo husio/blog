@@ -7,7 +7,7 @@ base for writing tests.&lt;/p>
 &lt;p>Each test should be a separate function. A test function must accept a single
 argument of type &lt;a href="https://golang.org/pkg/testing/#T">&lt;code>*testing.T&lt;/code>&lt;/a>.&lt;/p>
 &lt;p>A test for a functoin &lt;code>isEven&lt;/code> could look like this:&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> TestIsEven(t *testing.T) {
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> TestIsEven(t *testing.T) {
 &lt;span style="color:#000080;font-weight:bold">if&lt;/span> !isEven(&lt;span style="color:#00f">2&lt;/span>) {
 t.Fatal(&lt;span style="color:#00f">&amp;#34;2 is even&amp;#34;&lt;/span>)
 }
@@ -16,7 +16,7 @@ t.Fatal(&lt;span style="color:#00f">&amp;#34;1 is odd&amp;#34;&lt;/span>)
 }
 }
 &lt;/code>&lt;/pre>&lt;/div>&lt;p>Run your test by using the &lt;a href="https://golang.org/cmd/go/#hdr-Test_packages">&lt;code>go test&lt;/code>&lt;/a> command, for example&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#080;font-style:italic"># Test this directory&lt;/span>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#080;font-style:italic"># Test this directory&lt;/span>
 $ go test .
 &lt;span style="color:#080;font-style:italic"># Test the whole project recursively.&lt;/span>
 $ go test a-package.com/path/...
@@ -31,7 +31,7 @@ failed and instantly terminate that test execution.&lt;/p>
 &lt;h4 id="write-good-error-messages">Write good error messages&lt;/h4>
 &lt;p>A good error message is concise and short. Sprinkle each result with a bit of
 context.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">if&lt;/span> isEven(&lt;span style="color:#00f">1&lt;/span>) {
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">if&lt;/span> isEven(&lt;span style="color:#00f">1&lt;/span>) {
 t.Fatal(&lt;span style="color:#00f">&amp;#34;1 is an odd number&amp;#34;&lt;/span>)
 }
 &lt;span style="color:#000080;font-weight:bold">if&lt;/span> want, got := &lt;span style="color:#00f">42&lt;/span>, compute(); want != got {
@@ -47,7 +47,7 @@ The expected value can be easily found in the test declaration.&lt;/p>
 &lt;p>Some tests should run only under special circumstances. For example, you want
 to run a test only if a database is available. &lt;code>t.Skip&lt;/code> and &lt;code>t.Skipf&lt;/code> methods
 allow to cancel (skip) the currently running test without failing it.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> TestDatabaseIntegration(t *testing.T) {
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> TestDatabaseIntegration(t *testing.T) {
 db, err := connectToDatabase(&lt;span style="color:#00f">&amp;#34;test-database&amp;#34;&lt;/span>)
 &lt;span style="color:#000080;font-weight:bold">if&lt;/span> err != &lt;span style="color:#000080;font-weight:bold">nil&lt;/span> {
 t.Skipf(&lt;span style="color:#00f">&amp;#34;cannot connect to database: %s&amp;#34;&lt;/span>, err)
@@ -62,7 +62,7 @@ each functionality to a separate function.&lt;/p>
 &lt;h3 id="test-helpers-setting-up-dependencies">Test helpers: Setting up dependencies&lt;/h3>
 &lt;p>If you are testing code that depends on an external database, this is how the
 beginning of a test function might look like:&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> TestDatabaseIntegration(t *testing.T) {
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> TestDatabaseIntegration(t *testing.T) {
 db, err := connectToDatabase(&lt;span style="color:#00f">&amp;#34;test-database&amp;#34;&lt;/span>)
 &lt;span style="color:#000080;font-weight:bold">if&lt;/span> err != &lt;span style="color:#000080;font-weight:bold">nil&lt;/span> {
 t.Skipf(&lt;span style="color:#00f">&amp;#34;cannot connect to database: %s&amp;#34;&lt;/span>, err)
@@ -83,7 +83,7 @@ mycollection := NewCollection(db)
 &lt;/code>&lt;/pre>&lt;/div>&lt;p>A solution to code repetition can be to create a function that will encapsulate
 certain functionality. The whole setup and teardown process for a test can be
 extracted.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> TestDatabaseIntegration(t *testing.T) {
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> TestDatabaseIntegration(t *testing.T) {
 mycollection, cleanup := ensureMyCollection(t, &lt;span style="color:#00f">&amp;#34;test-database&amp;#34;&lt;/span>)
 &lt;span style="color:#000080;font-weight:bold">defer&lt;/span> cleanup()
 &lt;span style="color:#080;font-style:italic">// The actual test starts below.
@@ -138,7 +138,7 @@ a separate package, and then linked and run with the main test binary.
 test. Your tests can belong to the same package as the rest of the code. It is
 also possible to enforce a black-box test for your package. Your test files can
 be in the same directory as your package code and use a different package name.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">package&lt;/span> xxx_test
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">package&lt;/span> xxx_test
 &lt;/code>&lt;/pre>&lt;/div>&lt;p>Using a different test package name enforces that only the public interface of
 the tested package is accessible. This is for example &lt;a href="https://golang.org/src/strings/compare_test.go">how
 &lt;code>strings&lt;/code>&lt;/a> and &lt;a href="https://golang.org/src/bytes/reader_test.go">&lt;code>bytes&lt;/code>
@@ -160,7 +160,7 @@ compared with &lt;a href="https://golang.org/pkg/reflect/#DeepEqual">&lt;code>re
 correctness. Repeating the same operation for many cases can be implemented
 using &lt;a href="https://github.com/golang/go/wiki/TableDrivenTests">table tests&lt;/a>.&lt;/p>
 &lt;p>Use a map with strings as keys to provide a description of each test case.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> TestDiv(t *testing.T) {
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> TestDiv(t *testing.T) {
 cases := &lt;span style="color:#000080;font-weight:bold">map&lt;/span>[&lt;span style="color:#000080;font-weight:bold">string&lt;/span>]&lt;span style="color:#000080;font-weight:bold">struct&lt;/span>{
 A &lt;span style="color:#000080;font-weight:bold">int&lt;/span>
 B &lt;span style="color:#000080;font-weight:bold">int&lt;/span>
@@ -192,7 +192,7 @@ t.Fatalf(&lt;span style="color:#00f">&amp;#34;unlexpected result: %d&amp;#34;&lt
 }
 &lt;/code>&lt;/pre>&lt;/div>&lt;p>When declaring a test case, always use field names. This increases the
 readability and you have to provide only non zero values.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">cases := &lt;span style="color:#000080;font-weight:bold">map&lt;/span>[&lt;span style="color:#000080;font-weight:bold">string&lt;/span>]&lt;span style="color:#000080;font-weight:bold">struct&lt;/span>{
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">cases := &lt;span style="color:#000080;font-weight:bold">map&lt;/span>[&lt;span style="color:#000080;font-weight:bold">string&lt;/span>]&lt;span style="color:#000080;font-weight:bold">struct&lt;/span>{
 DB *Database
 Req *Request
 WantRes &lt;span style="color:#000080;font-weight:bold">int&lt;/span>
@@ -216,7 +216,7 @@ a data access abstraction allows for mocking.&lt;/p>
 &lt;p>When writing a mock you do not have to implement all methods. For the compiler
 it is enough to include the interface in the mock declaration. Implement only
 methods that you intend to call.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">type&lt;/span> Collection &lt;span style="color:#000080;font-weight:bold">interface&lt;/span> {
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">type&lt;/span> Collection &lt;span style="color:#000080;font-weight:bold">interface&lt;/span> {
 One(id &lt;span style="color:#000080;font-weight:bold">uint64&lt;/span>) (*Entity, &lt;span style="color:#000080;font-weight:bold">error&lt;/span>)
 List() ([]*Entity, &lt;span style="color:#000080;font-weight:bold">error&lt;/span>)
 Add(Entity) &lt;span style="color:#000080;font-weight:bold">error&lt;/span>
@@ -242,13 +242,13 @@ allows to test your HTTP handler without using a real &lt;code>http.ResponseWrit
 &lt;p>You can add your own flags to the &lt;code>go test&lt;/code> command in order to customize your
 tests. Use the &lt;a href="https://golang.org/pkg/flag/">&lt;code>flag&lt;/code>&lt;/a> package and declare your
 flags globally.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">var&lt;/span> dbFl = flag.String(&lt;span style="color:#00f">&amp;#34;db&amp;#34;&lt;/span>, &lt;span style="color:#00f">&amp;#34;&amp;#34;&lt;/span>, &lt;span style="color:#00f">&amp;#34;Use given database DSN.&amp;#34;&lt;/span>)
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">var&lt;/span> dbFl = flag.String(&lt;span style="color:#00f">&amp;#34;db&amp;#34;&lt;/span>, &lt;span style="color:#00f">&amp;#34;&amp;#34;&lt;/span>, &lt;span style="color:#00f">&amp;#34;Use given database DSN.&amp;#34;&lt;/span>)
 &lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="environment-variables">Environment variables&lt;/h2>
 &lt;p>Instead of &lt;code>flag&lt;/code> you can control your tests using environment variables. If
 you follow the &lt;a href="https://12factor.net/config">12 factor app&lt;/a> principles then
 your application is already utilizing environment variables for the
 configuration.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">var&lt;/span> dbDSN = os.Getenv(&lt;span style="color:#00f">&amp;#34;DATABASE_DSN&amp;#34;&lt;/span>)
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">var&lt;/span> dbDSN = os.Getenv(&lt;span style="color:#00f">&amp;#34;DATABASE_DSN&amp;#34;&lt;/span>)
 &lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="fixtures">Fixtures&lt;/h2>
 &lt;p>If your test requires fixtures &lt;code>/testdata&lt;/code> is the directory you should consider
 keeping them in.&lt;/p>
@@ -260,13 +260,13 @@ hold ancillary data needed by the tests.
 &lt;p>When running tests each test function is executed with its working directory
 set to the source directory of the tested package. That means that when
 accessing files in &lt;code>/testdata&lt;/code> you can safely use relative path&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">fd, err := os.Open(filepath.Join(&lt;span style="color:#00f">&amp;#34;testdata&amp;#34;&lt;/span>, &lt;span style="color:#00f">&amp;#34;some-fixture.json&amp;#34;&lt;/span>))
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">fd, err := os.Open(filepath.Join(&lt;span style="color:#00f">&amp;#34;testdata&amp;#34;&lt;/span>, &lt;span style="color:#00f">&amp;#34;some-fixture.json&amp;#34;&lt;/span>))
 &lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="golden-files">Golden files&lt;/h2>
 &lt;p>&lt;a href="https://softwareengineering.stackexchange.com/q/358786">Golden files&lt;/a> are a
 great way to validate and keep track of a test output. Together with a version
 control system they are much easier to maintain than strings hard coded in
 functions.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">var&lt;/span> goldFl = flag.Bool(&lt;span style="color:#00f">&amp;#34;gold&amp;#34;&lt;/span>, &lt;span style="color:#000080;font-weight:bold">false&lt;/span>, &lt;span style="color:#00f">&amp;#34;Write result to golden files instead of comparing with them.&amp;#34;&lt;/span>)
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">var&lt;/span> goldFl = flag.Bool(&lt;span style="color:#00f">&amp;#34;gold&amp;#34;&lt;/span>, &lt;span style="color:#000080;font-weight:bold">false&lt;/span>, &lt;span style="color:#00f">&amp;#34;Write result to golden files instead of comparing with them.&amp;#34;&lt;/span>)
 &lt;span style="color:#000080;font-weight:bold">func&lt;/span> TestExample(t *testing.T) {
 &lt;span style="color:#080;font-style:italic">// Test logic.
 &lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> result := ...
@@ -286,17 +286,17 @@ resource&lt;/a>.&lt;/p>
 &lt;p>You can use a &lt;a href="https://golang.org/pkg/go/build/#hdr-Build_Constraints">build
 constraint&lt;/a> to
 conditionally build code in a file.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">$ head -n &lt;span style="color:#00f">1&lt;/span> app_intergration_test.go
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">$ head -n &lt;span style="color:#00f">1&lt;/span> app_intergration_test.go
 // +build integration
 &lt;/code>&lt;/pre>&lt;/div>&lt;p>To run tests including those tagged as &lt;code>integration&lt;/code> use &lt;code>-tag&lt;/code> flag.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">$ go test -tag integration .
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">$ go test -tag integration .
 &lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="setupteardown">Setup/teardown&lt;/h2>
 &lt;p>When using the &lt;code>testing&lt;/code> package, it is possible to overwrite the &lt;a href="https://golang.org/pkg/testing/#hdr-Main">&lt;code>test main&lt;/code>&lt;/a> function.&lt;/p>
 &lt;p>Using a custom test main function allows to execute code before and after
 executing all discovered tests. This can be running an external dependency like
 a database instance or building a binary that tested functionality might depend
 on.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> TestMain(m *testing.M) {
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> TestMain(m *testing.M) {
 &lt;span style="color:#080;font-style:italic">// Setup code.
 &lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>
 &lt;span style="color:#080;font-style:italic">// defer Teardown code.
@@ -319,7 +319,7 @@ like to summarize my experience focusing on the good solutions.&lt;/p>
 Accounts are represented by their numeric ID and we only know how much money
 each account holds. No account balance can get below zero. A bank service must
 implement the interface below.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">type&lt;/span> BankService &lt;span style="color:#000080;font-weight:bold">interface&lt;/span> {
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">type&lt;/span> BankService &lt;span style="color:#000080;font-weight:bold">interface&lt;/span> {
 &lt;span style="color:#080;font-style:italic">// NewAccount registers a new account in this bank. The account is
 &lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// initialized with given funds.
 &lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> NewAccount(accountID &lt;span style="color:#000080;font-weight:bold">int64&lt;/span>, funds &lt;span style="color:#000080;font-weight:bold">uint64&lt;/span>) &lt;span style="color:#000080;font-weight:bold">error&lt;/span>
@@ -335,7 +335,7 @@ they are needed. When an operation fails you can handle the failure by creating
 an error instance and returning it. The created error should contain
 information about the cause of the failure. With that in mind let us create the
 first version of a banking service.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> NewBank() *Bank {
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> NewBank() *Bank {
 &lt;span style="color:#000080;font-weight:bold">return&lt;/span> &amp;amp;Bank{
 accounts: make(&lt;span style="color:#000080;font-weight:bold">map&lt;/span>[&lt;span style="color:#000080;font-weight:bold">int64&lt;/span>]&lt;span style="color:#000080;font-weight:bold">uint64&lt;/span>),
 }
@@ -365,14 +365,13 @@ b.accounts[accountID] = funds
 b.accounts[from] -= amount
 b.accounts[to] += amount
 &lt;span style="color:#000080;font-weight:bold">return&lt;/span> &lt;span style="color:#000080;font-weight:bold">nil&lt;/span>
-}
-&lt;/code>&lt;/pre>&lt;/div>
+}&lt;/code>&lt;/pre>&lt;/div>
 &lt;p>Above code presents a common way of dealing with errors. If a failure cannot be
 dealt with then return the error. If possible provide additional information,
 for example, an account ID. This is often an acceptable solution but sometimes
 it might not be good enough. As soon as we use the &lt;code>Bank&lt;/code> instance the
 shortcomings are more visible.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">bank := NewBank()
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">bank := NewBank()
 &lt;span style="color:#080;font-style:italic">// ...
 &lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>&lt;span style="color:#000080;font-weight:bold">if&lt;/span> err := bank.Transfer(&lt;span style="color:#00f">111&lt;/span>, &lt;span style="color:#00f">222&lt;/span>, &lt;span style="color:#00f">10&lt;/span>); err != &lt;span style="color:#000080;font-weight:bold">nil&lt;/span> {
 &lt;span style="color:#080;font-style:italic">// Why did the transfer fail?
@@ -388,7 +387,7 @@ all expected errors upfront.&lt;/p>
 &lt;p>For each failure case declare a corresponding error instance. Compare an error
 returned by the &lt;code>Transfer&lt;/code> method with all error definitions it can return to
 discover the cause.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#080;font-style:italic">// Transfer moves funds from one account to another.
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#080;font-style:italic">// Transfer moves funds from one account to another.
 &lt;/span>&lt;span style="color:#080;font-style:italic">// Upon failure returns one of
 &lt;/span>&lt;span style="color:#080;font-style:italic">// ErrNoSourceAccount
 &lt;/span>&lt;span style="color:#080;font-style:italic">// ErrNoDestinationAccount
@@ -417,14 +416,13 @@ b.accounts[to] += amount
 &lt;span style="color:#080;font-style:italic">// ErrInsufficientFunds is returned when a transfer cannot be completed
 &lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// because there are not enough funds on the source account.
 &lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> ErrInsufficientFunds = errors.New(&lt;span style="color:#00f">&amp;#34;insufficient funds&amp;#34;&lt;/span>)
-)
-&lt;/code>&lt;/pre>&lt;/div>
+)&lt;/code>&lt;/pre>&lt;/div>
 &lt;p>This is similar to how the &lt;a href="https://golang.org/pkg/io/#pkg-variables">&lt;code>io&lt;/code>&lt;/a>
 package deals with errors.&lt;/p>
 &lt;p>Returning a different error instance for each error case allows us to handle
 different failure cases accordingly. Test the returned error for being one of
 the predefined instances.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">bank := NewBank()
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">bank := NewBank()
 &lt;span style="color:#080;font-style:italic">// ...
 &lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>&lt;span style="color:#000080;font-weight:bold">switch&lt;/span> err := bank.Transfer(&lt;span style="color:#00f">1&lt;/span>, &lt;span style="color:#00f">2&lt;/span>); err {
 &lt;span style="color:#000080;font-weight:bold">case&lt;/span> &lt;span style="color:#000080;font-weight:bold">nil&lt;/span>:
@@ -453,14 +451,14 @@ Because each error is an instance of a class belonging to that class hierarchy
 each exception instance can contain a custom message and be captured by its
 type or any type it inherits from.&lt;/p>
 &lt;p>This is how a banking service could be used if implemented in Python.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-python" data-lang="python">&lt;span style="color:#000080;font-weight:bold">try&lt;/span>:
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-python" data-lang="python">&lt;span style="color:#000080;font-weight:bold">try&lt;/span>:
 bank.transfer(from, to, amount)
 &lt;span style="color:#000080;font-weight:bold">except&lt;/span> ErrAccountNotFound &lt;span style="color:#000080;font-weight:bold">as&lt;/span> e:
-&lt;span style="color:#000080;font-weight:bold">print&lt;/span>(e) &lt;span style="color:#080;font-style:italic"># either source or destination account not found&lt;/span>
+print(e) &lt;span style="color:#080;font-style:italic"># either source or destination account not found&lt;/span>
 &lt;span style="color:#000080;font-weight:bold">except&lt;/span> ErrInsufficientFunds:
-&lt;span style="color:#000080;font-weight:bold">print&lt;/span>(&lt;span style="color:#00f">&amp;#34;not enough money&amp;#34;&lt;/span>)
+print(&lt;span style="color:#00f">&amp;#34;not enough money&amp;#34;&lt;/span>)
 &lt;span style="color:#000080;font-weight:bold">except&lt;/span> Exception:
-&lt;span style="color:#000080;font-weight:bold">print&lt;/span>(&lt;span style="color:#00f">&amp;#34;unexpected condition&amp;#34;&lt;/span>)
+print(&lt;span style="color:#00f">&amp;#34;unexpected condition&amp;#34;&lt;/span>)
 &lt;/code>&lt;/pre>&lt;/div>&lt;p>Because in Python implementation both &lt;code>ErrNoSourceAccount&lt;/code> and
 &lt;code>ErrNoDestinationAccount&lt;/code> would inherit from &lt;code>ErrAccountNotFound&lt;/code>, both cases
 can be handled with a single statement &lt;code>except ErrAccountNotFound&lt;/code>.&lt;/p>
@@ -476,7 +474,7 @@ standard library, we must create our own error implementation.&lt;/p>
 &lt;p>What is needed is an &lt;code>Error&lt;/code> structure that implements the
 &lt;a href="https://golang.org/pkg/builtin/#error">&lt;code>error&lt;/code>&lt;/a> interface and a &lt;code>Wrap&lt;/code>
 function that will take an error together with an additional description.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#080;font-style:italic">// Wrap returns an error that is having given error set as the cause.
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#080;font-style:italic">// Wrap returns an error that is having given error set as the cause.
 &lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>&lt;span style="color:#000080;font-weight:bold">func&lt;/span> Wrap(err &lt;span style="color:#000080;font-weight:bold">error&lt;/span>, description &lt;span style="color:#000080;font-weight:bold">string&lt;/span>, args ...&lt;span style="color:#000080;font-weight:bold">interface&lt;/span>{}) *Error {
 &lt;span style="color:#000080;font-weight:bold">return&lt;/span> &amp;amp;Error{
 parent: err,
@@ -497,7 +495,7 @@ desc: fmt.Sprintf(description, args...),
 }
 &lt;/code>&lt;/pre>&lt;/div>&lt;p>In addition, it will provide a &lt;code>Cause&lt;/code> method that will return the wrapped error
 instance or &lt;code>nil&lt;/code>.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#080;font-style:italic">// Cause returns the cause of this error or nil if this is the root cause
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#080;font-style:italic">// Cause returns the cause of this error or nil if this is the root cause
 &lt;/span>&lt;span style="color:#080;font-style:italic">// error.
 &lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>&lt;span style="color:#000080;font-weight:bold">func&lt;/span> (e *Error) Cause() &lt;span style="color:#000080;font-weight:bold">error&lt;/span> {
 &lt;span style="color:#000080;font-weight:bold">return&lt;/span> e.parent
@@ -507,7 +505,7 @@ compare an error with another error or its cause. The &lt;code>error&lt;/code> i
 not provide &lt;code>Cause&lt;/code> method so we must use type casting to determine if an error
 instance implements the &lt;code>causer&lt;/code> interface.&lt;/p>
 &lt;p>Instead of a function a method of the &lt;code>Error&lt;/code> structure provides a nicer API.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">
 &lt;span style="color:#080;font-style:italic">// Is returns true if given error or its cause is the same kind.
 &lt;/span>&lt;span style="color:#080;font-style:italic">// If cause error provides Cause method then a comparison is made with all
 &lt;/span>&lt;span style="color:#080;font-style:italic">// parents as well.
@@ -529,7 +527,7 @@ err = e.Cause()
 &lt;/code>&lt;/pre>&lt;/div>&lt;p>Let us test the &lt;code>Error&lt;/code>. All errors are created using the &lt;code>Wrap&lt;/code> function which
 builds an error hierarchy. It is possible to attach additional information by
 including it in the description string.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">root := Wrap(&lt;span style="color:#000080;font-weight:bold">nil&lt;/span>, &lt;span style="color:#00f">&amp;#34;root&amp;#34;&lt;/span>)
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">root := Wrap(&lt;span style="color:#000080;font-weight:bold">nil&lt;/span>, &lt;span style="color:#00f">&amp;#34;root&amp;#34;&lt;/span>)
 child1 := Wrap(root, &lt;span style="color:#00f">&amp;#34;child one&amp;#34;&lt;/span>)
 child2 := Wrap(root, &lt;span style="color:#00f">&amp;#34;child two&amp;#34;&lt;/span>)
 fmt.Println(&lt;span style="color:#00f">&amp;#34;child 1 is root&amp;#34;&lt;/span>, root.Is(child1))
@@ -562,7 +560,7 @@ an error, as long as all layers implement the &lt;code>causer&lt;/code> interfac
 retrieve the parent error instance.&lt;/p>
 &lt;p>Back to the &lt;code>Bank.Transfer&lt;/code> example. All error instances were wrapped before
 returning and provide all the details one may expect an error to provide.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> (b *Bank) Transfer(from, to &lt;span style="color:#000080;font-weight:bold">int64&lt;/span>, amount &lt;span style="color:#000080;font-weight:bold">uint64&lt;/span>) &lt;span style="color:#000080;font-weight:bold">error&lt;/span> {
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> (b *Bank) Transfer(from, to &lt;span style="color:#000080;font-weight:bold">int64&lt;/span>, amount &lt;span style="color:#000080;font-weight:bold">uint64&lt;/span>) &lt;span style="color:#000080;font-weight:bold">error&lt;/span> {
 &lt;span style="color:#000080;font-weight:bold">switch&lt;/span> fromFunds, ok := b.accounts[from]; {
 &lt;span style="color:#000080;font-weight:bold">case&lt;/span> !ok:
 &lt;span style="display:block;width:100%;background-color:#e5e5e5"> &lt;span style="color:#000080;font-weight:bold">return&lt;/span> Wrap(ErrNoSourceAccount, &lt;span style="color:#00f">&amp;#34;ID %d&amp;#34;&lt;/span>, from)
@@ -590,11 +588,10 @@ b.accounts[to] += amount
 &lt;span style="color:#080;font-style:italic">// ErrInsufficientFunds is returned when a transfer cannot be completed
 &lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// because there are not enough funds on the source account.
 &lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> ErrInsufficientFunds = Wrap(&lt;span style="color:#000080;font-weight:bold">nil&lt;/span>, &lt;span style="color:#00f">&amp;#34;insufficient funds&amp;#34;&lt;/span>)
-)
-&lt;/code>&lt;/pre>&lt;/div>
+)&lt;/code>&lt;/pre>&lt;/div>
 &lt;p>Errors can be tested on any granularity level. It is valid to compare with the
 high level &lt;code>ErrAccountNotFound&lt;/code> or more precise &lt;code>ErrNoSourceAccount&lt;/code>.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">bank := NewBank()
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">bank := NewBank()
 &lt;span style="color:#080;font-style:italic">// ...
 &lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>&lt;span style="color:#000080;font-weight:bold">switch&lt;/span> err := bank.Transfer(&lt;span style="color:#00f">1&lt;/span>, &lt;span style="color:#00f">2&lt;/span>, &lt;span style="color:#00f">100&lt;/span>); {
 &lt;span style="color:#000080;font-weight:bold">case&lt;/span> err == &lt;span style="color:#000080;font-weight:bold">nil&lt;/span>:
@@ -660,7 +657,7 @@ implementation available that implement the following interfaces. Delegating
 &lt;a href="https://husio.github.io/blog/blog/accessing-data-in-go/">database access&lt;/a> allows for a
 cache implementation that is not tightly coupled to the original
 implementation.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">type&lt;/span> ItemStore &lt;span style="color:#000080;font-weight:bold">interface&lt;/span> {
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">type&lt;/span> ItemStore &lt;span style="color:#000080;font-weight:bold">interface&lt;/span> {
 &lt;span style="color:#080;font-style:italic">// FindItem item returns an item with given ID or ErrNotFound
 &lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> FindItem(ctx context.Context, itemID &lt;span style="color:#000080;font-weight:bold">int64&lt;/span>) (*Item, &lt;span style="color:#000080;font-weight:bold">error&lt;/span>)
 }
@@ -673,7 +670,7 @@ implementation.&lt;/p>
 }
 &lt;/code>&lt;/pre>&lt;/div>&lt;p>Instead of directly calling the database each time an &lt;em>item&lt;/em> is needed, a cache
 layer is used.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> CacheItemStore(cache CacheStore, store ItemStore) ItemStore {
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> CacheItemStore(cache CacheStore, store ItemStore) ItemStore {
 &lt;span style="color:#000080;font-weight:bold">return&lt;/span> &amp;amp;cachedItemStore{
 store: store,
 cache: cache,
@@ -751,7 +748,7 @@ cached, we can introduce a locking mechanism. Before asking the database,
 acquire a &amp;ldquo;query lock&amp;rdquo;.&lt;/p>
 &lt;p>Our lock will be implemented using a cache service. In addition to &lt;code>Get&lt;/code> and
 &lt;code>Set&lt;/code> operations, &lt;code>SetNx&lt;/code> is required.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">type&lt;/span> CacheStore &lt;span style="color:#000080;font-weight:bold">interface&lt;/span> {
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">type&lt;/span> CacheStore &lt;span style="color:#000080;font-weight:bold">interface&lt;/span> {
 Get(ctx context.Context, key &lt;span style="color:#000080;font-weight:bold">string&lt;/span>, destValue &lt;span style="color:#000080;font-weight:bold">interface&lt;/span>{}) &lt;span style="color:#000080;font-weight:bold">error&lt;/span>
 Set(ctx context.Context, key &lt;span style="color:#000080;font-weight:bold">string&lt;/span>, value &lt;span style="color:#000080;font-weight:bold">interface&lt;/span>{}, ttl time.Duration) &lt;span style="color:#000080;font-weight:bold">error&lt;/span>
 &lt;span style="color:#080;font-style:italic">// SetNx sets the value of a given key only if it does not exist.
@@ -762,7 +759,7 @@ Set(ctx context.Context, key &lt;span style="color:#000080;font-weight:bold">str
 item does not exist in the cache, we either acquire a lock and get data from
 the database or keep checking the cache. A value will be cached by another
 client or we will get the lock.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> (c *cachedItemStore) FindItem(ctx context.Context, itemID &lt;span style="color:#000080;font-weight:bold">int64&lt;/span>) (*Item, &lt;span style="color:#000080;font-weight:bold">error&lt;/span>) {
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> (c *cachedItemStore) FindItem(ctx context.Context, itemID &lt;span style="color:#000080;font-weight:bold">int64&lt;/span>) (*Item, &lt;span style="color:#000080;font-weight:bold">error&lt;/span>) {
 cacheKey := fmt.Sprintf(&lt;span style="color:#00f">&amp;#34;item:%d&amp;#34;&lt;/span>, itemID)
 readFromCache:
 &lt;span style="color:#000080;font-weight:bold">for&lt;/span> {
@@ -817,7 +814,7 @@ the cache. All clients waste time and server resources on waiting.&lt;/p>
 &lt;p>Our cache layer can be further improved by adding an early expiration
 functionality. If an &lt;em>item&lt;/em> is cached for 1 minute, shortly before the
 expiration time is due, tell one of the clients that the value must be updated.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> (c *cachedItemStore) FindItem(ctx context.Context, itemID &lt;span style="color:#000080;font-weight:bold">int64&lt;/span>) (*Item, &lt;span style="color:#000080;font-weight:bold">error&lt;/span>) {
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> (c *cachedItemStore) FindItem(ctx context.Context, itemID &lt;span style="color:#000080;font-weight:bold">int64&lt;/span>) (*Item, &lt;span style="color:#000080;font-weight:bold">error&lt;/span>) {
 cacheKey := fmt.Sprintf(&lt;span style="color:#00f">&amp;#34;item:%d&amp;#34;&lt;/span>, itemID)
 cacheKeyLock := cacheKey + &lt;span style="color:#00f">&amp;#34;:query-lock&amp;#34;&lt;/span>
 readFromCache:
@@ -892,7 +889,7 @@ and straightforward solution can be evolved into a more sophisticated one.&lt;/p
 database with an &lt;code>items&lt;/code> table. Our task is to build an endpoint, which returns
 a list of all &lt;em>items&lt;/em> in the database. &lt;em>Item&lt;/em> is an entity with a name and an
 ID. It can be represented by the structure below.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">type&lt;/span> Item &lt;span style="color:#000080;font-weight:bold">struct&lt;/span> {
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">type&lt;/span> Item &lt;span style="color:#000080;font-weight:bold">struct&lt;/span> {
 ID &lt;span style="color:#000080;font-weight:bold">int64&lt;/span>
 Name &lt;span style="color:#000080;font-weight:bold">string&lt;/span>
 }
@@ -901,7 +898,7 @@ Name &lt;span style="color:#000080;font-weight:bold">string&lt;/span>
 dependency injection. &lt;code>ItemListHandler&lt;/code> takes as a parameter what&amp;rsquo;s necessary
 for the endpoint to complete our task &amp;ndash; a database connection and a template.
 In return we are getting an HTTP handler function.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> ItemListHandler(
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> ItemListHandler(
 db *sql.DB,
 tmpl *template.Template,
 ) http.HandlerFunc {
@@ -912,7 +909,7 @@ tmpl *template.Template,
 &lt;/code>&lt;/pre>&lt;/div>&lt;p>To list all &lt;em>items&lt;/em>, we must first query the database. Once we will read all
 returned rows, we can use the collected entries to render the template and send
 the result back.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">rows, err := db.QueryContext(r.Context(), &lt;span style="color:#00f">`SELECT id, name FROM items`&lt;/span>)
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">rows, err := db.QueryContext(r.Context(), &lt;span style="color:#00f">`SELECT id, name FROM items`&lt;/span>)
 &lt;span style="color:#000080;font-weight:bold">if&lt;/span> err != &lt;span style="color:#000080;font-weight:bold">nil&lt;/span> {
 http.Error(w, &lt;span style="color:#00f">&amp;#34;Server Error&amp;#34;&lt;/span>, http.StatusInternalServerError)
 &lt;span style="color:#000080;font-weight:bold">return&lt;/span>
@@ -959,7 +956,7 @@ as a function. We can encapsulate fetching items and hide the database
 connection from the user.&lt;/p>
 &lt;p>The same code that was written directly inside of the handler is now provided
 by the &lt;code>ListItems&lt;/code> method.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#080;font-style:italic">// NewItemStore returns a store for items.
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#080;font-style:italic">// NewItemStore returns a store for items.
 &lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span>&lt;span style="color:#000080;font-weight:bold">func&lt;/span> NewItemStore(db *sql.DB) *ItemStore {
 &lt;span style="color:#000080;font-weight:bold">return&lt;/span> &amp;amp;ItemStore{db: db}
 }
@@ -990,7 +987,7 @@ items = append(items, &amp;amp;it)
 database in our handler. Instead of accepting &lt;code>*sql.DB&lt;/code> as an argument,
 &lt;code>ItemListHandler&lt;/code> can now take &lt;code>*ItemStore&lt;/code>. Handler&amp;rsquo;s body can be simplified
 to just a few lines.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> ItemListHandler(
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">func&lt;/span> ItemListHandler(
 itemStore *ItemStore,
 tmpl *template.Template,
 ) http.HandlerFunc {
@@ -1011,7 +1008,7 @@ is now an easy task that takes only a few lines of code.&lt;/p>
 &lt;p>The last change is to use an interface instead of accepting a structure
 pointer. Let&amp;rsquo;s call our interface &lt;code>ItemStore&lt;/code>. The previous implementation
 using an SQL database is renamed to &lt;code>sqlItemStore&lt;/code>.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">type&lt;/span> ItemStore &lt;span style="color:#000080;font-weight:bold">interface&lt;/span> {
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">type&lt;/span> ItemStore &lt;span style="color:#000080;font-weight:bold">interface&lt;/span> {
 ListItems(context.Context) ([]*Item, &lt;span style="color:#000080;font-weight:bold">error&lt;/span>)
 }
 &lt;span style="color:#080;font-style:italic">// NewItemStore returns a store for items that is using an SQL database
@@ -1047,7 +1044,7 @@ handler that is using it. Any handler that is using an &lt;code>ItemStore&lt;/co
 be testable without the need for any particular &lt;code>ItemStore&lt;/code> implementation.&lt;/p>
 &lt;p>When testing handlers, instead of providing a real &lt;code>ItemStore&lt;/code> implementation,
 we can use a mock.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">type&lt;/span> ItemStoreMock &lt;span style="color:#000080;font-weight:bold">struct&lt;/span> {
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">type&lt;/span> ItemStoreMock &lt;span style="color:#000080;font-weight:bold">struct&lt;/span> {
 Items []*Item
 Err &lt;span style="color:#000080;font-weight:bold">error&lt;/span>
 }
@@ -1063,7 +1060,7 @@ method returns, which means we are able to test all cases we want.&lt;/p>
 For example, we can provide a cache layer, that will be invisible to the user.
 It can be added or removed without any changes to handler or store
 implementations.&lt;/p>
-&lt;div class="highlight">&lt;pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">type&lt;/span> CacheStore &lt;span style="color:#000080;font-weight:bold">interface&lt;/span> {
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-go" data-lang="go">&lt;span style="color:#000080;font-weight:bold">type&lt;/span> CacheStore &lt;span style="color:#000080;font-weight:bold">interface&lt;/span> {
 &lt;span style="color:#080;font-style:italic">// Get loads value under given key into destValue. ErrMiss is returned
 &lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> &lt;span style="color:#080;font-style:italic">// if key does not exist.
 &lt;/span>&lt;span style="color:#080;font-style:italic">&lt;/span> Get(ctx context.Context, key &lt;span style="color:#000080;font-weight:bold">string&lt;/span>, destValue &lt;span style="color:#000080;font-weight:bold">interface&lt;/span>{}) &lt;span style="color:#000080;font-weight:bold">error&lt;/span>

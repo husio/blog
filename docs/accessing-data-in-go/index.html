@@ -1,23 +1,54 @@
-<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=author content="Piotr Husiatyński"><link rel=webmention href=https://webmention.io/grxE-zAdciW2ipN3_Gcdbg/webmention><title>Accessing data in Go</title><link rel=stylesheet href=/blog/css/style.css></head><body><div><a href=https://husio.github.io/blog>Blog</a>
-<link href=https://husio.github.io/blog/ rel=me>| <a rel=me class=u-url href=https://github.com/husio title=GitHub>GitHub</a>
+<!doctype html><html>
+<head>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta name=author content="Piotr Husiatyński">
+<link rel=webmention href=https://webmention.io/grxE-zAdciW2ipN3_Gcdbg/webmention>
+<title>Accessing data in Go</title>
+<link rel=stylesheet href=/blog/css/style.css>
+</head>
+<body>
+<div>
+<a href=https://husio.github.io/blog>Blog</a>
+<link href=https://husio.github.io/blog/ rel=me>
+| <a rel=me class=u-url href=https://github.com/husio title=GitHub>GitHub</a>
 | <a rel=me class=u-url href=https://stackoverflow.com/cv/piotrhusiatynski title="Stack Overflow CV">Stack Overflow</a>
 | <a rel=me class=u-url href="https://docs.google.com/document/d/1Xlt8yyGNLjkLLLoa9yVYa8Hxa9KKgA4BnVYMRrOjKB8/edit?usp=sharing" title=CV>CV</a>
-| <a rel=me class=u-url href=https://gist.githubusercontent.com/husio/76d6ef36ecbde58e06b6eb36b42ed4a1/raw/900d36ec0a2e5889a7fd49c84c289579a695d522/public.key title=GPG>GPG key</a></div><article class=h-entry><h1 class="title p-name">Accessing data in Go</h1><div><small>Published: <time class=dt-published datetime=2018-09-02 title=2018-09-02>September 2, 2018</time></small></div><div><small>Tags:
-<a class=p-category href=/blog/tags/go>Go</a></small></div><article class=e-content><p>When writing a web application, we have to decide how to access data. Where to
+| <a rel=me class=u-url href=https://gist.githubusercontent.com/husio/76d6ef36ecbde58e06b6eb36b42ed4a1/raw/900d36ec0a2e5889a7fd49c84c289579a695d522/public.key title=GPG>GPG key</a>
+</div>
+<article class=h-entry>
+<h1 class="title p-name">Accessing data in Go</h1>
+<div>
+<small>
+Published: <time class=dt-published datetime=2018-09-02 title=2018-09-02>September 2, 2018</time>
+</small>
+</div>
+<div>
+<small>
+Tags:
+<a class=p-category href=/blog/tags/go>Go</a>
+</small>
+</div>
+<article class=e-content><p>When writing a web application, we have to decide how to access data. Where to
 get it from, how to store it, how to manipulate it. Storage engines can vary,
 from being a single SQLite file to cache server or even an external service
-exposing an API.</p><p>There are many ways this topic can be addressed. I will explain how a simple
-and straightforward solution can be evolved into a more sophisticated one.</p><p>For the purpose of this article, let&rsquo;s assume that our storage engine is an SQL
+exposing an API.</p>
+<p>There are many ways this topic can be addressed. I will explain how a simple
+and straightforward solution can be evolved into a more sophisticated one.</p>
+<p>For the purpose of this article, let&rsquo;s assume that our storage engine is an SQL
 database with an <code>items</code> table. Our task is to build an endpoint, which returns
 a list of all <em>items</em> in the database. <em>Item</em> is an entity with a name and an
-ID. It can be represented by the structure below.</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>type</span> Item <span style=color:navy;font-weight:700>struct</span> {
+ID. It can be represented by the structure below.</p>
+<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>type</span> Item <span style=color:navy;font-weight:700>struct</span> {
 	ID   <span style=color:navy;font-weight:700>int64</span>
 	Name <span style=color:navy;font-weight:700>string</span>
 }
-</code></pre></div><h2 id=first-iteration>First iteration</h2><p>Let&rsquo;s start with a basic HTTP handler. To avoid global variables, let&rsquo;s use
+</code></pre></div><h2 id=first-iteration>First iteration</h2>
+<p>Let&rsquo;s start with a basic HTTP handler. To avoid global variables, let&rsquo;s use
 dependency injection. <code>ItemListHandler</code> takes as a parameter what&rsquo;s necessary
 for the endpoint to complete our task &ndash; a database connection and a template.
-In return we are getting an HTTP handler function.</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>func</span> ItemListHandler(
+In return we are getting an HTTP handler function.</p>
+<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>func</span> ItemListHandler(
 	db *sql.DB,
 	tmpl *template.Template,
 ) http.HandlerFunc {
@@ -27,7 +58,8 @@ In return we are getting an HTTP handler function.</p><div class=highlight><pre 
 }
 </code></pre></div><p>To list all <em>items</em>, we must first query the database. Once we will read all
 returned rows, we can use the collected entries to render the template and send
-the result back.</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go>rows, err := db.QueryContext(r.Context(), <span style=color:#00f>`SELECT id, name FROM items`</span>)
+the result back.</p>
+<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go>rows, err := db.QueryContext(r.Context(), <span style=color:#00f>`SELECT id, name FROM items`</span>)
 <span style=color:navy;font-weight:700>if</span> err != <span style=color:navy;font-weight:700>nil</span> {
 	http.Error(w, <span style=color:#00f>&#34;Server Error&#34;</span>, http.StatusInternalServerError)
 	<span style=color:navy;font-weight:700>return</span>
@@ -50,17 +82,33 @@ the result back.</p><div class=highlight><pre style=background-color:#fff;-moz-t
 
 _ = tmpl.Execute(w, items)
 </code></pre></div><p><em>(To simplify the example, returned error pages are very basic, we do not log
-errors and we are assuming that template rendering never fails.)</em></p><p>There are many issues with the approach presented above.</p><ol><li><p>Every time we want to get the list of <em>items</em>, we must directly interact
+errors and we are assuming that template rendering never fails.)</em></p>
+<p>There are many issues with the approach presented above.</p>
+<ol>
+<li>
+<p>Every time we want to get the list of <em>items</em>, we must directly interact
 with the database. We must know about the database structure and in case of
-schema changes, we must locate all those places and update them.</p></li><li><p>Everything is implemented in a single place. Because we directly access the
+schema changes, we must locate all those places and update them.</p>
+</li>
+<li>
+<p>Everything is implemented in a single place. Because we directly access the
 database, to test this code, a database must be available, it&rsquo;s schema
-prepared and test data inserted.</p></li><li><p>If we wanted to add a cache layer or some form of monitoring like tracing or
+prepared and test data inserted.</p>
+</li>
+<li>
+<p>If we wanted to add a cache layer or some form of monitoring like tracing or
 metrics, we would have to add more code directly inside of the handler.
 That makes the code of the handler larger and testing harder. We can no
-longer test functionalities separately.</p></li></ol><h2 id=second-iteration>Second iteration</h2><p>Instead of writing all the code in an HTTP handler, let&rsquo;s extract a part of it
+longer test functionalities separately.</p>
+</li>
+</ol>
+<h2 id=second-iteration>Second iteration</h2>
+<p>Instead of writing all the code in an HTTP handler, let&rsquo;s extract a part of it
 as a function. We can encapsulate fetching items and hide the database
-connection from the user.</p><p>The same code that was written directly inside of the handler is now provided
-by the <code>ListItems</code> method.</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:#080;font-style:italic>// NewItemStore returns a store for items.
+connection from the user.</p>
+<p>The same code that was written directly inside of the handler is now provided
+by the <code>ListItems</code> method.</p>
+<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:#080;font-style:italic>// NewItemStore returns a store for items.
 </span><span style=color:#080;font-style:italic></span><span style=color:navy;font-weight:700>func</span> NewItemStore(db *sql.DB) *ItemStore {
 	<span style=color:navy;font-weight:700>return</span> &amp;ItemStore{db: db}
 }
@@ -93,7 +141,8 @@ by the <code>ListItems</code> method.</p><div class=highlight><pre style=backgro
 </code></pre></div><p>Having such a <em>store</em> available, we no longer have to directly query the
 database in our handler. Instead of accepting <code>*sql.DB</code> as an argument,
 <code>ItemListHandler</code> can now take <code>*ItemStore</code>. Handler&rsquo;s body can be simplified
-to just a few lines.</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>func</span> ItemListHandler(
+to just a few lines.</p>
+<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>func</span> ItemListHandler(
 	itemStore *ItemStore,
 	tmpl *template.Template,
 ) http.HandlerFunc {
@@ -107,10 +156,14 @@ to just a few lines.</p><div class=highlight><pre style=background-color:#fff;-m
 }
 </code></pre></div><p>Having this handler, we no longer have to track changes to the database schema.
 All details of accessing <em>item</em> data are now in <code>ItemStore</code>. If you need to
-create or update an <em>item</em>, add <code>CreateItem</code> and <code>UpdateItem</code> methods.</p><h2 id=third-iteration>Third iteration</h2><p>Using <code>*ItemStore</code> for accessing <em>items</em> solved the first issue. Listing items
-is now an easy task that takes only a few lines of code.</p><p>The last change is to use an interface instead of accepting a structure
+create or update an <em>item</em>, add <code>CreateItem</code> and <code>UpdateItem</code> methods.</p>
+<h2 id=third-iteration>Third iteration</h2>
+<p>Using <code>*ItemStore</code> for accessing <em>items</em> solved the first issue. Listing items
+is now an easy task that takes only a few lines of code.</p>
+<p>The last change is to use an interface instead of accepting a structure
 pointer. Let&rsquo;s call our interface <code>ItemStore</code>. The previous implementation
-using an SQL database is renamed to <code>sqlItemStore</code>.</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>type</span> ItemStore <span style=color:navy;font-weight:700>interface</span> {
+using an SQL database is renamed to <code>sqlItemStore</code>.</p>
+<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>type</span> ItemStore <span style=color:navy;font-weight:700>interface</span> {
 	ListItems(context.Context) ([]*Item, <span style=color:navy;font-weight:700>error</span>)
 }
 
@@ -139,13 +192,18 @@ using an SQL database is renamed to <code>sqlItemStore</code>.</p><div class=hig
 </code></pre></div><p>Defining interfaces together with the implementation might feel
 counterintuitive in Go. In most cases, it is better to declare an interface
 where it is used (not where it is implemented) to help to decouple
-functionalities and avoid dependencies.</p><p>In this case we do not use an interface to encourage different <code>ItemStore</code>
+functionalities and avoid dependencies.</p>
+<p>In this case we do not use an interface to encourage different <code>ItemStore</code>
 implementations. Code that is used for accessing <em>items</em> could be put in it&rsquo;s
 own package and provide all necessary functionality &ndash; an interface, the main
-implementation using an SQL database, a mock implementation for testing and more.</p><h3 id=mocking-for-tests>Mocking for tests</h3><p>The <code>sqlItemStore</code> implementation is easy to test independently from any HTTP
+implementation using an SQL database, a mock implementation for testing and more.</p>
+<h3 id=mocking-for-tests>Mocking for tests</h3>
+<p>The <code>sqlItemStore</code> implementation is easy to test independently from any HTTP
 handler that is using it. Any handler that is using an <code>ItemStore</code> should also
-be testable without the need for any particular <code>ItemStore</code> implementation.</p><p>When testing handlers, instead of providing a real <code>ItemStore</code> implementation,
-we can use a mock.</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>type</span> ItemStoreMock <span style=color:navy;font-weight:700>struct</span> {
+be testable without the need for any particular <code>ItemStore</code> implementation.</p>
+<p>When testing handlers, instead of providing a real <code>ItemStore</code> implementation,
+we can use a mock.</p>
+<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>type</span> ItemStoreMock <span style=color:navy;font-weight:700>struct</span> {
 	Items []*Item
 	Err   <span style=color:navy;font-weight:700>error</span>
 }
@@ -157,10 +215,13 @@ we can use a mock.</p><div class=highlight><pre style=background-color:#fff;-moz
 	<span style=color:navy;font-weight:700>return</span> mock.Items, mock.Err
 }
 </code></pre></div><p><code>ItemStoreMock</code> gives us full control over its API. We control what each
-method returns, which means we are able to test all cases we want.</p><h3 id=caching>Caching</h3><p>Using an interface, allows us to wrap a store with additional functionality.
+method returns, which means we are able to test all cases we want.</p>
+<h3 id=caching>Caching</h3>
+<p>Using an interface, allows us to wrap a store with additional functionality.
 For example, we can provide a cache layer, that will be invisible to the user.
 It can be added or removed without any changes to handler or store
-implementations.</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>type</span> CacheStore <span style=color:navy;font-weight:700>interface</span> {
+implementations.</p>
+<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>type</span> CacheStore <span style=color:navy;font-weight:700>interface</span> {
 	<span style=color:#080;font-style:italic>// Get loads value under given key into destValue. ErrMiss is returned
 </span><span style=color:#080;font-style:italic></span>	<span style=color:#080;font-style:italic>// if key does not exist.
 </span><span style=color:#080;font-style:italic></span>	Get(ctx context.Context, key <span style=color:navy;font-weight:700>string</span>, destValue <span style=color:navy;font-weight:700>interface</span>{}) <span style=color:navy;font-weight:700>error</span>
@@ -205,8 +266,21 @@ implementations.</p><div class=highlight><pre style=background-color:#fff;-moz-t
 	<span style=color:navy;font-weight:700>return</span> items, err
 }
 </code></pre></div><p>Testing of the <code>cachedItemStore</code> can be done using <code>ItemStoreMock</code> and an
-in-memory cache backend.</p><h2 id=conclusion>Conclusion</h2><p>Writing data managers requires more effort, but allows to separate business
+in-memory cache backend.</p>
+<h2 id=conclusion>Conclusion</h2>
+<p>Writing data managers requires more effort, but allows to separate business
 logic from storage implementation. Separation of concerns gives us more control
-over data.</p><p>Thanks to using Go interfaces, we can mock and extend functionality of the
+over data.</p>
+<p>Thanks to using Go interfaces, we can mock and extend functionality of the
 storage implementation. Integration with cache or monitoring tools is easy,
-pluggable and can be tested separately.</p></article><hr><div>Follow the discussion on <a href=https://www.reddit.com/r/golang/comments/9cbxwg/accessing_data_in_go/>reddit</a>.</div></article><div id=webmentions></div><noscript>Comments are provided by <a href=https://webmention.io/>webmention.io</a> and <a href=https://github.com/PlaidWeb/webmention.js/>webmentions.js</a> and require JavaScript.</noscript><script src=/blog/js/webmention.min.js async></script><link rel=stylesheet href=/blog/css/webmention.css><footer>The content of this page is licensed under a <a rel=license href=http://creativecommons.org/licenses/by-sa/4.0/>Creative Commons Attribution-ShareAlike 4.0 International License</a>.</footer></body></html>
+pluggable and can be tested separately.</p>
+</article>
+<hr>
+<div>
+Follow the discussion on <a href=https://www.reddit.com/r/golang/comments/9cbxwg/accessing_data_in_go/>reddit</a>.
+</div>
+</article>
+<footer>
+The content of this page is licensed under a <a rel=license href=http://creativecommons.org/licenses/by-sa/4.0/>Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</footer></body>
+</html>

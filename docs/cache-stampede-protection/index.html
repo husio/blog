@@ -1,31 +1,74 @@
-<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=author content="Piotr Husiatyński"><link rel=webmention href=https://webmention.io/grxE-zAdciW2ipN3_Gcdbg/webmention><title>Cache stampede protection</title><link rel=stylesheet href=/blog/css/style.css></head><body><div><a href=https://husio.github.io/blog>Blog</a>
-<link href=https://husio.github.io/blog/ rel=me>| <a rel=me class=u-url href=https://github.com/husio title=GitHub>GitHub</a>
+<!doctype html><html>
+<head>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta name=author content="Piotr Husiatyński">
+<link rel=webmention href=https://webmention.io/grxE-zAdciW2ipN3_Gcdbg/webmention>
+<title>Cache stampede protection</title>
+<link rel=stylesheet href=/blog/css/style.css>
+</head>
+<body>
+<div>
+<a href=https://husio.github.io/blog>Blog</a>
+<link href=https://husio.github.io/blog/ rel=me>
+| <a rel=me class=u-url href=https://github.com/husio title=GitHub>GitHub</a>
 | <a rel=me class=u-url href=https://stackoverflow.com/cv/piotrhusiatynski title="Stack Overflow CV">Stack Overflow</a>
 | <a rel=me class=u-url href="https://docs.google.com/document/d/1Xlt8yyGNLjkLLLoa9yVYa8Hxa9KKgA4BnVYMRrOjKB8/edit?usp=sharing" title=CV>CV</a>
-| <a rel=me class=u-url href=https://gist.githubusercontent.com/husio/76d6ef36ecbde58e06b6eb36b42ed4a1/raw/900d36ec0a2e5889a7fd49c84c289579a695d522/public.key title=GPG>GPG key</a></div><article class=h-entry><h1 class="title p-name">Cache stampede protection</h1><div><small>Published: <time class=dt-published datetime=2018-09-14 title=2018-09-14>September 14, 2018</time></small></div><div><small>Tags:
-<a class=p-category href=/blog/tags/go>Go</a>, <a class=p-category href=/blog/tags/cache>Cache</a></small></div><article class=e-content><p>Writing an application that handles concurrent traffic from a lot of clients in
+| <a rel=me class=u-url href=https://gist.githubusercontent.com/husio/76d6ef36ecbde58e06b6eb36b42ed4a1/raw/900d36ec0a2e5889a7fd49c84c289579a695d522/public.key title=GPG>GPG key</a>
+</div>
+<article class=h-entry>
+<h1 class="title p-name">Cache stampede protection</h1>
+<div>
+<small>
+Published: <time class=dt-published datetime=2018-09-14 title=2018-09-14>September 14, 2018</time>
+</small>
+</div>
+<div>
+<small>
+Tags:
+<a class=p-category href=/blog/tags/go>Go</a>, <a class=p-category href=/blog/tags/cache>Cache</a>
+</small>
+</div>
+<article class=e-content><p>Writing an application that handles concurrent traffic from a lot of clients in
 a performant way is not an easy task. To narrow this problem to web
 applications only, serving as many HTTP requests as possible in a short time is
-often a challenge.</p><p>In most cases of an HTTP application, optimizing access to the database can be
-the easiest and the best first step.</p><h2 id=caching-database-access>Caching database access</h2><p>Using a database that provides plenty of functionality and storing data in
+often a challenge.</p>
+<p>In most cases of an HTTP application, optimizing access to the database can be
+the easiest and the best first step.</p>
+<h2 id=caching-database-access>Caching database access</h2>
+<p>Using a database that provides plenty of functionality and storing data in
 <a href=https://en.wikipedia.org/wiki/Denormalization>denormalized form</a> makes
 development easier. This comes at the cost of the database having to execute
-complex queries and do more computation in order to return a result.</p><p>Making several database queries, even simple ones, to handle a request adds up
+complex queries and do more computation in order to return a result.</p>
+<p>Making several database queries, even simple ones, to handle a request adds up
 and makes our request handing slower. Even if a query is executed instantly,
-the database client must transfer the data over the network each time.</p><p>Most databases implement some kind of internal caching. They optimize access to
+the database client must transfer the data over the network each time.</p>
+<p>Most databases implement some kind of internal caching. They optimize access to
 popular data if the query complexity allows to do so. Why add an external cache
-layer in front of the database then?</p><p>A cache layer can be added to remember:</p><ol><li>the result of a <strong>heavy query</strong> that takes time and puts heavy load on the
-database.</li><li>the result of a <strong>repeating query</strong> that causes the database to waste
-resources on returning the same data all the time.</li></ol><h3 id=the-fastest-code-is-the-code-that-never-runs>The fastest code is the code that never runs</h3><p>Imagine a very popular web application that displays the details of an <em>item</em>.
+layer in front of the database then?</p>
+<p>A cache layer can be added to remember:</p>
+<ol>
+<li>the result of a <strong>heavy query</strong> that takes time and puts heavy load on the
+database.</li>
+<li>the result of a <strong>repeating query</strong> that causes the database to waste
+resources on returning the same data all the time.</li>
+</ol>
+<h3 id=the-fastest-code-is-the-code-that-never-runs>The fastest code is the code that never runs</h3>
+<p>Imagine a very popular web application that displays the details of an <em>item</em>.
 An <em>item</em> is an entity identifiable by a unique number, that is rarely
 changing. Due to heavy traffic, the database that stores <em>items</em> is all the
-time asked about the same entity.</p><p><img src=./direct-access.svg alt="Direct data access"></p><p>To offload some of the repeating requests, we introduce a cache layer.
+time asked about the same entity.</p>
+<p><img src=./direct-access.svg alt="Direct data access"></p>
+<p>To offload some of the repeating requests, we introduce a cache layer.
 Whenever an item is needed, serve it from the cache. The database is queried
-only if an item does not exist in the cache.</p><p><img src=./cached-access.svg alt="Cached data access"></p><p>For the purpose of this post, let us assume we have a store and a cache
+only if an item does not exist in the cache.</p>
+<p><img src=./cached-access.svg alt="Cached data access"></p>
+<p>For the purpose of this post, let us assume we have a store and a cache
 implementation available that implement the following interfaces. Delegating
 <a href=/blog/accessing-data-in-go/>database access</a> allows for a
 cache implementation that is not tightly coupled to the original
-implementation.</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>type</span> ItemStore <span style=color:navy;font-weight:700>interface</span> {
+implementation.</p>
+<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>type</span> ItemStore <span style=color:navy;font-weight:700>interface</span> {
 	<span style=color:#080;font-style:italic>// FindItem item returns an item with given ID or ErrNotFound
 </span><span style=color:#080;font-style:italic></span>	FindItem(ctx context.Context, itemID <span style=color:navy;font-weight:700>int64</span>) (*Item, <span style=color:navy;font-weight:700>error</span>)
 }
@@ -38,7 +81,8 @@ implementation.</p><div class=highlight><pre style=background-color:#fff;-moz-ta
 </span><span style=color:#080;font-style:italic></span>	Set(ctx context.Context, key <span style=color:navy;font-weight:700>string</span>, value <span style=color:navy;font-weight:700>interface</span>{}, ttl time.Duration) <span style=color:navy;font-weight:700>error</span>
 }
 </code></pre></div><p>Instead of directly calling the database each time an <em>item</em> is needed, a cache
-layer is used.</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>func</span> CacheItemStore(cache CacheStore, store ItemStore) ItemStore {
+layer is used.</p>
+<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>func</span> CacheItemStore(cache CacheStore, store ItemStore) ItemStore {
 	<span style=color:navy;font-weight:700>return</span> &amp;cachedItemStore{
 		store: store,
 		cache: cache,
@@ -81,30 +125,48 @@ layer is used.</p><div class=highlight><pre style=background-color:#fff;-moz-tab
 	<span style=color:navy;font-weight:700>return</span> item, err
 }
 </code></pre></div><p>Cache errors are not critical for the functionality of the <code>FindItem</code> method.
-They are logged, so that we have a good insight into our application.</p><p>To decide for how long a result can be cached and when the value must be
-refreshed, a domain knowledge is required.</p><h2 id=cache-stampede-problem>Cache stampede problem</h2><p>Adding a cache layer can reduce the amount of calls to a resource that the
+They are logged, so that we have a good insight into our application.</p>
+<p>To decide for how long a result can be cached and when the value must be
+refreshed, a domain knowledge is required.</p>
+<h2 id=cache-stampede-problem>Cache stampede problem</h2>
+<p>Adding a cache layer can reduce the amount of calls to a resource that the
 cache protects. Whether the resource is a database, an external service or a
 local computation task, the amount of communication that happens can be
-significantly reduced.</p><blockquote><p>There are two hard things in computer science: cache invalidation, naming
-things, and off-by-one errors.</p><p>&ndash; <a href=https://twitter.com/codinghorror/status/506010907021828096>Jeff Atwood</a></p></blockquote><p>Most cache implementations store data with an expiration time, after which it
+significantly reduced.</p>
+<blockquote>
+<p>There are two hard things in computer science: cache invalidation, naming
+things, and off-by-one errors.</p>
+<p>&ndash; <a href=https://twitter.com/codinghorror/status/506010907021828096>Jeff Atwood</a></p>
+</blockquote>
+<p>Most cache implementations store data with an expiration time, after which it
 is removed. Using <a href=https://en.wikipedia.org/wiki/Time_to_live>time to live
 (TTL)</a> is an easy compromise to
 ensure that stored data is never too old. Instead of trying to keep track of
 when a certain query result is changing, remember the result for a short period
-to minimize the possible errors.</p><p>Cache expiration introduces a new problem. Take our example of a web
+to minimize the possible errors.</p>
+<p>Cache expiration introduces a new problem. Take our example of a web
 application all the time displaying an item with ID 1. Hundreds of requests per
 second and all of them require this item&rsquo;s details to be served. When the item
 with ID 1 is served from a cache, the database can allocate resources to do
-something else.</p><p><img src=./cached-access.svg alt="Cached data access"></p><p>Our cache is using TTL to ensure that served data is never too old. <code>FindItem</code>
+something else.</p>
+<p><img src=./cached-access.svg alt="Cached data access"></p>
+<p>Our cache is using TTL to ensure that served data is never too old. <code>FindItem</code>
 will cache the result for one minute. After one minute, the value expires (it
-is being removed from the cache) to force a refresh.</p><p>Keep in mind, that there are hundreds of requests happening every second. All
+is being removed from the cache) to force a refresh.</p>
+<p>Keep in mind, that there are hundreds of requests happening every second. All
 of them need the item with ID 1 to be served. The item is not in the cache
 anymore, so the only place to get it is the database. This problem is called
-<a href=https://en.wikipedia.org/wiki/Cache_stampede>cache stampede</a>.</p><p><img src=./cached-access-expired.svg alt="Cached data access with an empty cache"></p><p>The database is not being shielded by an external cache layer anymore. It also
-does not have its own cache ready.</p><h3 id=access-locking>Access Locking</h3><p>To prevent the same query being executed multiple times when a value is not
+<a href=https://en.wikipedia.org/wiki/Cache_stampede>cache stampede</a>.</p>
+<p><img src=./cached-access-expired.svg alt="Cached data access with an empty cache"></p>
+<p>The database is not being shielded by an external cache layer anymore. It also
+does not have its own cache ready.</p>
+<h3 id=access-locking>Access Locking</h3>
+<p>To prevent the same query being executed multiple times when a value is not
 cached, we can introduce a locking mechanism. Before asking the database,
-acquire a &ldquo;query lock&rdquo;.</p><p>Our lock will be implemented using a cache service. In addition to <code>Get</code> and
-<code>Set</code> operations, <code>SetNx</code> is required.</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>type</span> CacheStore <span style=color:navy;font-weight:700>interface</span> {
+acquire a &ldquo;query lock&rdquo;.</p>
+<p>Our lock will be implemented using a cache service. In addition to <code>Get</code> and
+<code>Set</code> operations, <code>SetNx</code> is required.</p>
+<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>type</span> CacheStore <span style=color:navy;font-weight:700>interface</span> {
 	Get(ctx context.Context, key <span style=color:navy;font-weight:700>string</span>, destValue <span style=color:navy;font-weight:700>interface</span>{}) <span style=color:navy;font-weight:700>error</span>
 	Set(ctx context.Context, key <span style=color:navy;font-weight:700>string</span>, value <span style=color:navy;font-weight:700>interface</span>{}, ttl time.Duration) <span style=color:navy;font-weight:700>error</span>
 
@@ -115,7 +177,8 @@ acquire a &ldquo;query lock&rdquo;.</p><p>Our lock will be implemented using a c
 </code></pre></div><p>When <code>FindItem</code> is called, we first try to read the item from the cache. If the
 item does not exist in the cache, we either acquire a lock and get data from
 the database or keep checking the cache. A value will be cached by another
-client or we will get the lock.</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>func</span> (c *cachedItemStore) FindItem(ctx context.Context, itemID <span style=color:navy;font-weight:700>int64</span>) (*Item, <span style=color:navy;font-weight:700>error</span>) {
+client or we will get the lock.</p>
+<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>func</span> (c *cachedItemStore) FindItem(ctx context.Context, itemID <span style=color:navy;font-weight:700>int64</span>) (*Item, <span style=color:navy;font-weight:700>error</span>) {
 	cacheKey := fmt.Sprintf(<span style=color:#00f>&#34;item:%d&#34;</span>, itemID)
 
 readFromCache:
@@ -166,11 +229,15 @@ readFromCache:
 </code></pre></div><p>Above implementation ensures that at most one client is asking the database
 about an item with the same ID. If more than one <code>FindItem</code> call is done at the
 same time, only one client will query the database while all others are waiting
-for the cached result.</p><h3 id=early-expiration>Early expiration</h3><p>The situation has improved for the database. But adding locking means that when
+for the cached result.</p>
+<h3 id=early-expiration>Early expiration</h3>
+<p>The situation has improved for the database. But adding locking means that when
 a value expires from the cache, all clients must wait until one of them fills
-the cache. All clients waste time and server resources on waiting.</p><p>Our cache layer can be further improved by adding an early expiration
+the cache. All clients waste time and server resources on waiting.</p>
+<p>Our cache layer can be further improved by adding an early expiration
 functionality. If an <em>item</em> is cached for 1 minute, shortly before the
-expiration time is due, tell one of the clients that the value must be updated.</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>func</span> (c *cachedItemStore) FindItem(ctx context.Context, itemID <span style=color:navy;font-weight:700>int64</span>) (*Item, <span style=color:navy;font-weight:700>error</span>) {
+expiration time is due, tell one of the clients that the value must be updated.</p>
+<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>func</span> (c *cachedItemStore) FindItem(ctx context.Context, itemID <span style=color:navy;font-weight:700>int64</span>) (*Item, <span style=color:navy;font-weight:700>error</span>) {
 	cacheKey := fmt.Sprintf(<span style=color:#00f>&#34;item:%d&#34;</span>, itemID)
 	cacheKeyLock := cacheKey + <span style=color:#00f>&#34;:query-lock&#34;</span>
 
@@ -235,7 +302,15 @@ readFromCache:
 	refreshAt time.Time
 	item      *Item
 }
-</code></pre></div><h2 id=conclusion>Conclusion</h2><p>Caching data that is often read can increase performance of an application.
-Data caching is more complicated than it might look like at first sight.</p><p>Above cache stampede protection code example is tightly coupled to <code>ItemStore</code>.
+</code></pre></div><h2 id=conclusion>Conclusion</h2>
+<p>Caching data that is often read can increase performance of an application.
+Data caching is more complicated than it might look like at first sight.</p>
+<p>Above cache stampede protection code example is tightly coupled to <code>ItemStore</code>.
 If you are searching for a general use implementation, take a <a href=https://github.com/go-surf/surf/blob/master/cache_stampede.go>look at
-<code>surf.StampedeProtect</code></a>.</p></article></article><div id=webmentions></div><noscript>Comments are provided by <a href=https://webmention.io/>webmention.io</a> and <a href=https://github.com/PlaidWeb/webmention.js/>webmentions.js</a> and require JavaScript.</noscript><script src=/blog/js/webmention.min.js async></script><link rel=stylesheet href=/blog/css/webmention.css><footer>The content of this page is licensed under a <a rel=license href=http://creativecommons.org/licenses/by-sa/4.0/>Creative Commons Attribution-ShareAlike 4.0 International License</a>.</footer></body></html>
+<code>surf.StampedeProtect</code></a>.</p>
+</article>
+</article>
+<footer>
+The content of this page is licensed under a <a rel=license href=http://creativecommons.org/licenses/by-sa/4.0/>Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</footer></body>
+</html>
