@@ -32,10 +32,6 @@
       | <a rel="me" class="u-url" href="https://twitter.com/{{ .Site.Params.twitterUsername }}" title="Twitter">Twitter</a>
     {{- end}}
 
-    {{ if isset .Site.Params "stackoverflowusername" -}}
-      | <a rel="me" class="u-url" href="https://stackoverflow.com/cv/{{ .Site.Params.stackoverflowusername }}" title="Stack Overflow CV">Stack Overflow</a>
-    {{- end}}
-
     {{ if isset .Site.Params "cvlink" -}}
       | <a rel="me" class="u-url" href="{{ .Site.Params.cvlink }}" title="CV">CV</a>
     {{- end}}
