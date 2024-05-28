@@ -1,10 +1,40 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Go on Blog</title><link>https://husio.github.io/blog/tags/go/</link><description>Recent content in Go on Blog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 30 Jan 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://husio.github.io/blog/tags/go/index.xml" rel="self" type="application/rss+xml"/><item><title>Testing in Go</title><link>https://husio.github.io/blog/testing-in-go/</link><pubDate>Thu, 30 Jan 2020 00:00:00 +0000</pubDate><guid>https://husio.github.io/blog/testing-in-go/</guid><description>This is a collection of testing techniques and patterns that I have learned throughout my career of being a Go programmer.
-testing package basics The Go standard library comes with the testing package which provides a solid base for writing tests.
-Each test should be a separate function. A test function must accept a single argument of type *testing.T.
-A test for a functoin isEven could look like this:
-func TestIsEven(t *testing.</description></item><item><title>Error handling</title><link>https://husio.github.io/blog/error-handling/</link><pubDate>Wed, 20 Feb 2019 00:00:00 +0000</pubDate><guid>https://husio.github.io/blog/error-handling/</guid><description>In Go 1.13 error wrapping was introduced as part of the standard library. This post was written before the update to the errors package.
-Go is a language that does not provide exceptions. Instead, an operation can return an error. Errors are values that implement the error interface.
-I have worked with several errors handling patterns over the years and I would like to summarize my experience focusing on the good solutions.</description></item><item><title>Cache stampede protection</title><link>https://husio.github.io/blog/cache-stampede-protection/</link><pubDate>Fri, 14 Sep 2018 00:00:00 +0000</pubDate><guid>https://husio.github.io/blog/cache-stampede-protection/</guid><description>Writing an application that handles concurrent traffic from a lot of clients in a performant way is not an easy task. To narrow this problem to web applications only, serving as many HTTP requests as possible in a short time is often a challenge.
-In most cases of an HTTP application, optimizing access to the database can be the easiest and the best first step.
-Caching database access Using a database that provides plenty of functionality and storing data in denormalized form makes development easier.</description></item><item><title>Accessing data in Go</title><link>https://husio.github.io/blog/accessing-data-in-go/</link><pubDate>Sun, 02 Sep 2018 00:00:00 +0000</pubDate><guid>https://husio.github.io/blog/accessing-data-in-go/</guid><description>When writing a web application, we have to decide how to access data. Where to get it from, how to store it, how to manipulate it. Storage engines can vary, from being a single SQLite file to cache server or even an external service exposing an API.
-There are many ways this topic can be addressed. I will explain how a simple and straightforward solution can be evolved into a more sophisticated one.</description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Go on Blog</title>
+    <link>http://localhost:1313/blog/tags/go/</link>
+    <description>Recent content in Go on Blog</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 30 Jan 2020 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/blog/tags/go/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Testing in Go</title>
+      <link>http://localhost:1313/blog/testing-in-go/</link>
+      <pubDate>Thu, 30 Jan 2020 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/blog/testing-in-go/</guid>
+      <description>This is a collection of testing techniques and patterns that I have learned throughout my career of being a Go programmer.&#xA;testing package basics The Go standard library comes with the testing package which provides a solid base for writing tests.&#xA;Each test should be a separate function. A test function must accept a single argument of type *testing.T.&#xA;A test for a functoin isEven could look like this:&#xA;func TestIsEven(t *testing.</description>
+    </item>
+    <item>
+      <title>Error handling</title>
+      <link>http://localhost:1313/blog/error-handling/</link>
+      <pubDate>Wed, 20 Feb 2019 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/blog/error-handling/</guid>
+      <description>In Go 1.13 error wrapping was introduced as part of the standard library. This post was written before the update to the errors package.&#xA;Go is a language that does not provide exceptions. Instead, an operation can return an error. Errors are values that implement the error interface.&#xA;I have worked with several errors handling patterns over the years and I would like to summarize my experience focusing on the good solutions.</description>
+    </item>
+    <item>
+      <title>Cache stampede protection</title>
+      <link>http://localhost:1313/blog/cache-stampede-protection/</link>
+      <pubDate>Fri, 14 Sep 2018 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/blog/cache-stampede-protection/</guid>
+      <description>Writing an application that handles concurrent traffic from a lot of clients in a performant way is not an easy task. To narrow this problem to web applications only, serving as many HTTP requests as possible in a short time is often a challenge.&#xA;In most cases of an HTTP application, optimizing access to the database can be the easiest and the best first step.&#xA;Caching database access Using a database that provides plenty of functionality and storing data in denormalized form makes development easier.</description>
+    </item>
+    <item>
+      <title>Accessing data in Go</title>
+      <link>http://localhost:1313/blog/accessing-data-in-go/</link>
+      <pubDate>Sun, 02 Sep 2018 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/blog/accessing-data-in-go/</guid>
+      <description>When writing a web application, we have to decide how to access data. Where to get it from, how to store it, how to manipulate it. Storage engines can vary, from being a single SQLite file to cache server or even an external service exposing an API.&#xA;There are many ways this topic can be addressed. I will explain how a simple and straightforward solution can be evolved into a more sophisticated one.</description>
+    </item>
+  </channel>
+</rss>

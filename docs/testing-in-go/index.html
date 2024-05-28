@@ -1,88 +1,111 @@
-<!doctype html><html>
-<head>
-<meta charset=utf-8>
-<meta name=viewport content="width=device-width,initial-scale=1">
-<meta name=author content="Piotr Husiatyński">
-<title>Testing in Go</title>
-<link rel=stylesheet href=/blog/css/style.css>
+<!doctype html>
+<html>
+<head><script src="/blog/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=blog/livereload" data-no-instant defer></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="Piotr Husiatyński">
+  <title>Testing in Go</title>
+  <link rel="stylesheet" href="/blog/css/style.css">
 </head>
+
 <body>
-<div>
-<a href=https://husio.github.io/blog>Blog</a>
-<link href=https://husio.github.io/blog/ rel=me>
-| <a rel=me class=u-url href=https://github.com/husio title=GitHub>GitHub</a>
-| <a rel=me class=u-url href="https://docs.google.com/document/d/1Xlt8yyGNLjkLLLoa9yVYa8Hxa9KKgA4BnVYMRrOjKB8/edit?usp=sharing" title=CV>CV</a>
-| <a rel=me class=u-url href=https://gist.githubusercontent.com/husio/76d6ef36ecbde58e06b6eb36b42ed4a1/raw/900d36ec0a2e5889a7fd49c84c289579a695d522/public.key title=GPG>GPG key</a>
-</div>
-<article class=h-entry>
-<h1 class="title p-name">Testing in Go</h1>
-<div>
-<small>
-Published: <time class=dt-published datetime=2020-01-30 title=2020-01-30>January 30, 2020</time>
-</small>
-</div>
-<div>
-<small>
-Tags:
-<a class=p-category href=/blog/tags/go>Go</a>, <a class=p-category href=/blog/tags/testing>Testing</a>
-</small>
-</div>
-<aside class=toc>
-<nav id=TableOfContents>
-<ul>
-<li><a href=#testing-package-basics><code>testing</code> package basics</a>
-<ul>
-<li><a href=#failing-and-messages>Failing and messages</a></li>
-<li><a href=#skipping-a-test>Skipping a test</a></li>
-<li><a href=#test-helpers>Test helpers</a></li>
-<li><a href=#test-helpers-setting-up-dependencies>Test helpers: Setting up dependencies</a></li>
-<li><a href=#blackbox-package-testing>Blackbox package testing</a></li>
-<li><a href=#third-party-test-helper-packages>Third party test helper packages</a></li>
-</ul>
-</li>
-<li><a href=#reflectdeepequal><code>reflect.DeepEqual</code></a></li>
-<li><a href=#table-tests>Table tests</a></li>
-<li><a href=#mocking>Mocking</a>
-<ul>
-<li><a href=#your-code-should-provide-a-mock>Your code should provide a mock</a></li>
-</ul>
-</li>
-<li><a href=#test-flags>Test flags</a></li>
-<li><a href=#environment-variables>Environment variables</a></li>
-<li><a href=#fixtures>Fixtures</a></li>
-<li><a href=#golden-files>Golden files</a></li>
-<li><a href=#integration-tests>Integration tests</a></li>
-<li><a href=#build-constraints>Build constraints</a></li>
-<li><a href=#setupteardown>Setup/teardown</a></li>
-<li><a href=#-race><code>-race</code></a></li>
-<li><a href=#testing-faq>Testing FAQ</a></li>
-</ul>
+  <div>
+    <a href="http://localhost:1313/blog/">Blog</a>
+
+    <link href="https://husio.github.io/blog/" rel="me">
+      | <a rel="me" class="u-url" href="https://github.com/husio" title="GitHub">GitHub</a>
+
+    
+
+    | <a rel="me" class="u-url" href="https://docs.google.com/document/d/1Xlt8yyGNLjkLLLoa9yVYa8Hxa9KKgA4BnVYMRrOjKB8/edit?usp=sharing" title="CV">CV</a>
+
+    | <a rel="me" class="u-url" href="https://gist.githubusercontent.com/husio/76d6ef36ecbde58e06b6eb36b42ed4a1/raw/900d36ec0a2e5889a7fd49c84c289579a695d522/public.key" title="GPG">GPG key</a>
+
+  </div>
+
+
+<article class="h-entry">
+  <h1 class="title p-name">Testing in Go</h1>
+
+  
+    <div>
+      <small>
+        Published: <time class="dt-published" datetime="2020-01-30" title="2020-01-30">January 30, 2020</time>
+      </small>
+    </div>
+  
+
+  
+    <div>
+      <small>
+        Tags: 
+  <a class="p-category" href="/tags/go">Go</a>, <a class="p-category" href="/tags/testing">Testing</a>
+  
+
+
+      </small>
+    </div>
+  
+
+  
+    <aside class="toc">
+      <nav id="TableOfContents">
+  <ul>
+    <li><a href="#testing-package-basics"><code>testing</code> package basics</a>
+      <ul>
+        <li><a href="#failing-and-messages">Failing and messages</a></li>
+        <li><a href="#skipping-a-test">Skipping a test</a></li>
+        <li><a href="#test-helpers">Test helpers</a></li>
+        <li><a href="#test-helpers-setting-up-dependencies">Test helpers: Setting up dependencies</a></li>
+        <li><a href="#blackbox-package-testing">Blackbox package testing</a></li>
+        <li><a href="#third-party-test-helper-packages">Third party test helper packages</a></li>
+      </ul>
+    </li>
+    <li><a href="#reflectdeepequal"><code>reflect.DeepEqual</code></a></li>
+    <li><a href="#table-tests">Table tests</a></li>
+    <li><a href="#mocking">Mocking</a>
+      <ul>
+        <li><a href="#your-code-should-provide-a-mock">Your code should provide a mock</a></li>
+      </ul>
+    </li>
+    <li><a href="#test-flags">Test flags</a></li>
+    <li><a href="#environment-variables">Environment variables</a></li>
+    <li><a href="#fixtures">Fixtures</a></li>
+    <li><a href="#golden-files">Golden files</a></li>
+    <li><a href="#integration-tests">Integration tests</a></li>
+    <li><a href="#build-constraints">Build constraints</a></li>
+    <li><a href="#setupteardown">Setup/teardown</a></li>
+    <li><a href="#-race"><code>-race</code></a></li>
+    <li><a href="#testing-faq">Testing FAQ</a></li>
+  </ul>
 </nav>
-</aside>
-<article class=e-content><p>This is a collection of testing techniques and patterns that I have learned
+    </aside>
+  
+
+  <article class="e-content"><p>This is a collection of testing techniques and patterns that I have learned
 throughout my career of being a Go programmer.</p>
-<h2 id=testing-package-basics><code>testing</code> package basics</h2>
+<h2 id="testing-package-basics"><code>testing</code> package basics</h2>
 <p>The Go standard library comes with the
-<a href=https://golang.org/pkg/testing/><code>testing</code></a> package which provides a solid
+<a href="https://golang.org/pkg/testing/"><code>testing</code></a> package which provides a solid
 base for writing tests.</p>
 <p>Each test should be a separate function. A test function must accept a single
-argument of type <a href=https://golang.org/pkg/testing/#T><code>*testing.T</code></a>.</p>
+argument of type <a href="https://golang.org/pkg/testing/#T"><code>*testing.T</code></a>.</p>
 <p>A test for a functoin <code>isEven</code> could look like this:</p>
-<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>func</span> TestIsEven(t *testing.T) {
-    <span style=color:navy;font-weight:700>if</span> !isEven(<span style=color:#00f>2</span>) {
-        t.Fatal(<span style=color:#00f>&#34;2 is even&#34;</span>)
-    }
-    <span style=color:navy;font-weight:700>if</span> isEven(<span style=color:#00f>1</span>) {
-        t.Fatal(<span style=color:#00f>&#34;1 is odd&#34;</span>)
-    }
-}
-</code></pre></div><p>Run your test by using the <a href=https://golang.org/cmd/go/#hdr-Test_packages><code>go test</code></a> command, for example</p>
-<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh><span style=color:#080;font-style:italic># Test this directory</span>
-$ go test .
-
-<span style=color:#080;font-style:italic># Test the whole project recursively.</span>
-$ go test a-package.com/path/...
-</code></pre></div><h3 id=failing-and-messages>Failing and messages</h3>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#000080;font-weight:bold">func</span> TestIsEven(t *testing.T) {
+</span></span><span style="display:flex;"><span>    <span style="color:#000080;font-weight:bold">if</span> !isEven(<span style="color:#00f">2</span>) {
+</span></span><span style="display:flex;"><span>        t.Fatal(<span style="color:#00f">&#34;2 is even&#34;</span>)
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#000080;font-weight:bold">if</span> isEven(<span style="color:#00f">1</span>) {
+</span></span><span style="display:flex;"><span>        t.Fatal(<span style="color:#00f">&#34;1 is odd&#34;</span>)
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Run your test by using the <a href="https://golang.org/cmd/go/#hdr-Test_packages"><code>go test</code></a> command, for example</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span><span style="color:#080;font-style:italic"># Test this directory</span>
+</span></span><span style="display:flex;"><span>$ go test .
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#080;font-style:italic"># Test the whole project recursively.</span>
+</span></span><span style="display:flex;"><span>$ go test a-package.com/path/...
+</span></span></code></pre></div><h3 id="failing-and-messages">Failing and messages</h3>
 <p>Each test accepts one argument, a <code>T</code> instance. <code>T</code> provides methods that
 allow to print information and control the flow of a test.</p>
 <p>Use <code>t.Log</code> and <code>t.Logf</code> methods to write a message.</p>
@@ -90,306 +113,310 @@ allow to print information and control the flow of a test.</p>
 failed.</p>
 <p>Use <code>t.Fatal</code> and <code>t.Fatalf</code> methods to write a message, mark the test as
 failed and instantly terminate that test execution.</p>
-<h4 id=write-good-error-messages>Write good error messages</h4>
+<h4 id="write-good-error-messages">Write good error messages</h4>
 <p>A good error message is concise and short. Sprinkle each result with a bit of
 context.</p>
-<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>if</span> isEven(<span style=color:#00f>1</span>) {
-    t.Fatal(<span style=color:#00f>&#34;1 is an odd number&#34;</span>)
-}
-<span style=color:navy;font-weight:700>if</span> want, got := <span style=color:#00f>42</span>, compute(); want != got {
-    t.Fatalf(<span style=color:#00f>&#34;want %d, got %d&#34;</span>, want, got)
-}
-</code></pre></div><p>By declaring <code>got</code> and <code>want</code> I am sure that what is tested for is what I
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#000080;font-weight:bold">if</span> isEven(<span style="color:#00f">1</span>) {
+</span></span><span style="display:flex;"><span>    t.Fatal(<span style="color:#00f">&#34;1 is an odd number&#34;</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span><span style="color:#000080;font-weight:bold">if</span> want, got := <span style="color:#00f">42</span>, compute(); want != got {
+</span></span><span style="display:flex;"><span>    t.Fatalf(<span style="color:#00f">&#34;want %d, got %d&#34;</span>, want, got)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>By declaring <code>got</code> and <code>want</code> I am sure that what is tested for is what I
 print. If the <code>compute</code> function was changed and in the new implementation <code>want</code>
 should be <code>33</code> I cannot make the mistake of not updating the error message.
 Both <code>got</code> and <code>want</code> are scoped to the <code>if</code> statement only.</p>
 <p>When writing a table test, declaring an expected value might not be necessary.
 The expected value can be easily found in the test declaration.</p>
-<h3 id=skipping-a-test>Skipping a test</h3>
+<h3 id="skipping-a-test">Skipping a test</h3>
 <p>Some tests should run only under special circumstances. For example, you want
 to run a test only if a database is available. <code>t.Skip</code> and <code>t.Skipf</code> methods
 allow to cancel (skip) the currently running test without failing it.</p>
-<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>func</span> TestDatabaseIntegration(t *testing.T) {
-    db, err := connectToDatabase(<span style=color:#00f>&#34;test-database&#34;</span>)
-    <span style=color:navy;font-weight:700>if</span> err != <span style=color:navy;font-weight:700>nil</span> {
-        t.Skipf(<span style=color:#00f>&#34;cannot connect to database: %s&#34;</span>, err)
-    }
-    <span style=color:navy;font-weight:700>defer</span> db.Close()
-
-    <span style=color:#080;font-style:italic>// ...
-</span><span style=color:#080;font-style:italic></span>}
-</code></pre></div><h3 id=test-helpers>Test helpers</h3>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#000080;font-weight:bold">func</span> TestDatabaseIntegration(t *testing.T) {
+</span></span><span style="display:flex;"><span>    db, err := connectToDatabase(<span style="color:#00f">&#34;test-database&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#000080;font-weight:bold">if</span> err != <span style="color:#000080;font-weight:bold">nil</span> {
+</span></span><span style="display:flex;"><span>        t.Skipf(<span style="color:#00f">&#34;cannot connect to database: %s&#34;</span>, err)
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#000080;font-weight:bold">defer</span> db.Close()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#080;font-style:italic">// ...
+</span></span></span><span style="display:flex;"><span><span style="color:#080;font-style:italic"></span>}
+</span></span></code></pre></div><h3 id="test-helpers">Test helpers</h3>
 <p>Often times many tests require similar dependencies, for example running a
 service or preparing a state. Instead of repeating the preparation code extract
 each functionality to a separate function.</p>
-<h3 id=test-helpers-setting-up-dependencies>Test helpers: Setting up dependencies</h3>
+<h3 id="test-helpers-setting-up-dependencies">Test helpers: Setting up dependencies</h3>
 <p>If you are testing code that depends on an external database, this is how the
 beginning of a test function might look like:</p>
-<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>func</span> TestDatabaseIntegration(t *testing.T) {
-    db, err := connectToDatabase(<span style=color:#00f>&#34;test-database&#34;</span>)
-    <span style=color:navy;font-weight:700>if</span> err != <span style=color:navy;font-weight:700>nil</span> {
-        t.Skipf(<span style=color:#00f>&#34;cannot connect to database: %s&#34;</span>, err)
-    }
-    <span style=color:navy;font-weight:700>defer</span> db.Close()
-    <span style=color:navy;font-weight:700>if</span> err := db.Ping(); err != <span style=color:navy;font-weight:700>nil</span> {
-        t.Fatalf(<span style=color:#00f>&#34;cannot ping database: %s&#34;</span>, err)
-    }
-
-    <span style=color:navy;font-weight:700>for</span> i, migration := <span style=color:navy;font-weight:700>range</span> databaseMigrations {
-        <span style=color:navy;font-weight:700>if</span> err := db.ApplyMigration(migration); err != <span style=color:navy;font-weight:700>nil</span> {
-            t.Fatalf(<span style=color:#00f>&#34;cannot apply %d migration: %s&#34;</span>, i, err)
-        }
-    }
-
-    mycollection := NewCollection(db)
-
-    <span style=color:#080;font-style:italic>// The actual test starts below.
-</span><span style=color:#080;font-style:italic></span>    <span style=color:#080;font-style:italic>// ...
-</span><span style=color:#080;font-style:italic></span>}
-</code></pre></div><p>A solution to code repetition can be to create a function that will encapsulate
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#000080;font-weight:bold">func</span> TestDatabaseIntegration(t *testing.T) {
+</span></span><span style="display:flex;"><span>    db, err := connectToDatabase(<span style="color:#00f">&#34;test-database&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#000080;font-weight:bold">if</span> err != <span style="color:#000080;font-weight:bold">nil</span> {
+</span></span><span style="display:flex;"><span>        t.Skipf(<span style="color:#00f">&#34;cannot connect to database: %s&#34;</span>, err)
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#000080;font-weight:bold">defer</span> db.Close()
+</span></span><span style="display:flex;"><span>    <span style="color:#000080;font-weight:bold">if</span> err := db.Ping(); err != <span style="color:#000080;font-weight:bold">nil</span> {
+</span></span><span style="display:flex;"><span>        t.Fatalf(<span style="color:#00f">&#34;cannot ping database: %s&#34;</span>, err)
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000080;font-weight:bold">for</span> i, migration := <span style="color:#000080;font-weight:bold">range</span> databaseMigrations {
+</span></span><span style="display:flex;"><span>        <span style="color:#000080;font-weight:bold">if</span> err := db.ApplyMigration(migration); err != <span style="color:#000080;font-weight:bold">nil</span> {
+</span></span><span style="display:flex;"><span>            t.Fatalf(<span style="color:#00f">&#34;cannot apply %d migration: %s&#34;</span>, i, err)
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    mycollection := NewCollection(db)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#080;font-style:italic">// The actual test starts below.
+</span></span></span><span style="display:flex;"><span><span style="color:#080;font-style:italic"></span>    <span style="color:#080;font-style:italic">// ...
+</span></span></span><span style="display:flex;"><span><span style="color:#080;font-style:italic"></span>}
+</span></span></code></pre></div><p>A solution to code repetition can be to create a function that will encapsulate
 certain functionality. The whole setup and teardown process for a test can be
 extracted.</p>
-<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>func</span> TestDatabaseIntegration(t *testing.T) {
-    mycollection, cleanup := ensureMyCollection(t, <span style=color:#00f>&#34;test-database&#34;</span>)
-    <span style=color:navy;font-weight:700>defer</span> cleanup()
-
-    <span style=color:#080;font-style:italic>// The actual test starts below.
-</span><span style=color:#080;font-style:italic></span>    <span style=color:#080;font-style:italic>// ...
-</span><span style=color:#080;font-style:italic></span>}
-
-<span style=color:navy;font-weight:700>func</span> ensureMyCollection(t testing.TB), dbName <span style=color:navy;font-weight:700>string</span> (MyCollection, <span style=color:navy;font-weight:700>func</span>(){} {
-    t.Helper()
-
-    db, err := connectToDatabase(dbName)
-    <span style=color:navy;font-weight:700>if</span> err != <span style=color:navy;font-weight:700>nil</span> {
-        t.Skipf(<span style=color:#00f>&#34;cannot connect to database: %s&#34;</span>, err)
-    }
-
-    <span style=color:navy;font-weight:700>if</span> err := db.Ping(); err != <span style=color:navy;font-weight:700>nil</span> {
-        db.Close()
-        t.Fatalf(<span style=color:#00f>&#34;cannot ping database: %s&#34;</span>, err)
-    }
-
-    <span style=color:navy;font-weight:700>for</span> i, migration := <span style=color:navy;font-weight:700>range</span> databaseMigrations {
-        <span style=color:navy;font-weight:700>if</span> err := db.ApplyMigration(migration); err != <span style=color:navy;font-weight:700>nil</span> {
-            db.Close()
-            t.Fatalf(<span style=color:#00f>&#34;cannot apply %d migration: %s&#34;</span>, i, err)
-        }
-    }
-    collection := NewCollection(db)
-    cleanup := <span style=color:navy;font-weight:700>func</span>() {
-        db.Close()
-    }
-    <span style=color:navy;font-weight:700>return</span> collection, cleanup
-}
-</code></pre></div><p>With the above solution, <code>ensureMyCollection</code> can be used by many test
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#000080;font-weight:bold">func</span> TestDatabaseIntegration(t *testing.T) {
+</span></span><span style="display:flex;"><span>    mycollection, cleanup := ensureMyCollection(t, <span style="color:#00f">&#34;test-database&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#000080;font-weight:bold">defer</span> cleanup()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#080;font-style:italic">// The actual test starts below.
+</span></span></span><span style="display:flex;"><span><span style="color:#080;font-style:italic"></span>    <span style="color:#080;font-style:italic">// ...
+</span></span></span><span style="display:flex;"><span><span style="color:#080;font-style:italic"></span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#000080;font-weight:bold">func</span> ensureMyCollection(t testing.TB), dbName <span style="color:#000080;font-weight:bold">string</span> (MyCollection, <span style="color:#000080;font-weight:bold">func</span>(){} {
+</span></span><span style="display:flex;"><span>    t.Helper()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    db, err := connectToDatabase(dbName)
+</span></span><span style="display:flex;"><span>    <span style="color:#000080;font-weight:bold">if</span> err != <span style="color:#000080;font-weight:bold">nil</span> {
+</span></span><span style="display:flex;"><span>        t.Skipf(<span style="color:#00f">&#34;cannot connect to database: %s&#34;</span>, err)
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000080;font-weight:bold">if</span> err := db.Ping(); err != <span style="color:#000080;font-weight:bold">nil</span> {
+</span></span><span style="display:flex;"><span>        db.Close()
+</span></span><span style="display:flex;"><span>        t.Fatalf(<span style="color:#00f">&#34;cannot ping database: %s&#34;</span>, err)
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000080;font-weight:bold">for</span> i, migration := <span style="color:#000080;font-weight:bold">range</span> databaseMigrations {
+</span></span><span style="display:flex;"><span>        <span style="color:#000080;font-weight:bold">if</span> err := db.ApplyMigration(migration); err != <span style="color:#000080;font-weight:bold">nil</span> {
+</span></span><span style="display:flex;"><span>            db.Close()
+</span></span><span style="display:flex;"><span>            t.Fatalf(<span style="color:#00f">&#34;cannot apply %d migration: %s&#34;</span>, i, err)
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    collection := NewCollection(db)
+</span></span><span style="display:flex;"><span>    cleanup := <span style="color:#000080;font-weight:bold">func</span>() {
+</span></span><span style="display:flex;"><span>        db.Close()
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#000080;font-weight:bold">return</span> collection, cleanup
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>With the above solution, <code>ensureMyCollection</code> can be used by many test
 functions to ensure that a collection using a database as a backend is
 available. A helper function hides the for the test logic irrelevant part of
 setting up an environment and ensuring all components are provided.</p>
-<p>A helper function accepts <a href=https://golang.org/pkg/testing/#TB><code>testing.TB</code></a>
+<p>A helper function accepts <a href="https://golang.org/pkg/testing/#TB"><code>testing.TB</code></a>
 interface instead of <code>t *testing.T</code>. That makes it useful for both test and
-<a href=https://golang.org/pkg/testing/#hdr-Benchmarks>benchmark functions</a>.</p>
+<a href="https://golang.org/pkg/testing/#hdr-Benchmarks">benchmark functions</a>.</p>
 <p>A helper function does not return an error. Instead, it directly terminates the
 test by calling <code>t.Fatal</code>.</p>
 <p>At the beginning of the helper function the
-<a href=https://golang.org/pkg/testing/#T.Helper><code>t.Helper()</code></a> method is called. This
+<a href="https://golang.org/pkg/testing/#T.Helper"><code>t.Helper()</code></a> method is called. This
 marks this function and when it fails the stack information and error will be
 more helpful.</p>
 <p><code>ensureMyCollection</code> returns a cleanup function. This is a convenient way of
 cleaning up all created resources. The user of this helper must call it once
 the returned resource is not needed anymore. The cleanup function should not
 return anything nor fail the test.</p>
-<h3 id=blackbox-package-testing>Blackbox package testing</h3>
+<h3 id="blackbox-package-testing">Blackbox package testing</h3>
 <blockquote>
 <p>Test files that declare a package with the suffix &ldquo;_test&rdquo; will be compiled as
 a separate package, and then linked and run with the main test binary.
-&ndash; <a href=https://golang.org/cmd/go/#hdr-Test_packages>golang.org</a></p>
+&ndash; <a href="https://golang.org/cmd/go/#hdr-Test_packages">golang.org</a></p>
 </blockquote>
 <p>Test files for your package are located in the same directory as the code they
 test. Your tests can belong to the same package as the rest of the code. It is
 also possible to enforce a black-box test for your package. Your test files can
 be in the same directory as your package code and use a different package name.</p>
-<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>package</span> xxx_test
-</code></pre></div><p>Using a different test package name enforces that only the public interface of
-the tested package is accessible. This is for example <a href=https://golang.org/src/strings/compare_test.go>how
-<code>strings</code></a> and <a href=https://golang.org/src/bytes/reader_test.go><code>bytes</code>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#000080;font-weight:bold">package</span> xxx_test
+</span></span></code></pre></div><p>Using a different test package name enforces that only the public interface of
+the tested package is accessible. This is for example <a href="https://golang.org/src/strings/compare_test.go">how
+<code>strings</code></a> and <a href="https://golang.org/src/bytes/reader_test.go"><code>bytes</code>
 packages</a> are tested.</p>
-<h3 id=third-party-test-helper-packages>Third party test helper packages</h3>
+<h3 id="third-party-test-helper-packages">Third party test helper packages</h3>
 <p>I do not use any additional packages for testing. I am of an opinion that
-<a href=https://golang.org/doc/faq#testing_framework>assert functions are not as helpful as one may
+<a href="https://golang.org/doc/faq#testing_framework">assert functions are not as helpful as one may
 think</a>. Introducing an external
 package requires learning a new API.</p>
-<p>Someone else wrote <a href=https://danmux.com/posts/the_cult_of_go_test/>a great
+<p>Someone else wrote <a href="https://danmux.com/posts/the_cult_of_go_test/">a great
 summary</a> on the topic.</p>
 <p>Complex comparisons can usually be done using
-<a href=#reflectdeepequal><code>reflect.DeepEqual</code></a> function.</p>
-<h2 id=reflectdeepequal><code>reflect.DeepEqual</code></h2>
+<a href="#reflectdeepequal"><code>reflect.DeepEqual</code></a> function.</p>
+<h2 id="reflectdeepequal"><code>reflect.DeepEqual</code></h2>
 <p>Those values that cannot be compared with <code>==</code>, most of the time can be
-compared with <a href=https://golang.org/pkg/reflect/#DeepEqual><code>reflect.DeepEqual</code></a>.</p>
-<h2 id=table-tests>Table tests</h2>
+compared with <a href="https://golang.org/pkg/reflect/#DeepEqual"><code>reflect.DeepEqual</code></a>.</p>
+<h2 id="table-tests">Table tests</h2>
 <p>When testing a functionality a single input is often not enough to ensure
 correctness. Repeating the same operation for many cases can be implemented
-using <a href=https://github.com/golang/go/wiki/TableDrivenTests>table tests</a>.</p>
+using <a href="https://github.com/golang/go/wiki/TableDrivenTests">table tests</a>.</p>
 <p>Use a map with strings as keys to provide a description of each test case.</p>
-<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>func</span> TestDiv(t *testing.T) {
-    cases := <span style=color:navy;font-weight:700>map</span>[<span style=color:navy;font-weight:700>string</span>]<span style=color:navy;font-weight:700>struct</span>{
-        A <span style=color:navy;font-weight:700>int</span>
-        B <span style=color:navy;font-weight:700>int</span>
-        WantRes <span style=color:navy;font-weight:700>int</span>
-        WantErr <span style=color:navy;font-weight:700>error</span>
-    }{
-        <span style=color:#00f>&#34;two positive numbers&#34;</span>: {
-            A: <span style=color:#00f>4</span>,
-            B: <span style=color:#00f>2</span>,
-            WantRes: <span style=color:#00f>2</span>,
-        },
-        <span style=color:#00f>&#34;divide by zero&#34;</span>: {
-            A: <span style=color:#00f>4</span>,
-            B: <span style=color:#00f>0</span>,
-            WantErr: errors.ErrZeroDivision,
-        },
-    }
-
-    <span style=color:navy;font-weight:700>for</span> testName, tc := <span style=color:navy;font-weight:700>range</span> cases {
-        t.Run(testName, <span style=color:navy;font-weight:700>func</span>(t *testing.T) {
-            res, err := Div(tc.A, tc.B)
-            <span style=color:navy;font-weight:700>if</span> !errors.Is(err, tc.WantErr) {
-                t.Fatalf(<span style=color:#00f>&#34;unexpected error: %q&#34;</span>, err)
-            }
-            <span style=color:navy;font-weight:700>if</span> res != tc.WantRes {
-                t.Fatalf(<span style=color:#00f>&#34;unlexpected result: %d&#34;</span>, res)
-            }
-        })
-    }
-}
-</code></pre></div><p>When declaring a test case, always use field names. This increases the
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#000080;font-weight:bold">func</span> TestDiv(t *testing.T) {
+</span></span><span style="display:flex;"><span>    cases := <span style="color:#000080;font-weight:bold">map</span>[<span style="color:#000080;font-weight:bold">string</span>]<span style="color:#000080;font-weight:bold">struct</span>{
+</span></span><span style="display:flex;"><span>        A <span style="color:#000080;font-weight:bold">int</span>
+</span></span><span style="display:flex;"><span>        B <span style="color:#000080;font-weight:bold">int</span>
+</span></span><span style="display:flex;"><span>        WantRes <span style="color:#000080;font-weight:bold">int</span>
+</span></span><span style="display:flex;"><span>        WantErr <span style="color:#000080;font-weight:bold">error</span>
+</span></span><span style="display:flex;"><span>    }{
+</span></span><span style="display:flex;"><span>        <span style="color:#00f">&#34;two positive numbers&#34;</span>: {
+</span></span><span style="display:flex;"><span>            A: <span style="color:#00f">4</span>,
+</span></span><span style="display:flex;"><span>            B: <span style="color:#00f">2</span>,
+</span></span><span style="display:flex;"><span>            WantRes: <span style="color:#00f">2</span>,
+</span></span><span style="display:flex;"><span>        },
+</span></span><span style="display:flex;"><span>        <span style="color:#00f">&#34;divide by zero&#34;</span>: {
+</span></span><span style="display:flex;"><span>            A: <span style="color:#00f">4</span>,
+</span></span><span style="display:flex;"><span>            B: <span style="color:#00f">0</span>,
+</span></span><span style="display:flex;"><span>            WantErr: errors.ErrZeroDivision,
+</span></span><span style="display:flex;"><span>        },
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000080;font-weight:bold">for</span> testName, tc := <span style="color:#000080;font-weight:bold">range</span> cases {
+</span></span><span style="display:flex;"><span>        t.Run(testName, <span style="color:#000080;font-weight:bold">func</span>(t *testing.T) {
+</span></span><span style="display:flex;"><span>            res, err := Div(tc.A, tc.B)
+</span></span><span style="display:flex;"><span>            <span style="color:#000080;font-weight:bold">if</span> !errors.Is(err, tc.WantErr) {
+</span></span><span style="display:flex;"><span>                t.Fatalf(<span style="color:#00f">&#34;unexpected error: %q&#34;</span>, err)
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>            <span style="color:#000080;font-weight:bold">if</span> res != tc.WantRes {
+</span></span><span style="display:flex;"><span>                t.Fatalf(<span style="color:#00f">&#34;unlexpected result: %d&#34;</span>, res)
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        })
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>When declaring a test case, always use field names. This increases the
 readability and you have to provide only non zero values.</p>
-<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go>cases := <span style=color:navy;font-weight:700>map</span>[<span style=color:navy;font-weight:700>string</span>]<span style=color:navy;font-weight:700>struct</span>{
-    DB *Database
-    Req *Request
-    WantRes <span style=color:navy;font-weight:700>int</span>
-    WantErr <span style=color:navy;font-weight:700>error</span>
-}{
-    <span style=color:#080;font-style:italic>// BAD
-</span><span style=color:#080;font-style:italic></span>    {<span style=color:navy;font-weight:700>nil</span>, myrequest, <span style=color:#00f>32</span>, <span style=color:navy;font-weight:700>nil</span>},
-
-    <span style=color:#080;font-style:italic>// GOOD
-</span><span style=color:#080;font-style:italic></span>    {
-        Req: myrequest,
-        WantRes: <span style=color:#00f>32</span>,
-    },
-}
-</code></pre></div><h2 id=mocking>Mocking</h2>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>cases := <span style="color:#000080;font-weight:bold">map</span>[<span style="color:#000080;font-weight:bold">string</span>]<span style="color:#000080;font-weight:bold">struct</span>{
+</span></span><span style="display:flex;"><span>    DB *Database
+</span></span><span style="display:flex;"><span>    Req *Request
+</span></span><span style="display:flex;"><span>    WantRes <span style="color:#000080;font-weight:bold">int</span>
+</span></span><span style="display:flex;"><span>    WantErr <span style="color:#000080;font-weight:bold">error</span>
+</span></span><span style="display:flex;"><span>}{
+</span></span><span style="display:flex;"><span>    <span style="color:#080;font-style:italic">// BAD
+</span></span></span><span style="display:flex;"><span><span style="color:#080;font-style:italic"></span>    {<span style="color:#000080;font-weight:bold">nil</span>, myrequest, <span style="color:#00f">32</span>, <span style="color:#000080;font-weight:bold">nil</span>},
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#080;font-style:italic">// GOOD
+</span></span></span><span style="display:flex;"><span><span style="color:#080;font-style:italic"></span>    {
+</span></span><span style="display:flex;"><span>        Req: myrequest,
+</span></span><span style="display:flex;"><span>        WantRes: <span style="color:#00f">32</span>,
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="mocking">Mocking</h2>
 <p>Write your code to accept interfaces. Using interfaces allows you to test a
 single layer of a functionality at a time.</p>
 <p>For example, if you are writing an application that is storing data in an SQL
 database, instead of accessing the database directly through a <code>*sql.DB</code>
-instance <a href=/blog/accessing-data-in-go/#mocking-for-tests>use a wrapper</a>. Using
+instance <a href="/blog/accessing-data-in-go/#mocking-for-tests">use a wrapper</a>. Using
 a data access abstraction allows for mocking.</p>
 <p>When writing a mock you do not have to implement all methods. For the compiler
 it is enough to include the interface in the mock declaration. Implement only
 methods that you intend to call.</p>
-<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>type</span> Collection <span style=color:navy;font-weight:700>interface</span> {
-    One(id <span style=color:navy;font-weight:700>uint64</span>) (*Entity, <span style=color:navy;font-weight:700>error</span>)
-    List() ([]*Entity, <span style=color:navy;font-weight:700>error</span>)
-    Add(Entity) <span style=color:navy;font-weight:700>error</span>
-    Delete(id <span style=color:navy;font-weight:700>uint64</span>) <span style=color:navy;font-weight:700>error</span>
-}
-
-<span style=color:navy;font-weight:700>type</span> CollectionMock <span style=color:navy;font-weight:700>struct</span> {
-    Collection
-    Err <span style=color:navy;font-weight:700>error</span>
-}
-
-<span style=color:navy;font-weight:700>func</span> (c *CollectionMock) Add(Entity) <span style=color:navy;font-weight:700>error</span> {
-    <span style=color:navy;font-weight:700>return</span> c.Err
-}
-</code></pre></div><p><code>CollectionMock</code> implements the <code>Collection</code> interface, but using any other
-method than <code>Add</code> will panic. See <a href=https://play.golang.org/p/GVc2tOJoAHX>the full
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#000080;font-weight:bold">type</span> Collection <span style="color:#000080;font-weight:bold">interface</span> {
+</span></span><span style="display:flex;"><span>    One(id <span style="color:#000080;font-weight:bold">uint64</span>) (*Entity, <span style="color:#000080;font-weight:bold">error</span>)
+</span></span><span style="display:flex;"><span>    List() ([]*Entity, <span style="color:#000080;font-weight:bold">error</span>)
+</span></span><span style="display:flex;"><span>    Add(Entity) <span style="color:#000080;font-weight:bold">error</span>
+</span></span><span style="display:flex;"><span>    Delete(id <span style="color:#000080;font-weight:bold">uint64</span>) <span style="color:#000080;font-weight:bold">error</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#000080;font-weight:bold">type</span> CollectionMock <span style="color:#000080;font-weight:bold">struct</span> {
+</span></span><span style="display:flex;"><span>    Collection
+</span></span><span style="display:flex;"><span>    Err <span style="color:#000080;font-weight:bold">error</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#000080;font-weight:bold">func</span> (c *CollectionMock) Add(Entity) <span style="color:#000080;font-weight:bold">error</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#000080;font-weight:bold">return</span> c.Err
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>CollectionMock</code> implements the <code>Collection</code> interface, but using any other
+method than <code>Add</code> will panic. See <a href="https://play.golang.org/p/GVc2tOJoAHX">the full
 example</a>.</p>
-<h3 id=your-code-should-provide-a-mock>Your code should provide a mock</h3>
+<h3 id="your-code-should-provide-a-mock">Your code should provide a mock</h3>
 <p>When writing a package that is used by others provide test implementations of
 your interfaces.</p>
 <p>This approach is taken by the standard library. For example,
-<a href=https://golang.org/pkg/net/http/httptest/#ResponseRecorder><code>httptest.ResponseRecorder</code></a>
+<a href="https://golang.org/pkg/net/http/httptest/#ResponseRecorder"><code>httptest.ResponseRecorder</code></a>
 allows to test your HTTP handler without using a real <code>http.ResponseWriter</code>.</p>
-<h2 id=test-flags>Test flags</h2>
+<h2 id="test-flags">Test flags</h2>
 <p>You can add your own flags to the <code>go test</code> command in order to customize your
-tests. Use the <a href=https://golang.org/pkg/flag/><code>flag</code></a> package and declare your
+tests. Use the <a href="https://golang.org/pkg/flag/"><code>flag</code></a> package and declare your
 flags globally.</p>
-<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>var</span> dbFl = flag.String(<span style=color:#00f>&#34;db&#34;</span>, <span style=color:#00f>&#34;&#34;</span>, <span style=color:#00f>&#34;Use given database DSN.&#34;</span>)
-</code></pre></div><h2 id=environment-variables>Environment variables</h2>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#000080;font-weight:bold">var</span> dbFl = flag.String(<span style="color:#00f">&#34;db&#34;</span>, <span style="color:#00f">&#34;&#34;</span>, <span style="color:#00f">&#34;Use given database DSN.&#34;</span>)
+</span></span></code></pre></div><h2 id="environment-variables">Environment variables</h2>
 <p>Instead of <code>flag</code> you can control your tests using environment variables. If
-you follow the <a href=https://12factor.net/config>12 factor app</a> principles then
+you follow the <a href="https://12factor.net/config">12 factor app</a> principles then
 your application is already utilizing environment variables for the
 configuration.</p>
-<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>var</span> dbDSN = os.Getenv(<span style=color:#00f>&#34;DATABASE_DSN&#34;</span>)
-</code></pre></div><h2 id=fixtures>Fixtures</h2>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#000080;font-weight:bold">var</span> dbDSN = os.Getenv(<span style="color:#00f">&#34;DATABASE_DSN&#34;</span>)
+</span></span></code></pre></div><h2 id="fixtures">Fixtures</h2>
 <p>If your test requires fixtures <code>/testdata</code> is the directory you should consider
 keeping them in.</p>
 <blockquote>
 <p>The go tool will ignore a directory named &ldquo;testdata&rdquo;, making it available to
 hold ancillary data needed by the tests.
-&ndash; <a href=https://golang.org/cmd/go/#hdr-Test_packages>golang.org</a></p>
+&ndash; <a href="https://golang.org/cmd/go/#hdr-Test_packages">golang.org</a></p>
 </blockquote>
 <p>When running tests each test function is executed with its working directory
 set to the source directory of the tested package. That means that when
 accessing files in <code>/testdata</code> you can safely use relative path</p>
-<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go>fd, err := os.Open(filepath.Join(<span style=color:#00f>&#34;testdata&#34;</span>, <span style=color:#00f>&#34;some-fixture.json&#34;</span>))
-</code></pre></div><h2 id=golden-files>Golden files</h2>
-<p><a href=https://softwareengineering.stackexchange.com/q/358786>Golden files</a> are a
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>fd, err := os.Open(filepath.Join(<span style="color:#00f">&#34;testdata&#34;</span>, <span style="color:#00f">&#34;some-fixture.json&#34;</span>))
+</span></span></code></pre></div><h2 id="golden-files">Golden files</h2>
+<p><a href="https://softwareengineering.stackexchange.com/q/358786">Golden files</a> are a
 great way to validate and keep track of a test output. Together with a version
 control system they are much easier to maintain than strings hard coded in
 functions.</p>
-<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>var</span> goldFl = flag.Bool(<span style=color:#00f>&#34;gold&#34;</span>, <span style=color:navy;font-weight:700>false</span>, <span style=color:#00f>&#34;Write result to golden files instead of comparing with them.&#34;</span>)
-
-
-<span style=color:navy;font-weight:700>func</span> TestExample(t *testing.T) {
-    <span style=color:#080;font-style:italic>// Test logic.
-</span><span style=color:#080;font-style:italic></span>    result := ...
-
-    <span style=color:navy;font-weight:700>if</span> *goldFl {
-        writeGoldenFile(t, result)
-    }
-
-    compareWithGoldenFile(t, result)
-}
-</code></pre></div><p>This technique comes in very helpful combined with <a href=#table-tests>table tests</a>.</p>
-<h2 id=integration-tests>Integration tests</h2>
-<p>For a well written application <a href=https://en.wikipedia.org/wiki/Integration_testing>integration
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#000080;font-weight:bold">var</span> goldFl = flag.Bool(<span style="color:#00f">&#34;gold&#34;</span>, <span style="color:#000080;font-weight:bold">false</span>, <span style="color:#00f">&#34;Write result to golden files instead of comparing with them.&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#000080;font-weight:bold">func</span> TestExample(t *testing.T) {
+</span></span><span style="display:flex;"><span>    <span style="color:#080;font-style:italic">// Test logic.
+</span></span></span><span style="display:flex;"><span><span style="color:#080;font-style:italic"></span>    result := ...
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000080;font-weight:bold">if</span> *goldFl {
+</span></span><span style="display:flex;"><span>        writeGoldenFile(t, result)
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    compareWithGoldenFile(t, result)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This technique comes in very helpful combined with <a href="#table-tests">table tests</a>.</p>
+<h2 id="integration-tests">Integration tests</h2>
+<p>For a well written application <a href="https://en.wikipedia.org/wiki/Integration_testing">integration
 testing</a> should not require
 more work than usual testing. For each external resource provide a single
-function to <a href=#test-helpers-setting-up-dependencies>setup and teardown the
+function to <a href="#test-helpers-setting-up-dependencies">setup and teardown the
 resource</a>.</p>
-<h2 id=build-constraints>Build constraints</h2>
-<p>You can use a <a href=https://golang.org/pkg/go/build/#hdr-Build_Constraints>build
+<h2 id="build-constraints">Build constraints</h2>
+<p>You can use a <a href="https://golang.org/pkg/go/build/#hdr-Build_Constraints">build
 constraint</a> to
 conditionally build code in a file.</p>
-<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$ head -n <span style=color:#00f>1</span> app_intergration_test.go
-// +build integration
-</code></pre></div><p>To run tests including those tagged as <code>integration</code> use <code>-tag</code> flag.</p>
-<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$ go test -tag integration .
-</code></pre></div><h2 id=setupteardown>Setup/teardown</h2>
-<p>When using the <code>testing</code> package, it is possible to overwrite the <a href=https://golang.org/pkg/testing/#hdr-Main><code>test main</code></a> function.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>$ head -n <span style="color:#00f">1</span> app_intergration_test.go
+</span></span><span style="display:flex;"><span>// +build integration
+</span></span></code></pre></div><p>To run tests including those tagged as <code>integration</code> use <code>-tag</code> flag.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>$ go test -tag integration .
+</span></span></code></pre></div><h2 id="setupteardown">Setup/teardown</h2>
+<p>When using the <code>testing</code> package, it is possible to overwrite the <a href="https://golang.org/pkg/testing/#hdr-Main"><code>test main</code></a> function.</p>
 <p>Using a custom test main function allows to execute code before and after
 executing all discovered tests. This can be running an external dependency like
 a database instance or building a binary that tested functionality might depend
 on.</p>
-<div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:navy;font-weight:700>func</span> TestMain(m *testing.M) {
-    <span style=color:#080;font-style:italic>// Setup code.
-</span><span style=color:#080;font-style:italic></span>
-    <span style=color:#080;font-style:italic>// defer Teardown code.
-</span><span style=color:#080;font-style:italic></span>
-    os.Exit(m.Run())
-}
-</code></pre></div><h2 id=-race><code>-race</code></h2>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#000080;font-weight:bold">func</span> TestMain(m *testing.M) {
+</span></span><span style="display:flex;"><span>    <span style="color:#080;font-style:italic">// Setup code.
+</span></span></span><span style="display:flex;"><span><span style="color:#080;font-style:italic"></span>
+</span></span><span style="display:flex;"><span>    <span style="color:#080;font-style:italic">// defer Teardown code.
+</span></span></span><span style="display:flex;"><span><span style="color:#080;font-style:italic"></span>
+</span></span><span style="display:flex;"><span>    os.Exit(m.Run())
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="-race"><code>-race</code></h2>
 <p>Run tests with <code>-race</code> flag to enable data race detection.</p>
-<p>This functionality is not available on <a href=https://www.musl-libc.org/>musl</a> based systems.</p>
-<h2 id=testing-faq>Testing FAQ</h2>
-<p>Check the <a href=https://golang.org/doc/faq#Packages_Testing>FAQ at golang.org</a>.</p>
+<p>This functionality is not available on <a href="https://www.musl-libc.org/">musl</a> based systems.</p>
+<h2 id="testing-faq">Testing FAQ</h2>
+<p>Check the <a href="https://golang.org/doc/faq#Packages_Testing">FAQ at golang.org</a>.</p>
 </article>
+
+  
 </article>
+
 <footer>
-The content of this page is licensed under a <a rel=license href=http://creativecommons.org/licenses/by-sa/4.0/>Creative Commons Attribution-ShareAlike 4.0 International License</a>.
-</footer><script data-goatcounter=https://pah.goatcounter.com/count async src=//gc.zgo.at/count.js></script></body>
+    The content of this page is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+  </footer><script data-goatcounter="https://pah.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script></body>
 </html>
+

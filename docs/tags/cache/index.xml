@@ -1,3 +1,19 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Cache on Blog</title><link>https://husio.github.io/blog/tags/cache/</link><description>Recent content in Cache on Blog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 14 Sep 2018 00:00:00 +0000</lastBuildDate><atom:link href="https://husio.github.io/blog/tags/cache/index.xml" rel="self" type="application/rss+xml"/><item><title>Cache stampede protection</title><link>https://husio.github.io/blog/cache-stampede-protection/</link><pubDate>Fri, 14 Sep 2018 00:00:00 +0000</pubDate><guid>https://husio.github.io/blog/cache-stampede-protection/</guid><description>Writing an application that handles concurrent traffic from a lot of clients in a performant way is not an easy task. To narrow this problem to web applications only, serving as many HTTP requests as possible in a short time is often a challenge.
-In most cases of an HTTP application, optimizing access to the database can be the easiest and the best first step.
-Caching database access Using a database that provides plenty of functionality and storing data in denormalized form makes development easier.</description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Cache on Blog</title>
+    <link>http://localhost:1313/blog/tags/cache/</link>
+    <description>Recent content in Cache on Blog</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 14 Sep 2018 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/blog/tags/cache/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Cache stampede protection</title>
+      <link>http://localhost:1313/blog/cache-stampede-protection/</link>
+      <pubDate>Fri, 14 Sep 2018 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/blog/cache-stampede-protection/</guid>
+      <description>Writing an application that handles concurrent traffic from a lot of clients in a performant way is not an easy task. To narrow this problem to web applications only, serving as many HTTP requests as possible in a short time is often a challenge.&#xA;In most cases of an HTTP application, optimizing access to the database can be the easiest and the best first step.&#xA;Caching database access Using a database that provides plenty of functionality and storing data in denormalized form makes development easier.</description>
+    </item>
+  </channel>
+</rss>
