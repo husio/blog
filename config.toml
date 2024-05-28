@@ -1,6 +1,6 @@
 baseURL = "https://husio.github.io/blog"
 languageCode = "en-us"
-title = "Blog"
+title = "Notes"
 theme = "justtext"
 publishDir = "docs"
 pygmentsCodeFences = true

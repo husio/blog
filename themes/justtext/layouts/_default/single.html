@@ -8,17 +8,17 @@
 
   {{if not .Date.IsZero }}
     <div>
-      <small>
+      <em>
         Published: <time class="dt-published" datetime="{{ .Date.Format "2006-01-02" }}" title="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time>
-      </small>
+      </em>
     </div>
   {{ end }}
 
   {{ if .Params.tags }}
     <div>
-      <small>
+      <em>
         Tags: {{ partial "tags" .Params.tags }}
-      </small>
+      </em>
     </div>
   {{ end }}
 

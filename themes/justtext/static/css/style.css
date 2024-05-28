@@ -7,6 +7,7 @@ pre code     { line-height: 140%; display: block; padding: 18px 4px; border: non
 pre          { overflow-x: auto; }
 h1           { font-size: 180%; }
 h1, h2, h3   { margin: 60px 0 40px 0; border-bottom: 1px solid #ddd; }
+small        { font-size: 70%; }
 ul li        { list-style: circle; }
 hr           { border: none; height: 1px; color: #ddd; background-color: #ddd; margin: 80px 0 40px 0; }
 footer       { position: absolute; bottom: 5px; text-align: center; font-size: 70%; }
