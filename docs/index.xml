@@ -1,4 +1,46 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Notes</title><link>https://husio.github.io/blog/</link><description>Recent content on Notes</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 30 Jan 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://husio.github.io/blog/index.xml" rel="self" type="application/rss+xml"/><item><title>Testing in Go</title><link>https://husio.github.io/blog/testing-in-go/</link><pubDate>Thu, 30 Jan 2020 00:00:00 +0000</pubDate><guid>https://husio.github.io/blog/testing-in-go/</guid><description>&lt;p>This is a collection of testing techniques and patterns that I have learned
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Notes</title><link>https://husio.github.io/blog/</link><description>Recent content on Notes</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 28 May 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://husio.github.io/blog/index.xml" rel="self" type="application/rss+xml"/><item><title>Task runner in Bash</title><link>https://husio.github.io/blog/tasks-script/</link><pubDate>Tue, 28 May 2024 00:00:00 +0000</pubDate><guid>https://husio.github.io/blog/tasks-script/</guid><description>&lt;p>Every project grows to a point where a set of custom tasks must be executed on various occasions.
+It is good to write those commands down, so that they don&amp;rsquo;t get lost and anyone can execute them.
+I used to maintain a &lt;a href="https://makefiletutorial.com/">&lt;em>Makefile&lt;/em>&lt;/a> as a simple way to organize and share tasks with others.&lt;/p>
+&lt;p>As the complexity grows, and more functionality is needed, Makefile becomes more unreadable.
+It feels like using the wrong tool for the job.&lt;/p>
+&lt;p>And indeed, there is a better tools - shell scripts.&lt;/p>
+&lt;p>The below &lt;a href="https://en.wikipedia.org/wiki/Bash_(Unix_shell)">Bash&lt;/a> script is a solid base to extend.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#008080">#!/usr/bin/env bash
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#008080">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>set -euo pipefail
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000080;font-weight:bold">function&lt;/span> task:help {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#080;font-style:italic"># Print this script help.&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> local tasks
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> local self_path
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> local desc
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> printf &lt;span style="color:#00f">&amp;#34;%s &amp;lt;task&amp;gt; [args]\n\nTasks:\n&amp;#34;&lt;/span> &lt;span style="color:#00f">&amp;#34;&lt;/span>&lt;span style="color:#00f">${&lt;/span>0&lt;span style="color:#00f">}&lt;/span>&lt;span style="color:#00f">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> tasks=&lt;span style="color:#000080;font-weight:bold">$(&lt;/span>compgen -A &lt;span style="color:#000080;font-weight:bold">function&lt;/span> | sed -En &lt;span style="color:#00f">&amp;#39;s/task:(.*)/\1/p&amp;#39;&lt;/span>&lt;span style="color:#000080;font-weight:bold">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> self_path=&lt;span style="color:#000080;font-weight:bold">$(&lt;/span>realpath &lt;span style="color:#00f">&amp;#34;&lt;/span>$0&lt;span style="color:#00f">&amp;#34;&lt;/span>&lt;span style="color:#000080;font-weight:bold">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000080;font-weight:bold">for&lt;/span> task in &lt;span style="color:#00f">${&lt;/span>tasks&lt;span style="color:#00f">}&lt;/span>; &lt;span style="color:#000080;font-weight:bold">do&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> desc=&lt;span style="color:#000080;font-weight:bold">$(&lt;/span>grep &lt;span style="color:#00f">&amp;#34;function task:&lt;/span>$task&lt;span style="color:#00f"> {&amp;#34;&lt;/span> &lt;span style="color:#00f">&amp;#34;&lt;/span>$self_path&lt;span style="color:#00f">&amp;#34;&lt;/span> -A &lt;span style="color:#00f">1&lt;/span> | sed -En &lt;span style="color:#00f">&amp;#39;s/.*# (.*)/\1/p&amp;#39;&lt;/span>&lt;span style="color:#000080;font-weight:bold">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> printf &lt;span style="color:#00f">&amp;#34; %-32s\t%s\n&amp;#34;&lt;/span> &lt;span style="color:#00f">&amp;#34;&lt;/span>$task&lt;span style="color:#00f">&amp;#34;&lt;/span> &lt;span style="color:#00f">&amp;#34;&lt;/span>$desc&lt;span style="color:#00f">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000080;font-weight:bold">done&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#080;font-style:italic"># shellcheck disable=SC2145&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#00f">&amp;#34;task:&lt;/span>&lt;span style="color:#00f">${&lt;/span>@&lt;span style="color:#000080;font-weight:bold">:-&lt;/span>help&lt;span style="color:#00f">}&lt;/span>&lt;span style="color:#00f">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>In order to register a new task, define a &lt;code>task:&amp;lt;name&amp;gt;&lt;/code> function.
+The first line, when comment, is used as that task documentation.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000080;font-weight:bold">function&lt;/span> task:say-hello {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#080;font-style:italic"># Greet the user.&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> echo &lt;span style="color:#00f">&amp;#34;Hello &lt;/span>$USER&lt;span style="color:#00f">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>When the script is called with no arguments, it runs &lt;code>help&lt;/code> that renders the list of available tasks with their description.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-sh" data-lang="sh">&lt;span style="display:flex;">&lt;span>% ./run
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>./run &amp;lt;task&amp;gt; [args]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>Tasks:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> say-hello Greet the user.
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> help Print this script help.
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>Testing in Go</title><link>https://husio.github.io/blog/testing-in-go/</link><pubDate>Thu, 30 Jan 2020 00:00:00 +0000</pubDate><guid>https://husio.github.io/blog/testing-in-go/</guid><description>&lt;p>This is a collection of testing techniques and patterns that I have learned
 throughout my career of being a Go programmer.&lt;/p>
 &lt;h2 id="testing-package-basics">&lt;code>testing&lt;/code> package basics&lt;/h2>
 &lt;p>The Go standard library comes with the
