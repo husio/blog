@@ -2,7 +2,6 @@
 title: "Error handling"
 date: 2019-02-20
 tags: [Go]
-comments: [reddit, https://old.reddit.com/r/golang/comments/at1dqs/error_handling_in_go/]
 ---
 
 

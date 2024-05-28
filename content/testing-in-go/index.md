@@ -2,7 +2,6 @@
 title: "Testing in Go"
 date: 2020-01-30
 tags: [Go, Testing]
-comments: []
 toc: true
 ---
 

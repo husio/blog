@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Blog</title>
-    <link>http://localhost:1313/blog/</link>
+    <link>https://husio.github.io/blog/</link>
     <description>Recent content on Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 30 Jan 2020 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/blog/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 30 Jan 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://husio.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Testing in Go</title>
-      <link>http://localhost:1313/blog/testing-in-go/</link>
+      <link>https://husio.github.io/blog/testing-in-go/</link>
       <pubDate>Thu, 30 Jan 2020 00:00:00 +0000</pubDate>
       
-      <guid>http://localhost:1313/blog/testing-in-go/</guid>
+      <guid>https://husio.github.io/blog/testing-in-go/</guid>
       <description>&lt;p&gt;This is a collection of testing techniques and patterns that I have learned
 throughout my career of being a Go programmer.&lt;/p&gt;
 &lt;h2 id=&#34;testing-package-basics&#34;&gt;&lt;code&gt;testing&lt;/code&gt; package basics&lt;/h2&gt;
@@ -238,7 +238,7 @@ readability and you have to provide only non zero values.&lt;/p&gt;
 single layer of a functionality at a time.&lt;/p&gt;
 &lt;p&gt;For example, if you are writing an application that is storing data in an SQL
 database, instead of accessing the database directly through a &lt;code&gt;*sql.DB&lt;/code&gt;
-instance &lt;a href=&#34;http://localhost:1313/blog/blog/accessing-data-in-go/#mocking-for-tests&#34;&gt;use a wrapper&lt;/a&gt;. Using
+instance &lt;a href=&#34;https://husio.github.io/blog/blog/accessing-data-in-go/#mocking-for-tests&#34;&gt;use a wrapper&lt;/a&gt;. Using
 a data access abstraction allows for mocking.&lt;/p&gt;
 &lt;p&gt;When writing a mock you do not have to implement all methods. For the compiler
 it is enough to include the interface in the mock declaration. Implement only
@@ -346,10 +346,10 @@ on.&lt;/p&gt;
     
     <item>
       <title>Error handling</title>
-      <link>http://localhost:1313/blog/error-handling/</link>
+      <link>https://husio.github.io/blog/error-handling/</link>
       <pubDate>Wed, 20 Feb 2019 00:00:00 +0000</pubDate>
       
-      <guid>http://localhost:1313/blog/error-handling/</guid>
+      <guid>https://husio.github.io/blog/error-handling/</guid>
       <description>&lt;p&gt;&lt;em&gt;In Go 1.13 &lt;a href=&#34;https://golang.org/doc/go1.13#error_wrapping&#34;&gt;error wrapping&lt;/a&gt; was
 introduced as part of the standard library. This post was written before the
 update to the &lt;code&gt;errors&lt;/code&gt; package.&lt;/em&gt;&lt;/p&gt;
@@ -687,10 +687,10 @@ your needs&lt;/a&gt;.&lt;/p&gt;
     
     <item>
       <title>Cache stampede protection</title>
-      <link>http://localhost:1313/blog/cache-stampede-protection/</link>
+      <link>https://husio.github.io/blog/cache-stampede-protection/</link>
       <pubDate>Fri, 14 Sep 2018 00:00:00 +0000</pubDate>
       
-      <guid>http://localhost:1313/blog/cache-stampede-protection/</guid>
+      <guid>https://husio.github.io/blog/cache-stampede-protection/</guid>
       <description>&lt;p&gt;Writing an application that handles concurrent traffic from a lot of clients in
 a performant way is not an easy task. To narrow this problem to web
 applications only, serving as many HTTP requests as possible in a short time is
@@ -727,7 +727,7 @@ only if an item does not exist in the cache.&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;./cached-access.svg&#34; alt=&#34;Cached data access&#34;&gt;&lt;/p&gt;
 &lt;p&gt;For the purpose of this post, let us assume we have a store and a cache
 implementation available that implement the following interfaces. Delegating
-&lt;a href=&#34;http://localhost:1313/blog/blog/accessing-data-in-go/&#34;&gt;database access&lt;/a&gt; allows for a
+&lt;a href=&#34;https://husio.github.io/blog/blog/accessing-data-in-go/&#34;&gt;database access&lt;/a&gt; allows for a
 cache implementation that is not tightly coupled to the original
 implementation.&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#000080;font-weight:bold&#34;&gt;type&lt;/span&gt; ItemStore &lt;span style=&#34;color:#000080;font-weight:bold&#34;&gt;interface&lt;/span&gt; {
@@ -975,10 +975,10 @@ If you are searching for a general use implementation, take a &lt;a href=&#34;ht
     
     <item>
       <title>Accessing data in Go</title>
-      <link>http://localhost:1313/blog/accessing-data-in-go/</link>
+      <link>https://husio.github.io/blog/accessing-data-in-go/</link>
       <pubDate>Sun, 02 Sep 2018 00:00:00 +0000</pubDate>
       
-      <guid>http://localhost:1313/blog/accessing-data-in-go/</guid>
+      <guid>https://husio.github.io/blog/accessing-data-in-go/</guid>
       <description>&lt;p&gt;When writing a web application, we have to decide how to access data. Where to
 get it from, how to store it, how to manipulate it. Storage engines can vary,
 from being a single SQLite file to cache server or even an external service

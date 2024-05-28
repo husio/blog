@@ -32,13 +32,6 @@
     {{- .Content -}}
   </article>
 
-  {{if .Params.comments}}
-    <hr>
-
-    <div>
-      Follow the discussion on <a href="{{ index .Params.comments 1 }}">{{ index .Params.comments 0 }}</a>.
-    </div>
-  {{ end }}
 </article>
 
 {{ partial "footer" . }}
