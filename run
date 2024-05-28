@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+#set -x
+
+function task:dev {
+	# Run the hugo dev server with hot-reload
+	hugo --buildDrafts --watch server
+}
+
+function task:build {
+	# Compile the release version of the page.
+	hugo --gc --minify --cleanDestinationDir
+}
+
+function task:help {
+	# Print this script help.
+	local tasks
+	local self_path
+	local desc
+
+	printf "%s <task> [args]\n\nTasks:\n" "${0}"
+	tasks=$(compgen -A function | sed -En 's/task:(.*)/\1/p')
+	self_path=$(realpath "$0")
+	for task in ${tasks}; do
+		desc=$(grep "function task:$task {" "$self_path" -A 1 | sed -En 's/.*# (.*)/\1/p')
+		printf "  %-32s\t%s\n" "$task" "$desc"
+	done
+}
+
+# shellcheck disable=SC2145
+"task:${@:-help}"
