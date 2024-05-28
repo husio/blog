@@ -311,7 +311,7 @@ single layer of a functionality at a time.
 
 For example, if you are writing an application that is storing data in an SQL
 database, instead of accessing the database directly through a `*sql.DB`
-instance [use a wrapper](/blog/accessing-data-in-go/#mocking-for-tests). Using
+instance [use a wrapper](../accessing-data-in-go/#mocking-for-tests). Using
 a data access abstraction allows for mocking.
 
 When writing a mock you do not have to implement all methods. For the compiler

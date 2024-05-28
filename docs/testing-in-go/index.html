@@ -183,7 +183,7 @@ readability and you have to provide only non zero values.</p><div class=highligh
 </span></span></code></pre></div><h2 id=mocking>Mocking</h2><p>Write your code to accept interfaces. Using interfaces allows you to test a
 single layer of a functionality at a time.</p><p>For example, if you are writing an application that is storing data in an SQL
 database, instead of accessing the database directly through a <code>*sql.DB</code>
-instance <a href=/blog/accessing-data-in-go/#mocking-for-tests>use a wrapper</a>. Using
+instance <a href=../accessing-data-in-go/#mocking-for-tests>use a wrapper</a>. Using
 a data access abstraction allows for mocking.</p><p>When writing a mock you do not have to implement all methods. For the compiler
 it is enough to include the interface in the mock declaration. Implement only
 methods that you intend to call.</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:navy;font-weight:700>type</span> Collection <span style=color:navy;font-weight:700>interface</span> {

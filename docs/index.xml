@@ -265,7 +265,7 @@ readability and you have to provide only non zero values.&lt;/p>
 single layer of a functionality at a time.&lt;/p>
 &lt;p>For example, if you are writing an application that is storing data in an SQL
 database, instead of accessing the database directly through a &lt;code>*sql.DB&lt;/code>
-instance &lt;a href="https://husio.github.io/blog/blog/accessing-data-in-go/#mocking-for-tests">use a wrapper&lt;/a>. Using
+instance &lt;a href="../accessing-data-in-go/#mocking-for-tests">use a wrapper&lt;/a>. Using
 a data access abstraction allows for mocking.&lt;/p>
 &lt;p>When writing a mock you do not have to implement all methods. For the compiler
 it is enough to include the interface in the mock declaration. Implement only
