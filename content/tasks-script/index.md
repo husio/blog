@@ -11,9 +11,9 @@ I used to maintain a [_Makefile_](https://makefiletutorial.com/) as a simple way
 As the complexity grows, and more functionality is needed, Makefile becomes more unreadable.
 It feels like using the wrong tool for the job.
 
-And indeed, there is a better tools - shell scripts.
+And indeed, there is a better tool - shell scripting.
 
-The below [Bash](https://en.wikipedia.org/wiki/Bash_(Unix_shell)) script is a solid base to extend.
+The below [Bash](https://en.wikipedia.org/wiki/Bash_(Unix_shell)) script is a solid base to extend, for managing a collection of tasks.
 
 
 ```bash

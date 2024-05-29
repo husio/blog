@@ -3,8 +3,8 @@ It is good to write those commands down, so that they don&amp;rsquo;t get lost a
 I used to maintain a &lt;a href="https://makefiletutorial.com/">&lt;em>Makefile&lt;/em>&lt;/a> as a simple way to organize and share tasks with others.&lt;/p>
 &lt;p>As the complexity grows, and more functionality is needed, Makefile becomes more unreadable.
 It feels like using the wrong tool for the job.&lt;/p>
-&lt;p>And indeed, there is a better tools - shell scripts.&lt;/p>
-&lt;p>The below &lt;a href="https://en.wikipedia.org/wiki/Bash_(Unix_shell)">Bash&lt;/a> script is a solid base to extend.&lt;/p>
+&lt;p>And indeed, there is a better tool - shell scripting.&lt;/p>
+&lt;p>The below &lt;a href="https://en.wikipedia.org/wiki/Bash_(Unix_shell)">Bash&lt;/a> script is a solid base to extend, for managing a collection of tasks.&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#008080">#!/usr/bin/env bash
 &lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#008080">&lt;/span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>set -euo pipefail
