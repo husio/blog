@@ -1,4 +1,35 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Notes</title><link>https://husio.github.io/blog/</link><description>Recent content on Notes</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 28 May 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://husio.github.io/blog/index.xml" rel="self" type="application/rss+xml"/><item><title>Task runner in Bash</title><link>https://husio.github.io/blog/tasks-script/</link><pubDate>Tue, 28 May 2024 00:00:00 +0000</pubDate><guid>https://husio.github.io/blog/tasks-script/</guid><description>&lt;p>Every project grows to a point where a set of custom tasks must be executed on various occasions.
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Notes</title><link>https://husio.github.io/blog/</link><description>Recent content on Notes</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 12 Jun 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://husio.github.io/blog/index.xml" rel="self" type="application/rss+xml"/><item><title>The Go standard library routing improvements</title><link>https://husio.github.io/blog/routing-enhancements/</link><pubDate>Wed, 12 Jun 2024 00:00:00 +0000</pubDate><guid>https://husio.github.io/blog/routing-enhancements/</guid><description>&lt;p>Go 1.22 ships with &lt;a href="https://go.dev/blog/routing-enhancements">router Enhancements&lt;/a>.
+The &lt;a href="https://godocs.io/net/http#ServeMux">&lt;code>net/http.ServeMux&lt;/code>&lt;/a> can now match requests by method, host and a simple path wildcard.&lt;/p>
+&lt;p>With the new ServeMux, it is no longer necessary to &lt;a href="https://benhoyt.com/writings/go-routing/">struggle&lt;/a> to find the best routing method. For most cases, standard library should be the best choice.
+And with the next release, you can align your declarations with &lt;a href="https://github.com/golang/go/commit/7b583fd1a1aeda98daa5a9d485b35786c031e941">any number of spaces&lt;/a>.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000080;font-weight:bold">func&lt;/span> run() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> rt := http.NewServeMux()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> rt.Handle(&lt;span style="color:#00f">`POST /users`&lt;/span>, &amp;amp;demoHandler{info: &lt;span style="color:#00f">&amp;#34;create user&amp;#34;&lt;/span>})
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> rt.Handle(&lt;span style="color:#00f">`GET /users/{name}`&lt;/span>, &amp;amp;demoHandler{info: &lt;span style="color:#00f">&amp;#34;show user&amp;#34;&lt;/span>})
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> rt.Handle(&lt;span style="color:#00f">`GET /users/{name}/profile`&lt;/span>, &amp;amp;demoHandler{info: &lt;span style="color:#00f">&amp;#34;show user profile&amp;#34;&lt;/span>})
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> _ = http.ListenAndServe(&lt;span style="color:#00f">&amp;#34;localhost:8000&amp;#34;&lt;/span>, rt)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000080;font-weight:bold">type&lt;/span> demoHandler &lt;span style="color:#000080;font-weight:bold">struct&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> info &lt;span style="color:#000080;font-weight:bold">string&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000080;font-weight:bold">func&lt;/span> (h *demoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> fmt.Fprintln(w, h.info, r.PathValue(&lt;span style="color:#00f">&amp;#34;name&amp;#34;&lt;/span>))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-sh" data-lang="sh">&lt;span style="display:flex;">&lt;span>% curl localhost:8000/users
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>Method Not Allowed
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>% curl localhost:8000/users -X POST
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>create user
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>% curl localhost:8000/users/andy
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>show user andy
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>% curl localhost:8000/users/andy/profile
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>show user profile andy
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>% curl localhost:8000/users/andy/profile -X POST
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>Method Not Allowed
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>Task runner in Bash</title><link>https://husio.github.io/blog/tasks-script/</link><pubDate>Tue, 28 May 2024 00:00:00 +0000</pubDate><guid>https://husio.github.io/blog/tasks-script/</guid><description>&lt;p>Every project grows to a point where a set of custom tasks must be executed on various occasions.
 It is good to write those commands down, so that they don&amp;rsquo;t get lost and anyone can execute them.
 I used to maintain a &lt;a href="https://makefiletutorial.com/">&lt;em>Makefile&lt;/em>&lt;/a> as a simple way to organize and share tasks with others.&lt;/p>
 &lt;p>As the complexity grows, and more functionality is needed, Makefile becomes more unreadable.
