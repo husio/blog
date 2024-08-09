@@ -228,8 +228,7 @@ I do not use any additional packages for testing. I am of an opinion that
 think](https://golang.org/doc/faq#testing_framework). Introducing an external
 package requires learning a new API.
 
-Someone else wrote [a great
-summary](https://danmux.com/posts/the_cult_of_go_test/) on the topic.
+Someone else wrote [a great summary](https://web.archive.org/web/20210411084609/https://danmux.com/posts/the_cult_of_go_test/) on the topic.
 
 Complex comparisons can usually be done using
 [`reflect.DeepEqual`](#reflectdeepequal) function.

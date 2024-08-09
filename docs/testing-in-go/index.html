@@ -128,8 +128,7 @@ the tested package is accessible. This is for example <a href=https://golang.org
 packages</a> are tested.</p><h3 id=third-party-test-helper-packages>Third party test helper packages</h3><p>I do not use any additional packages for testing. I am of an opinion that
 <a href=https://golang.org/doc/faq#testing_framework>assert functions are not as helpful as one may
 think</a>. Introducing an external
-package requires learning a new API.</p><p>Someone else wrote <a href=https://danmux.com/posts/the_cult_of_go_test/>a great
-summary</a> on the topic.</p><p>Complex comparisons can usually be done using
+package requires learning a new API.</p><p>Someone else wrote <a href=https://web.archive.org/web/20210411084609/https://danmux.com/posts/the_cult_of_go_test/>a great summary</a> on the topic.</p><p>Complex comparisons can usually be done using
 <a href=#reflectdeepequal><code>reflect.DeepEqual</code></a> function.</p><h2 id=reflectdeepequal><code>reflect.DeepEqual</code></h2><p>Those values that cannot be compared with <code>==</code>, most of the time can be
 compared with <a href=https://golang.org/pkg/reflect/#DeepEqual><code>reflect.DeepEqual</code></a>.</p><h2 id=table-tests>Table tests</h2><p>When testing a functionality a single input is often not enough to ensure
 correctness. Repeating the same operation for many cases can be implemented
