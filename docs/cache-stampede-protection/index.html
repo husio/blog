@@ -1,7 +1,6 @@
 <!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=author content="Piotr Husiatyński"><title>Cache stampede protection</title>
 <link rel=stylesheet href=/blog/css/style.css></head><body><div><a href=https://husio.github.io/blog/>Notes</a>
 <link href=https://husio.github.io/blog/ rel=me>| <a rel=me class=u-url href=https://github.com/husio title=GitHub>GitHub</a>
-| <a rel=me class=u-url href=https://husio.github.io/cv.html title=CV>CV</a>
 | <a rel=me class=u-url href=https://gist.githubusercontent.com/husio/76d6ef36ecbde58e06b6eb36b42ed4a1/raw/900d36ec0a2e5889a7fd49c84c289579a695d522/public.key title=GPG>GPG key</a></div><article class=h-entry><h1 class="title p-name">Cache stampede protection</h1><div><em>Published: <time class=dt-published datetime=2018-09-14 title=2018-09-14>September 14, 2018</time></em></div><div><em>Tags:
 <a class=p-category href=/tags/go>Go</a>, <a class=p-category href=/tags/cache>Cache</a></em></div><article class=e-content><p>Writing an application that handles concurrent traffic from a lot of clients in
 a performant way is not an easy task. To narrow this problem to web
@@ -238,4 +237,4 @@ expiration time is due, tell one of the clients that the value must be updated.<
 </span></span></code></pre></div><h2 id=conclusion>Conclusion</h2><p>Caching data that is often read can increase performance of an application.
 Data caching is more complicated than it might look like at first sight.</p><p>Above cache stampede protection code example is tightly coupled to <code>ItemStore</code>.
 If you are searching for a general use implementation, take a <a href=https://github.com/go-surf/surf/blob/master/cache_stampede.go>look at
-<code>surf.StampedeProtect</code></a>.</p></article></article><footer>The content of this page is licensed under a <a rel=license href=http://creativecommons.org/licenses/by-sa/4.0/>Creative Commons Attribution-ShareAlike 4.0 International License</a>.</footer><script data-goatcounter=https://pah.goatcounter.com/count async src=//gc.zgo.at/count.js></script></body></html>
+<code>surf.StampedeProtect</code></a>.</p></article></article><footer>The content of this page is licensed under a <a rel=license href=http://creativecommons.org/licenses/by-sa/4.0/>Creative Commons Attribution-ShareAlike 4.0 International License</a>.</footer></body></html>

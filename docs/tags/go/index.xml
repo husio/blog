@@ -1,12 +1,71 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Go on Notes</title><link>https://husio.github.io/blog/tags/go/</link><description>Recent content in Go on Notes</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Wed, 12 Jun 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://husio.github.io/blog/tags/go/index.xml" rel="self" type="application/rss+xml"/><item><title>The Go standard library routing improvements</title><link>https://husio.github.io/blog/routing-enhancements/</link><pubDate>Wed, 12 Jun 2024 00:00:00 +0000</pubDate><guid>https://husio.github.io/blog/routing-enhancements/</guid><description>Go 1.22 ships with router Enhancements. The net/http.ServeMux can now match requests by method, host and a simple path wildcard.
-With the new ServeMux, it is no longer necessary to struggle to find the best routing method. For most cases, standard library should be the best choice. And with the next release, you can align your declarations with any number of spaces.
-func run() { rt := http.NewServeMux() rt.Handle(`POST /users`, &amp;amp;demoHandler{info: &amp;#34;create user&amp;#34;}) rt.</description></item><item><title>Testing in Go</title><link>https://husio.github.io/blog/testing-in-go/</link><pubDate>Thu, 30 Jan 2020 00:00:00 +0000</pubDate><guid>https://husio.github.io/blog/testing-in-go/</guid><description>This is a collection of testing techniques and patterns that I have learned throughout my career of being a Go programmer.
-testing package basics The Go standard library comes with the testing package which provides a solid base for writing tests.
-Each test should be a separate function. A test function must accept a single argument of type *testing.T.
-A test for a functoin isEven could look like this:
-func TestIsEven(t *testing.</description></item><item><title>Error handling</title><link>https://husio.github.io/blog/error-handling/</link><pubDate>Wed, 20 Feb 2019 00:00:00 +0000</pubDate><guid>https://husio.github.io/blog/error-handling/</guid><description>In Go 1.13 error wrapping was introduced as part of the standard library. This post was written before the update to the errors package.
-Go is a language that does not provide exceptions. Instead, an operation can return an error. Errors are values that implement the error interface.
-I have worked with several errors handling patterns over the years and I would like to summarize my experience focusing on the good solutions.</description></item><item><title>Cache stampede protection</title><link>https://husio.github.io/blog/cache-stampede-protection/</link><pubDate>Fri, 14 Sep 2018 00:00:00 +0000</pubDate><guid>https://husio.github.io/blog/cache-stampede-protection/</guid><description>Writing an application that handles concurrent traffic from a lot of clients in a performant way is not an easy task. To narrow this problem to web applications only, serving as many HTTP requests as possible in a short time is often a challenge.
-In most cases of an HTTP application, optimizing access to the database can be the easiest and the best first step.
-Caching database access Using a database that provides plenty of functionality and storing data in denormalized form makes development easier.</description></item><item><title>Accessing data in Go</title><link>https://husio.github.io/blog/accessing-data-in-go/</link><pubDate>Sun, 02 Sep 2018 00:00:00 +0000</pubDate><guid>https://husio.github.io/blog/accessing-data-in-go/</guid><description>When writing a web application, we have to decide how to access data. Where to get it from, how to store it, how to manipulate it. Storage engines can vary, from being a single SQLite file to cache server or even an external service exposing an API.
-There are many ways this topic can be addressed. I will explain how a simple and straightforward solution can be evolved into a more sophisticated one.</description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Go on Notes</title><link>https://husio.github.io/blog/tags/go/</link><description>Recent content in Go on Notes</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Wed, 12 Jun 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://husio.github.io/blog/tags/go/index.xml" rel="self" type="application/rss+xml"/><item><title>The Go standard library routing improvements</title><link>https://husio.github.io/blog/routing-enhancements/</link><pubDate>Wed, 12 Jun 2024 00:00:00 +0000</pubDate><guid>https://husio.github.io/blog/routing-enhancements/</guid><description>&lt;p>Go 1.22 ships with &lt;a href="https://go.dev/blog/routing-enhancements">router Enhancements&lt;/a>.
+The &lt;a href="https://godocs.io/net/http#ServeMux">&lt;code>net/http.ServeMux&lt;/code>&lt;/a> can now match requests by method, host and a simple path wildcard.&lt;/p>
+&lt;p>With the new ServeMux, it is no longer necessary to &lt;a href="https://benhoyt.com/writings/go-routing/">struggle&lt;/a> to find the best routing method. For most cases, standard library should be the best choice.
+And with the next release, you can align your declarations with &lt;a href="https://github.com/golang/go/commit/7b583fd1a1aeda98daa5a9d485b35786c031e941">any number of spaces&lt;/a>.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000080;font-weight:bold">func&lt;/span> run() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>	rt := http.NewServeMux()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>	rt.Handle(&lt;span style="color:#00f">`POST /users`&lt;/span>, &amp;amp;demoHandler{info: &lt;span style="color:#00f">&amp;#34;create user&amp;#34;&lt;/span>})
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>	rt.Handle(&lt;span style="color:#00f">`GET /users/{name}`&lt;/span>, &amp;amp;demoHandler{info: &lt;span style="color:#00f">&amp;#34;show user&amp;#34;&lt;/span>})
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>	rt.Handle(&lt;span style="color:#00f">`GET /users/{name}/profile`&lt;/span>, &amp;amp;demoHandler{info: &lt;span style="color:#00f">&amp;#34;show user profile&amp;#34;&lt;/span>})
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>	_ = http.ListenAndServe(&lt;span style="color:#00f">&amp;#34;localhost:8000&amp;#34;&lt;/span>, rt)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000080;font-weight:bold">type&lt;/span> demoHandler &lt;span style="color:#000080;font-weight:bold">struct&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>	info &lt;span style="color:#000080;font-weight:bold">string&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000080;font-weight:bold">func&lt;/span> (h *demoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>	fmt.Fprintln(w, h.info, r.PathValue(&lt;span style="color:#00f">&amp;#34;name&amp;#34;&lt;/span>))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-sh" data-lang="sh">&lt;span style="display:flex;">&lt;span>% curl localhost:8000/users
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>Method Not Allowed
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>% curl localhost:8000/users -X POST
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>create user
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>% curl localhost:8000/users/andy
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>show user andy
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>% curl localhost:8000/users/andy/profile
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>show user profile andy
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>% curl localhost:8000/users/andy/profile -X POST
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>Method Not Allowed
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>Testing in Go</title><link>https://husio.github.io/blog/testing-in-go/</link><pubDate>Thu, 30 Jan 2020 00:00:00 +0000</pubDate><guid>https://husio.github.io/blog/testing-in-go/</guid><description>&lt;p>This is a collection of testing techniques and patterns that I have learned
+throughout my career of being a Go programmer.&lt;/p>
+&lt;h2 id="testing-package-basics">&lt;code>testing&lt;/code> package basics&lt;/h2>
+&lt;p>The Go standard library comes with the
+&lt;a href="https://golang.org/pkg/testing/">&lt;code>testing&lt;/code>&lt;/a> package which provides a solid
+base for writing tests.&lt;/p>
+&lt;p>Each test should be a separate function. A test function must accept a single
+argument of type &lt;a href="https://golang.org/pkg/testing/#T">&lt;code>*testing.T&lt;/code>&lt;/a>.&lt;/p>
+&lt;p>A test for a functoin &lt;code>isEven&lt;/code> could look like this:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000080;font-weight:bold">func&lt;/span> TestIsEven(t *testing.T) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000080;font-weight:bold">if&lt;/span> !isEven(&lt;span style="color:#00f">2&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> t.Fatal(&lt;span style="color:#00f">&amp;#34;2 is even&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000080;font-weight:bold">if&lt;/span> isEven(&lt;span style="color:#00f">1&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> t.Fatal(&lt;span style="color:#00f">&amp;#34;1 is odd&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Run your test by using the &lt;a href="https://golang.org/cmd/go/#hdr-Test_packages">&lt;code>go test&lt;/code>&lt;/a> command, for example&lt;/p></description></item><item><title>Error handling</title><link>https://husio.github.io/blog/error-handling/</link><pubDate>Wed, 20 Feb 2019 00:00:00 +0000</pubDate><guid>https://husio.github.io/blog/error-handling/</guid><description>&lt;p>&lt;em>In Go 1.13 &lt;a href="https://golang.org/doc/go1.13#error_wrapping">error wrapping&lt;/a> was
+introduced as part of the standard library. This post was written before the
+update to the &lt;code>errors&lt;/code> package.&lt;/em>&lt;/p>
+&lt;p>Go is a language that does not provide exceptions. Instead, an operation can
+return an error. &lt;a href="https://blog.golang.org/errors-are-values">Errors are values&lt;/a>
+that implement the &lt;code>error&lt;/code> interface.&lt;/p>
+&lt;p>I have worked with several errors handling patterns over the years and I would
+like to summarize my experience focusing on the good solutions.&lt;/p></description></item><item><title>Cache stampede protection</title><link>https://husio.github.io/blog/cache-stampede-protection/</link><pubDate>Fri, 14 Sep 2018 00:00:00 +0000</pubDate><guid>https://husio.github.io/blog/cache-stampede-protection/</guid><description>&lt;p>Writing an application that handles concurrent traffic from a lot of clients in
+a performant way is not an easy task. To narrow this problem to web
+applications only, serving as many HTTP requests as possible in a short time is
+often a challenge.&lt;/p>
+&lt;p>In most cases of an HTTP application, optimizing access to the database can be
+the easiest and the best first step.&lt;/p>
+&lt;h2 id="caching-database-access">Caching database access&lt;/h2>
+&lt;p>Using a database that provides plenty of functionality and storing data in
+&lt;a href="https://en.wikipedia.org/wiki/Denormalization">denormalized form&lt;/a> makes
+development easier. This comes at the cost of the database having to execute
+complex queries and do more computation in order to return a result.&lt;/p></description></item><item><title>Accessing data in Go</title><link>https://husio.github.io/blog/accessing-data-in-go/</link><pubDate>Sun, 02 Sep 2018 00:00:00 +0000</pubDate><guid>https://husio.github.io/blog/accessing-data-in-go/</guid><description>&lt;p>When writing a web application, we have to decide how to access data. Where to
+get it from, how to store it, how to manipulate it. Storage engines can vary,
+from being a single SQLite file to cache server or even an external service
+exposing an API.&lt;/p>
+&lt;p>There are many ways this topic can be addressed. I will explain how a simple
+and straightforward solution can be evolved into a more sophisticated one.&lt;/p></description></item></channel></rss>

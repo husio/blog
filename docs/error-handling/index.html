@@ -1,7 +1,6 @@
 <!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=author content="Piotr Husiatyński"><title>Error handling</title>
 <link rel=stylesheet href=/blog/css/style.css></head><body><div><a href=https://husio.github.io/blog/>Notes</a>
 <link href=https://husio.github.io/blog/ rel=me>| <a rel=me class=u-url href=https://github.com/husio title=GitHub>GitHub</a>
-| <a rel=me class=u-url href=https://husio.github.io/cv.html title=CV>CV</a>
 | <a rel=me class=u-url href=https://gist.githubusercontent.com/husio/76d6ef36ecbde58e06b6eb36b42ed4a1/raw/900d36ec0a2e5889a7fd49c84c289579a695d522/public.key title=GPG>GPG key</a></div><article class=h-entry><h1 class="title p-name">Error handling</h1><div><em>Published: <time class=dt-published datetime=2019-02-20 title=2019-02-20>February 20, 2019</time></em></div><div><em>Tags:
 <a class=p-category href=/tags/go>Go</a></em></div><article class=e-content><p><em>In Go 1.13 <a href=https://golang.org/doc/go1.13#error_wrapping>error wrapping</a> was
 introduced as part of the standard library. This post was written before the
@@ -295,4 +294,4 @@ Usually, just a handful of errors declared upfront do the job better. I tend to
 always inline error creation first and only if a case requires more attention
 declare a previously inlined error.</p><p>Regardless of what you do try to avoid blindly importing any error package.
 Consider your use cases and try to <a href=https://commandcenter.blogspot.com/2017/12/error-handling-in-upspin.html>tailor your errors implementation to suit
-your needs</a>.</p></article></article><footer>The content of this page is licensed under a <a rel=license href=http://creativecommons.org/licenses/by-sa/4.0/>Creative Commons Attribution-ShareAlike 4.0 International License</a>.</footer><script data-goatcounter=https://pah.goatcounter.com/count async src=//gc.zgo.at/count.js></script></body></html>
+your needs</a>.</p></article></article><footer>The content of this page is licensed under a <a rel=license href=http://creativecommons.org/licenses/by-sa/4.0/>Creative Commons Attribution-ShareAlike 4.0 International License</a>.</footer></body></html>

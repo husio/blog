@@ -1,7 +1,6 @@
 <!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=author content="Piotr Husiatyński"><title>The Go standard library routing improvements</title>
 <link rel=stylesheet href=/blog/css/style.css></head><body><div><a href=https://husio.github.io/blog/>Notes</a>
 <link href=https://husio.github.io/blog/ rel=me>| <a rel=me class=u-url href=https://github.com/husio title=GitHub>GitHub</a>
-| <a rel=me class=u-url href=https://husio.github.io/cv.html title=CV>CV</a>
 | <a rel=me class=u-url href=https://gist.githubusercontent.com/husio/76d6ef36ecbde58e06b6eb36b42ed4a1/raw/900d36ec0a2e5889a7fd49c84c289579a695d522/public.key title=GPG>GPG key</a></div><article class=h-entry><h1 class="title p-name">The Go standard library routing improvements</h1><div><em>Published: <time class=dt-published datetime=2024-06-12 title=2024-06-12>June 12, 2024</time></em></div><div><em>Tags:
 <a class=p-category href=/tags/go>Go</a></em></div><article class=e-content><p>Go 1.22 ships with <a href=https://go.dev/blog/routing-enhancements>router Enhancements</a>.
 The <a href=https://godocs.io/net/http#ServeMux><code>net/http.ServeMux</code></a> can now match requests by method, host and a simple path wildcard.</p><p>With the new ServeMux, it is no longer necessary to <a href=https://benhoyt.com/writings/go-routing/>struggle</a> to find the best routing method. For most cases, standard library should be the best choice.
@@ -32,4 +31,4 @@ And with the next release, you can align your declarations with <a href=https://
 </span></span><span style=display:flex><span>show user profile andy
 </span></span><span style=display:flex><span>% curl localhost:8000/users/andy/profile -X POST
 </span></span><span style=display:flex><span>Method Not Allowed
-</span></span></code></pre></div></article></article><footer>The content of this page is licensed under a <a rel=license href=http://creativecommons.org/licenses/by-sa/4.0/>Creative Commons Attribution-ShareAlike 4.0 International License</a>.</footer><script data-goatcounter=https://pah.goatcounter.com/count async src=//gc.zgo.at/count.js></script></body></html>
+</span></span></code></pre></div></article></article><footer>The content of this page is licensed under a <a rel=license href=http://creativecommons.org/licenses/by-sa/4.0/>Creative Commons Attribution-ShareAlike 4.0 International License</a>.</footer></body></html>
