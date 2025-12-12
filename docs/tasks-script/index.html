@@ -1,41 +1,10 @@
-<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=author content="Piotr Husiatyński"><title>Task runner in Bash</title>
-<link rel=stylesheet href=/blog/css/style.css></head><body><div><a href=https://husio.github.io/blog/>Notes</a>
-<link href=https://husio.github.io/blog/ rel=me>| <a rel=me class=u-url href=https://github.com/husio title=GitHub>GitHub</a>
-| <a rel=me class=u-url href=https://gist.githubusercontent.com/husio/76d6ef36ecbde58e06b6eb36b42ed4a1/raw/900d36ec0a2e5889a7fd49c84c289579a695d522/public.key title=GPG>GPG key</a></div><article class=h-entry><h1 class="title p-name">Task runner in Bash</h1><div><em>Published: <time class=dt-published datetime=2024-05-28 title=2024-05-28>May 28, 2024</time></em></div><div><em>Tags:
-<a class=p-category href=/tags/bash>Bash</a></em></div><article class=e-content><p>Every project grows to a point where a set of custom tasks must be executed on various occasions.
-It is good to write those commands down, so that they don&rsquo;t get lost and anyone can execute them.
-I used to maintain a <a href=https://makefiletutorial.com/><em>Makefile</em></a> as a simple way to organize and share tasks with others.</p><p>As the complexity grows, and more functionality is needed, Makefile becomes more unreadable.
-It feels like using the wrong tool for the job.</p><p>And indeed, there is a better tool - shell scripting.</p><p>The below <a href=https://en.wikipedia.org/wiki/Bash_(Unix_shell)>Bash</a> script is a solid base to extend, for managing a collection of tasks.</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:teal>#!/usr/bin/env bash
-</span></span></span><span style=display:flex><span><span style=color:teal></span>
-</span></span><span style=display:flex><span>set -euo pipefail
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:navy;font-weight:700>function</span> task:help {
-</span></span><span style=display:flex><span>	<span style=color:#080;font-style:italic># Print this script help.</span>
-</span></span><span style=display:flex><span>	local tasks
-</span></span><span style=display:flex><span>	local self_path
-</span></span><span style=display:flex><span>	local desc
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	printf <span style=color:#00f>&#34;%s &lt;task&gt; [args]\n\nTasks:\n&#34;</span> <span style=color:#00f>&#34;</span><span style=color:#00f>${</span>0<span style=color:#00f>}</span><span style=color:#00f>&#34;</span>
-</span></span><span style=display:flex><span>	tasks=<span style=color:navy;font-weight:700>$(</span>compgen -A <span style=color:navy;font-weight:700>function</span> | sed -En <span style=color:#00f>&#39;s/task:(.*)/\1/p&#39;</span><span style=color:navy;font-weight:700>)</span>
-</span></span><span style=display:flex><span>	self_path=<span style=color:navy;font-weight:700>$(</span>realpath <span style=color:#00f>&#34;</span>$0<span style=color:#00f>&#34;</span><span style=color:navy;font-weight:700>)</span>
-</span></span><span style=display:flex><span>	<span style=color:navy;font-weight:700>for</span> task in <span style=color:#00f>${</span>tasks<span style=color:#00f>}</span>; <span style=color:navy;font-weight:700>do</span>
-</span></span><span style=display:flex><span>		desc=<span style=color:navy;font-weight:700>$(</span>grep <span style=color:#00f>&#34;function task:</span>$task<span style=color:#00f> {&#34;</span> <span style=color:#00f>&#34;</span>$self_path<span style=color:#00f>&#34;</span> -A <span style=color:#00f>1</span> | sed -En <span style=color:#00f>&#39;s/.*# (.*)/\1/p&#39;</span><span style=color:navy;font-weight:700>)</span>
-</span></span><span style=display:flex><span>		printf <span style=color:#00f>&#34;  %-32s\t%s\n&#34;</span> <span style=color:#00f>&#34;</span>$task<span style=color:#00f>&#34;</span> <span style=color:#00f>&#34;</span>$desc<span style=color:#00f>&#34;</span>
-</span></span><span style=display:flex><span>	<span style=color:navy;font-weight:700>done</span>
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#080;font-style:italic># shellcheck disable=SC2145</span>
-</span></span><span style=display:flex><span><span style=color:#00f>&#34;task:</span><span style=color:#00f>${</span>@<span style=color:navy;font-weight:700>:-</span>help<span style=color:#00f>}</span><span style=color:#00f>&#34;</span>
-</span></span></code></pre></div><p>In order to register a new task, define a <code>task:&lt;name></code> function.
-The first line, when comment, is used as that task documentation.</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:navy;font-weight:700>function</span> task:say-hello {
-</span></span><span style=display:flex><span>  <span style=color:#080;font-style:italic># Greet the user.</span>
-</span></span><span style=display:flex><span>  echo <span style=color:#00f>&#34;Hello </span>$USER<span style=color:#00f>&#34;</span>
-</span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>When the script is called with no arguments, it runs <code>help</code> that renders the list of available tasks with their description.</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh><span style=display:flex><span>% ./run
-</span></span><span style=display:flex><span>./run &lt;task&gt; [args]
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>Tasks:
-</span></span><span style=display:flex><span>  say-hello                             Greet the user.
-</span></span><span style=display:flex><span>  help                                  Print this script help.
-</span></span></code></pre></div></article></article><footer>The content of this page is licensed under a <a rel=license href=http://creativecommons.org/licenses/by-sa/4.0/>Creative Commons Attribution-ShareAlike 4.0 International License</a>.</footer></body></html>
+<!doctype html>
+<head>
+  <link href="https://husio.github.io/" rel="me">
+  <meta http-equiv="refresh" content="0; url=https://ph.codeberg.page/2024-05-28-tasks_script.html">
+</head>
+<body>
+  <a href="https://ph.codeberg.page/2024-05-28-tasks_script.html">
+    https://ph.codeberg.page/2024-05-28-tasks_script.html
+  </a>
+</body>
